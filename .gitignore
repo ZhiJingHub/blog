@@ -1,0 +1,74 @@
+# ====================
+# Dependencies
+# ====================
+node_modules
+
+# ====================
+# Build Output
+# ====================
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
+
+# ====================
+# Cache
+# ====================
+.image-cache
+.cache
+tmp/
+
+# ====================
+# Environment
+# ====================
+.env
+.env.local
+.env.*.local
+!.env.example
+!.env.test
+
+# ====================
+# Vite
+# ====================
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# ====================
+# OS
+# ====================
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# ====================
+# Editor / IDE
+# ====================
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ====================
+# Logs
+# ====================
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ====================
+# Misc
+# ====================
+*.local
+*.bak
+*.tmp
