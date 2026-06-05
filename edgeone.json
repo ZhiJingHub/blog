@@ -1,5 +1,5 @@
 {
-	"buildCommand": "pnpm build",
+	"buildCommand": "pnpm build:edgeone",
 	"outputDirectory": "build",
 	"compatibilityDate": "2026-06-01"
 }

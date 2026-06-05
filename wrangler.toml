@@ -1,5 +1,14 @@
 name = "blog"
+main = ".svelte-kit/cloudflare/_worker.js"
 compatibility_date = "2026-06-01"
 
 [assets]
 directory = ".svelte-kit/cloudflare"
+
+[observability]
+enabled = true
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
