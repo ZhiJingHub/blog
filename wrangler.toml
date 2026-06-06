@@ -4,11 +4,7 @@ compatibility_date = "2026-06-01"
 
 [assets]
 directory = ".svelte-kit/cloudflare"
+binding = "ASSETS"
 
 [observability]
 enabled = true
-
-[[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200

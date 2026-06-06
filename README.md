@@ -684,14 +684,10 @@ compatibility_date = "2026-06-01"
 
 [assets]
 directory = ".svelte-kit/cloudflare"
+binding = "ASSETS"
 
 [observability]
 enabled = true
-
-[[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200
 ```
 
 #### 部署命令
@@ -757,7 +753,7 @@ wrangler pages deploy build --project-name blog
 
 #### HTTP 请求头
 
-[static/_headers](file:///d:/IDE/blog/static/_headers) 文件定义了 Cloudflare Pages 的自定义 HTTP 响应头（缓存策略、安全头等），构建时自动复制到 `build/` 目录。
+[_headers](file:///d:/IDE/blog/_headers) 文件定义了 Cloudflare Pages 的自定义 HTTP 响应头（缓存策略、安全头等），构建时自动复制到 `build/` 目录。
 
 ---
 
@@ -993,7 +989,7 @@ pnpm build
 | `netlify.toml` | Netlify 构建与重定向配置 |
 | `vercel.json` | Vercel 构建配置 |
 | `edgeone.json` | 腾讯 EdgeOne 全球区构建配置 |
-| `static/_headers` | Cloudflare Pages 自定义 HTTP 响应头（缓存策略、安全头） |
+| `_headers` | Cloudflare Pages 自定义 HTTP 响应头（缓存策略、安全头） |
 
 ### 布局配置
 
