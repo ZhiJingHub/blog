@@ -90,15 +90,16 @@ async function processWithConcurrency(items, limit, worker) {
 
 async function main() {
 	const postsDir = path.join(process.cwd(), 'src/content/posts');
-	const outputDir = path.join(process.cwd(), 'build/posts');
+	const outputBase = process.env.OUTPUT_DIR || 'build';
+	const outputDir = path.join(process.cwd(), outputBase, 'posts');
 	const cacheDir = path.join(process.cwd(), '.image-cache');
 
 	if (!fs.existsSync(postsDir)) {
 		console.log('[post-images] src/content/posts 不存在，跳过');
 		return;
 	}
-	if (!fs.existsSync(path.join(process.cwd(), 'build'))) {
-		console.error('[post-images] build/ 目录不存在，请先执行 vite build');
+	if (!fs.existsSync(path.join(process.cwd(), outputBase))) {
+		console.error(`[post-images] ${outputBase}/ 目录不存在，请先执行 vite build`);
 		process.exit(1);
 	}
 

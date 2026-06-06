@@ -3,21 +3,26 @@ import mdsvexConfig from './src/lib/config/mdsvex.config.js';
 
 const PLATFORM = process.env.ADAPTER || 'static';
 
+/**
+ * 适配器映射
+ * 本项目为全量预渲染（prerender=true），所有路由在构建时生成静态 HTML，
+ * 因此除 Cloudflare Workers 外，其余平台统一使用 adapter-static（最高效）。
+ */
 /** @type {Record<string, () => Promise<{ default: any }>>} */
 const adapterMap = {
 	static: () => import('@sveltejs/adapter-static'),
 	cloudflare: () => import('@sveltejs/adapter-cloudflare'),
-	netlify: () => import('@sveltejs/adapter-netlify'),
-	vercel: () => import('@sveltejs/adapter-vercel'),
+	netlify: () => import('@sveltejs/adapter-static'),
+	vercel: () => import('@sveltejs/adapter-static'),
 	edgeone: () => import('@sveltejs/adapter-static')
 };
 
 const adapterConfigs = {
-	static: { strict: false },
+	static: { strict: false, pages: 'build', assets: 'build', fallback: undefined },
 	cloudflare: {},
-	netlify: {},
-	vercel: {},
-	edgeone: { strict: false }
+	netlify: { strict: false, pages: 'build', assets: 'build', fallback: undefined },
+	vercel: { strict: false, pages: 'build', assets: 'build', fallback: undefined },
+	edgeone: { strict: false, pages: 'build', assets: 'build', fallback: undefined }
 };
 
 /** @type {import('@sveltejs/kit').Config} */
