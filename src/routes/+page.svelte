@@ -3,7 +3,6 @@
 	import { Card, CardHeader, CardTitle, CardContent } from '$lib/components/ui/card';
 	import { siteConfig } from '$lib/config/site';
 	import Icon from '@iconify/svelte';
-	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 </script>
 
 <svelte:head>
@@ -11,9 +10,6 @@
 </svelte:head>
 
 <div class="flex min-h-screen flex-col items-center justify-center gap-6 px-4 py-12">
-	<div class="fixed top-4 right-4 z-50">
-		<ThemeToggle />
-	</div>
 
 	<img
 		src={siteConfig.bio.avatar}
