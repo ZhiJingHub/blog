@@ -8,6 +8,7 @@
 		<div class="flex flex-col items-center gap-4">
 			<div class="flex items-center gap-1">
 				{#each siteConfig.bio.links as link}
+					{@const isLocalImage = link.icon.startsWith('/')}
 					<a
 						href={link.url}
 						target="_blank"
@@ -15,11 +16,15 @@
 						aria-label={link.name}
 						class="inline-flex items-center justify-center rounded-full p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
 					>
-						<Icon
-							icon={link.icon}
-							class="h-5 w-5"
-							style={link.color ? `color: ${link.color}` : ''}
-						/>
+						{#if isLocalImage}
+							<img src={link.icon} alt={link.name} class="h-5 w-5" />
+						{:else}
+							<Icon
+								icon={link.icon}
+								class="h-5 w-5"
+								style={link.color ? `color: ${link.color}` : ''}
+							/>
+						{/if}
 					</a>
 				{/each}
 				<a

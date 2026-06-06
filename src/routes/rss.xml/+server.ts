@@ -1,11 +1,10 @@
 import { getAllPosts } from '$lib/utils/posts';
 import { siteConfig } from '$lib/config/site';
+import { escapeXml } from '$lib/utils/xml';
 
 export const prerender = true;
 
-function escapeXml(str: string): string {
-	return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
-}
+export const entries = () => [{ id: '' }];
 
 export function GET() {
 	const posts = getAllPosts();

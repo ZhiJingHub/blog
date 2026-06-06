@@ -6,13 +6,12 @@ compatibility_date = "2026-06-01"
 directory = ".svelte-kit/cloudflare"
 binding = "ASSETS"
 
+[[kv_namespaces]]
+binding = "VIEWS"
+id = "d68b21c7a8474bfaad72e185fdbcb7e0"
+
 [observability]
 enabled = true
-
-[[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200
 
 [[headers]]
 for = "/*"

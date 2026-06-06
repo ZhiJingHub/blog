@@ -24,5 +24,6 @@ export const tocFloating = {
 	},
 	reset: () => {
 		open = false;
+		available = false;
 	}
 };

@@ -19,7 +19,13 @@
 		void PostContent;
 		(async () => {
 			await tick();
-			if (proseEl) await renderMermaidIn(proseEl);
+			if (proseEl) {
+				try {
+					await renderMermaidIn(proseEl);
+				} catch (e) {
+					console.error('[Mermaid] 渲染失败:', e);
+				}
+			}
 		})();
 	});
 </script>

@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn-svelte/tailwind.css';
+@import 'katex/dist/katex.min.css';
 @plugin '@tailwindcss/typography';
 
 @custom-variant dark (&:is(.dark *));
@@ -321,6 +322,47 @@
 		@apply bg-transparent p-0;
 	}
 }
+
+/* KaTeX 数学公式 */
+.katex-block {
+	margin: 1.25em 0;
+	overflow-x: auto;
+	padding: 0.5em 0;
+}
+.prose .katex-block {
+	margin: 1.25em 0;
+}
+
+/* View Transition 页面切换动画 */
+::view-transition-old(root) {
+	animation: fade-out 0.15s ease-in forwards;
+}
+::view-transition-new(root) {
+	animation: fade-in 0.15s ease-out forwards;
+}
+@keyframes fade-out {
+	from { opacity: 1; }
+	to { opacity: 0; }
+}
+@keyframes fade-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+/* Motion One 动画初始状态 */
+.mo-fade-in-up,
+.mo-fade-in,
+.mo-slide-left,
+.mo-slide-right,
+.mo-pop-in,
+.mo-stagger > * {
+	opacity: 0;
+}
+.mo-fade-in-up { transform: translateY(20px); }
+.mo-slide-left { transform: translateX(-30px); }
+.mo-slide-right { transform: translateX(30px); }
+.mo-pop-in { transform: scale(0.8); }
+.mo-stagger > * { transform: translateY(15px); }
 
 html,
 body {

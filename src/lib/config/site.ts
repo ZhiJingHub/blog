@@ -42,6 +42,12 @@ export const siteConfig = {
 			}
 		]
 	},
+	giscus: {
+		repo: "ZhiJingHub/blog",
+		repoId: "",
+		category: "Announcements",
+		categoryId: ""
+	},
 	navLinks: [
 		{ label: "博客", icon: "mdi:post-outline", href: "/posts" },
 		{ label: "封面制作", icon: "mdi:image-edit", href: "/cover" },

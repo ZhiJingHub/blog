@@ -49,6 +49,7 @@ function decodeText(pre: HTMLElement): string {
 
 export async function renderMermaidIn(container: HTMLElement | null | undefined) {
 	if (!container) return;
+	renderedBlocks.clear();
 	renderDoneResolve?.();
 	let resolveRender: () => void;
 	renderDone = new Promise<void>((r) => { resolveRender = r; });

@@ -1,4 +1,4 @@
-export function parseQueryTerms(query: string): string[] {
+function parseQueryTerms(query: string): string[] {
 	const terms: string[] = [];
 	const re = /"([^"]+)"|(\S+)/g;
 	let m: RegExpExecArray | null;

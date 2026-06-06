@@ -6,6 +6,8 @@
 	import BackToTop from '$lib/components/BackToTop.svelte';
 	import NavBar from '$lib/components/NavBar.svelte';
 	import Footer from '$lib/components/Footer.svelte';
+	import Toast from '$lib/components/Toast.svelte';
+	import PageViews from '$lib/components/PageViews.svelte';
 
 	let { children } = $props();
 
@@ -31,12 +33,7 @@
 		<meta name="twitter:image" content="{siteConfig.url}{siteConfig.ogImage}" />
 	{/if}
 	<link rel="canonical" href="{siteConfig.url}{page.url.pathname}{page.url.pathname.endsWith('/') ? '' : '/'}" />
-	<link
-		rel="alternate"
-		type="application/rss+xml"
-		title="{siteConfig.title} RSS Feed"
-		href="/rss.xml"
-	/>
+	<link rel="alternate" type="application/rss+xml" title="{siteConfig.title} RSS Feed" href="/rss.xml" />
 	<script defer src={siteConfig.analytics.umami.src} data-website-id={siteConfig.analytics.umami.websiteId}></script>
 </svelte:head>
 
@@ -46,7 +43,11 @@
 	<div class="flex-1">
 		{@render children()}
 	</div>
+	<div class="text-center py-4">
+		<PageViews pathname={page.url.pathname} class="text-xs text-muted-foreground" />
+	</div>
 	<Footer />
 </div>
 
 <BackToTop />
+<Toast />

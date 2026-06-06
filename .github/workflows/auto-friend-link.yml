@@ -1,0 +1,141 @@
+name: Auto Friend Link
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'src/data/friends/*.json'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  validate-and-merge:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login != github.repository_owner
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get changed files
+        id: changed
+        uses: tj-actions/changed-files@v45
+        with:
+          files: src/data/friends/*.json
+
+      - name: Validate friend link JSON
+        id: validate
+        run: |
+          VALID=true
+          ERRORS=""
+
+          for file in ${{ steps.changed.outputs.all_changed_files }}; do
+            if [[ ! "$file" =~ \.json$ ]]; then
+              continue
+            fi
+
+            # Check if file exists (not deleted)
+            if [ ! -f "$file" ]; then
+              continue
+            fi
+
+            # Validate JSON syntax
+            if ! jq empty "$file" 2>/dev/null; then
+              ERRORS="$ERRORS\n- \`$file\`: Invalid JSON syntax"
+              VALID=false
+              continue
+            fi
+
+            # Check required fields
+            NAME=$(jq -r '.name // empty' "$file")
+            URL=$(jq -r '.url // empty' "$file")
+
+            if [ -z "$NAME" ]; then
+              ERRORS="$ERRORS\n- \`$file\`: Missing required field 'name'"
+              VALID=false
+            fi
+
+            if [ -z "$URL" ]; then
+              ERRORS="$ERRORS\n- \`$file\`: Missing required field 'url'"
+              VALID=false
+            fi
+
+            # Validate URL format
+            if [ -n "$URL" ] && [[ ! "$URL" =~ ^https?:// ]]; then
+              ERRORS="$ERRORS\n- \`$file\`: Invalid URL format (must start with http:// or https://)"
+              VALID=false
+            fi
+
+            # Check for duplicate URL
+            for existing in src/data/friends/*.json; do
+              if [ "$existing" = "$file" ]; then
+                continue
+              fi
+              if [ ! -f "$existing" ]; then
+                continue
+              fi
+              EXISTING_URL=$(jq -r '.url // empty' "$existing")
+              if [ "$URL" = "$EXISTING_URL" ]; then
+                ERRORS="$ERRORS\n- \`$file\`: Duplicate URL already exists in \`$existing\`"
+                VALID=false
+              fi
+            done
+          done
+
+          if [ "$VALID" = "true" ]; then
+            echo "valid=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Validation passed"
+          else
+            echo "valid=false" >> "$GITHUB_OUTPUT"
+            echo "errors<<EOF" >> "$GITHUB_OUTPUT"
+            echo -e "$ERRORS" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+            echo "❌ Validation failed"
+          fi
+
+      - name: Comment on PR (invalid)
+        if: steps.validate.outputs.valid == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '## ❌ 友链验证失败\n\n发现以下问题：\n${{ steps.validate.outputs.errors }}\n\n请修复后重新提交。'
+            });
+
+      - name: Add label (valid)
+        if: steps.validate.outputs.valid == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['friend-link', 'auto-approved']
+            });
+
+      - name: Comment on PR (valid)
+        if: steps.validate.outputs.valid == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: '## ✅ 友链验证通过\n\nJSON 格式正确，必填字段完整，URL 有效。\n\n此 PR 将由仓库管理员审核合并。'
+            });
+
+      - name: Auto merge (owner only)
+        if: steps.validate.outputs.valid == 'true'
+        run: |
+          # Only auto-merge if PR author is trusted (optional: add whitelist)
+          echo "Auto-merge is disabled by default. Owner can manually merge."
+          # Uncomment below to enable auto-merge:
+          # gh pr merge ${{ github.event.pull_request.number }} --squash --auto
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

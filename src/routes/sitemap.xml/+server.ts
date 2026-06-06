@@ -1,14 +1,11 @@
 import { getAllPosts } from '$lib/utils/posts';
 import { siteConfig } from '$lib/config/site';
+import { escapeXml } from '$lib/utils/xml';
 import type { RequestHandler } from './$types';
 
 export const prerender = true;
 
 export const entries = () => [{ id: '' }];
-
-function escapeXml(str: string): string {
-	return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
-}
 
 function formatSitemapDate(dateStr: string | undefined): string {
 	if (!dateStr) return new Date().toISOString().split('T')[0];

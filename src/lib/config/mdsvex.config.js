@@ -3,6 +3,8 @@ import { createHighlighter } from 'shiki';
 import { transformerNotationHighlight } from '@shikijs/transformers';
 import remarkAvifRewrite from '../../../vite-plugins/remark-avif-rewrite.js';
 import remarkGithubAlerts from '../../../vite-plugins/remark-github-alerts.js';
+import remarkReadingTime from '../../../vite-plugins/remark-reading-time.js';
+import remarkKatex from '../../../vite-plugins/remark-katex.js';
 import rehypeExternalLinks from '../../../vite-plugins/rehype-external-links.js';
 
 const shikiHighlighter = await createHighlighter({
@@ -37,7 +39,7 @@ function codeBlockHtml(inner, lang, title) {
 const config = defineConfig({
 	extensions: ['.md'],
 	smartypants: { dashes: 'oldschool' },
-	remarkPlugins: [remarkAvifRewrite, remarkGithubAlerts],
+	remarkPlugins: [remarkAvifRewrite, remarkGithubAlerts, remarkReadingTime, remarkKatex],
 	rehypePlugins: [rehypeExternalLinks],
 	highlight: {
 		alias: langAlias,
