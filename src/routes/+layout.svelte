@@ -34,15 +34,17 @@
 	{/if}
 	<link rel="canonical" href="{siteConfig.url}{page.url.pathname}{page.url.pathname.endsWith('/') ? '' : '/'}" />
 	<link rel="alternate" type="application/rss+xml" title="{siteConfig.title} RSS Feed" href="/rss.xml" />
-	<script defer src={siteConfig.analytics.umami.src} data-website-id={siteConfig.analytics.umami.websiteId}></script>
+	{#if siteConfig.analytics.umami.src && siteConfig.analytics.umami.websiteId}
+		<script defer src={siteConfig.analytics.umami.src} data-website-id={siteConfig.analytics.umami.websiteId}></script>
+	{/if}
 </svelte:head>
 
 <NavBar />
 
 <div class="flex min-h-screen flex-col">
-	<div class="flex-1">
+	<main class="flex-1">
 		{@render children()}
-	</div>
+	</main>
 	<div class="text-center py-4">
 		<PageViews pathname={page.url.pathname} class="text-xs text-muted-foreground" />
 	</div>

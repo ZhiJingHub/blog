@@ -114,7 +114,10 @@ export function useBgInteraction() {
 
 	return {
 		get bgImage() { return bgImage; },
-		set bgImage(v: string | null) { bgImage = v; },
+		set bgImage(v: string | null) {
+			if (bgImage?.startsWith('blob:')) URL.revokeObjectURL(bgImage);
+			bgImage = v;
+		},
 		get bgImageX() { return bgImageX; },
 		get bgImageY() { return bgImageY; },
 		get bgImageScale() { return bgImageScale; },

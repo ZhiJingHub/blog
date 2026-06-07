@@ -24,8 +24,13 @@ export function generateShadow(
 	let h = innerImg.height;
 	const ms = Math.max(0, Math.floor(params.maxSize));
 	if (ms) {
-		w = innerImg.width > innerImg.height ? ms : Math.ceil((innerImg.height * ms) / innerImg.width);
-		h = innerImg.width > innerImg.height ? Math.ceil((innerImg.width * ms) / innerImg.height) : ms;
+		if (innerImg.width >= innerImg.height) {
+			w = ms;
+			h = Math.ceil((innerImg.height * ms) / innerImg.width);
+		} else {
+			h = ms;
+			w = Math.ceil((innerImg.width * ms) / innerImg.height);
+		}
 	}
 
 	const ic = document.createElement('canvas');

@@ -69,7 +69,7 @@
 	</div>
 
 	<div class="mb-6 sm:mb-8">
-		<Input type="text" bind:value={searchQuery} placeholder="搜索文章标题、描述、标签..." class="w-full" />
+		<Input type="text" bind:value={searchQuery} placeholder="搜索文章标题、描述、标签..." class="w-full" aria-label="搜索文章" />
 		{#if searchQuery}
 			<div class="mt-2 min-h-[20px]">
 				{#if displayPosts.length === 0}
@@ -108,9 +108,9 @@
 										{#if post.metadata.pinned}
 											<Badge class="shrink-0">置顶</Badge>
 										{/if}
-										<time class="shrink-0 text-sm text-muted-foreground">{formatDate(post.metadata.published)}</time>
-										<span class="shrink-0 text-sm text-muted-foreground">· {post.metadata.stats.wordCount.toLocaleString()} 字</span>
-										<span class="shrink-0 text-sm text-muted-foreground">· 约 {post.metadata.stats.readTime} 分钟</span>
+										<time datetime={post.metadata.published} class="shrink-0 text-sm text-muted-foreground">{formatDate(post.metadata.published)}</time>
+										<span class="shrink-0 text-sm text-muted-foreground">· {(post.metadata.stats?.wordCount ?? 0).toLocaleString()} 字</span>
+										<span class="shrink-0 text-sm text-muted-foreground">· 约 {post.metadata.stats?.readTime ?? 0} 分钟</span>
 									</div>
 									<h2 class="mb-2 text-xl font-semibold break-words group-hover:text-primary sm:text-2xl">{post.metadata.title}</h2>
 									<p class="line-clamp-2 text-sm text-muted-foreground sm:text-base">{post.metadata.description}</p>

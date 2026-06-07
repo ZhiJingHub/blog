@@ -5,9 +5,9 @@ import { visit } from './ast-visit.js';
  * @returns {number}
  */
 function countWords(text) {
-	const cjk = text.match(/[一-鿿㐀-䶿豈-﫿]/g) || [];
-	const kana = text.match(/[぀-ゟ゠-ヿ]/g) || [];
-	const hangul = text.match(/[가-힯ᄀ-ᇿ㄰-㆏]/g) || [];
+	const cjk = text.match(/\p{Script=Han}/gu) || [];
+	const kana = text.match(/\p{Script=Hiragana}|\p{Script=Katakana}/gu) || [];
+	const hangul = text.match(/\p{Script=Hangul}/gu) || [];
 	const words = text.match(/[a-zA-Z0-9À-ɏЀ-ӿ]+(?:['’\-][a-zA-Z0-9À-ɏЀ-ӿ]+)*/g) || [];
 	return cjk.length + kana.length + hangul.length + words.length;
 }

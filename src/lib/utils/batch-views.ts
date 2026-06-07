@@ -26,7 +26,7 @@ function flushBatch() {
 		.then((data: number[]) => {
 			const result = new Map<string, number>();
 			paths.forEach((p, i) => {
-				const c = data[i] || 0;
+				const c = data[i] ?? 0;
 				cache.set(p, c);
 				result.set(p, c);
 			});
@@ -44,7 +44,7 @@ export function batchGetViews(paths: string[]): Promise<Map<string, number>> {
 	const uncached = paths.filter((p) => !cache.has(p));
 	if (uncached.length === 0) {
 		const result = new Map<string, number>();
-		paths.forEach((p) => result.set(p, cache.get(p) || 0));
+		paths.forEach((p) => result.set(p, cache.get(p) ?? 0));
 		return Promise.resolve(result);
 	}
 
@@ -55,7 +55,7 @@ export function batchGetViews(paths: string[]): Promise<Map<string, number>> {
 	return new Promise((resolve) => {
 		pendingResolvers.push(() => {
 			const final = new Map<string, number>();
-			paths.forEach((p) => final.set(p, cache.get(p) || 0));
+			paths.forEach((p) => final.set(p, cache.get(p) ?? 0));
 			resolve(final);
 		});
 	});

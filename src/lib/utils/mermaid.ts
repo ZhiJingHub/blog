@@ -16,6 +16,7 @@ let lastTheme: 'dark' | 'default' | null = null;
 const renderedBlocks = new Map<HTMLElement, string>();
 let renderDone: Promise<void> = Promise.resolve();
 let renderDoneResolve: (() => void) | null = null;
+let renderCounter = 0;
 
 function loadScript(src: string): Promise<void> {
 	return new Promise((resolve, reject) => {
@@ -49,11 +50,11 @@ function decodeText(pre: HTMLElement): string {
 
 export async function renderMermaidIn(container: HTMLElement | null | undefined) {
 	if (!container) return;
-	renderedBlocks.clear();
 	renderDoneResolve?.();
 	let resolveRender: () => void;
 	renderDone = new Promise<void>((r) => { resolveRender = r; });
 	renderDoneResolve = resolveRender!;
+	renderedBlocks.clear();
 
 	const candidates = new Set<HTMLElement>();
 	for (const el of Array.from(container.querySelectorAll<HTMLElement>('pre[data-language="mermaid"]'))) candidates.add(el);
@@ -76,7 +77,7 @@ export async function renderMermaidIn(container: HTMLElement | null | undefined)
 	for (const pre of candidates) {
 		const code = decodeText(pre);
 		if (!code) continue;
-		const id = `mermaid-${Date.now()}-${i++}`;
+		const id = `mermaid-${++renderCounter}-${i++}`;
 		try {
 			const { svg } = await mermaid.render(id, code);
 			const wrapper = document.createElement('div');
@@ -101,7 +102,7 @@ export async function rerenderAllMermaid() {
 	mermaid.initialize({ startOnLoad: false, theme: newTheme, securityLevel: 'strict', fontFamily: 'inherit' });
 	let i = 0;
 	for (const [wrapper, code] of renderedBlocks) {
-		const id = `mermaid-rerender-${Date.now()}-${i++}`;
+		const id = `mermaid-${++renderCounter}-${i++}`;
 		try {
 			const { svg } = await mermaid.render(id, code);
 			wrapper.innerHTML = svg;

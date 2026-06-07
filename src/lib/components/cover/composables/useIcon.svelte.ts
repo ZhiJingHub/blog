@@ -63,6 +63,7 @@ export function useIcon() {
 	}
 
 	function selectIcon(icon: string) {
+		if (localIcon?.startsWith('blob:')) URL.revokeObjectURL(localIcon);
 		iconName = icon;
 		localIcon = null;
 	}

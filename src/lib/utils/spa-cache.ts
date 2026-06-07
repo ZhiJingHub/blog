@@ -5,6 +5,7 @@ interface CacheEntry<T> {
 
 class SPACache {
 	private cache = new Map<string, CacheEntry<any>>();
+	private inflight = new Map<string, Promise<any>>();
 
 	async get<T>(key: string, fetcher: () => Promise<T>, ttl?: number): Promise<T> {
 		const cached = this.cache.get(key);
@@ -12,9 +13,21 @@ class SPACache {
 		if (cached && (!ttl || now - cached.timestamp < ttl)) {
 			return cached.data as T;
 		}
-		const data = await fetcher();
-		this.cache.set(key, { data, timestamp: now });
-		return data;
+		const existing = this.inflight.get(key);
+		if (existing) return existing;
+		const promise = fetcher().then(
+			(data) => {
+				this.cache.set(key, { data, timestamp: Date.now() });
+				this.inflight.delete(key);
+				return data;
+			},
+			(err) => {
+				this.inflight.delete(key);
+				throw err;
+			}
+		);
+		this.inflight.set(key, promise);
+		return promise;
 	}
 
 	peek<T>(key: string): T | undefined {

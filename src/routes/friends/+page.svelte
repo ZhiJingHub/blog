@@ -4,6 +4,7 @@
 	import * as Pagination from '$lib/components/ui/pagination';
 	import Icon from '@iconify/svelte';
 	import { siteConfig } from '$lib/config/site';
+	import { toast } from '$lib/stores/toast.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -12,9 +13,10 @@
 	let currentPage = $state(1);
 	const itemsPerPage = 12;
 	let totalPages = $derived(Math.ceil(friends.length / itemsPerPage));
-	let paginatedFriends = $derived(
-		friends.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-	);
+	let paginatedFriends = $derived.by(() => {
+		const page = Math.max(1, Math.min(currentPage, totalPages || 1));
+		return friends.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+	});
 
 	let copied = $state<string | null>(null);
 	const siteJson = JSON.stringify(
@@ -31,7 +33,9 @@
 		navigator.clipboard.writeText(text).then(() => {
 			copied = key;
 			setTimeout(() => (copied = null), 2000);
-		}).catch(() => {});
+		}).catch(() => {
+			toast.error('复制失败', '请手动复制内容');
+		});
 	}
 </script>
 

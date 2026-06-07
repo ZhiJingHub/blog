@@ -29,7 +29,7 @@ function normalizeMetadata(raw: RawPostMetadata): PostMetadata {
 	return {
 		...raw,
 		published: raw.published ?? raw.date ?? '',
-		stats: raw.stats ?? DEFAULT_STATS
+		stats: raw.stats ? { ...DEFAULT_STATS, ...raw.stats } : { ...DEFAULT_STATS }
 	};
 }
 

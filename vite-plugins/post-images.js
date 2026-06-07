@@ -53,6 +53,11 @@ export function postImagesPlugin() {
 						res.setHeader('Content-Length', stat.size);
 
 						const stream = fs.createReadStream(imagePath);
+						stream.on('error', (err) => {
+							console.error(`[post-images] stream error: ${err.message}`);
+							if (!res.headersSent) res.statusCode = 500;
+							res.end();
+						});
 						stream.pipe(res);
 						return;
 					}

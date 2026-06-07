@@ -37,27 +37,28 @@ export function revokeAllFileUrls() {
 
 export function loadImage(file: File): Promise<LoadedImage> {
 	return new Promise((resolve, reject) => {
-		const reader = new FileReader();
-		reader.onload = (e) => {
-			const dataUrl = e.target?.result as string;
-			const img = new Image();
-			img.crossOrigin = 'anonymous';
-			img.onload = () => {
-				const blobUrl = URL.createObjectURL(file);
-				fileUrls.add(blobUrl);
-				resolve({
-					file,
-					name: file.name,
-					width: img.naturalWidth,
-					height: img.naturalHeight,
-					url: blobUrl,
-					image: img
-				});
-			};
-			img.onerror = () => reject(new Error('图片读取失败'));
-			img.src = dataUrl;
+		const blobUrl = URL.createObjectURL(file);
+		fileUrls.add(blobUrl);
+		const img = new Image();
+		img.crossOrigin = 'anonymous';
+		img.onload = () => {
+			img.onload = null;
+			img.onerror = null;
+			resolve({
+				file,
+				name: file.name,
+				width: img.naturalWidth,
+				height: img.naturalHeight,
+				url: blobUrl,
+				image: img
+			});
 		};
-		reader.onerror = () => reject(new Error('文件读取失败'));
-		reader.readAsDataURL(file);
+		img.onerror = () => {
+			img.onload = null;
+			img.onerror = null;
+			revokeFileUrl(blobUrl);
+			reject(new Error('图片读取失败'));
+		};
+		img.src = blobUrl;
 	});
 }

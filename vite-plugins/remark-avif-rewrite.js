@@ -35,7 +35,14 @@ export default function remarkAvifRewrite() {
 				)
 				.replace(
 					/(<source[^>]+srcset=["'])([^"']+)(["'])/gi,
-					(_, p1, src, p3) => p1 + rewriteUrl(src) + p3
+					(_, p1, srcset, p3) => {
+						const rewritten = srcset.split(',').map(/** @param {string} entry */ (entry) => {
+							const parts = entry.trim().split(/\s+/);
+							parts[0] = /** @type {string} */ (rewriteUrl(parts[0]));
+							return parts.join(' ');
+						}).join(', ');
+						return p1 + rewritten + p3;
+					}
 				);
 		});
 

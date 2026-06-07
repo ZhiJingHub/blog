@@ -18,7 +18,8 @@
 	<div
 		transition:fly={{ y: 20, duration: 250, opacity: 0 }}
 		class="fixed bottom-6 right-6 z-[100] w-80 max-w-[calc(100vw-2rem)] rounded-lg border shadow-lg {typeConfig[item.type].bg} {typeConfig[item.type].border}"
-		role="alert"
+		style="bottom: {6 + toast.items.indexOf(item) * 5}rem"
+		role={item.type === 'error' ? 'alert' : 'status'}
 	>
 		<button
 			type="button"

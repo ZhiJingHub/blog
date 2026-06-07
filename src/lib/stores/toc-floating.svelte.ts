@@ -23,6 +23,7 @@ export const tocFloating = {
 		available = v;
 	},
 	reset: () => {
+		if (!browser) return;
 		open = false;
 		available = false;
 	}

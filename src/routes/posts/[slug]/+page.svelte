@@ -68,9 +68,9 @@
 			{#if data.post.metadata.pinned}
 				<Badge>置顶</Badge>
 			{/if}
-			<time class="text-sm text-muted-foreground">{formatDate(data.post.metadata.published)}</time>
-			<span class="text-sm text-muted-foreground">· {data.post.metadata.stats.wordCount.toLocaleString()} 字</span>
-			<span class="text-sm text-muted-foreground">· 约 {data.post.metadata.stats.readTime} 分钟</span>
+			<time datetime={data.post.metadata.published} class="text-sm text-muted-foreground">{formatDate(data.post.metadata.published)}</time>
+			<span class="text-sm text-muted-foreground">· {(data.post.metadata.stats?.wordCount ?? 0).toLocaleString()} 字</span>
+			<span class="text-sm text-muted-foreground">· 约 {data.post.metadata.stats?.readTime ?? 0} 分钟</span>
 			{#if data.post.metadata.updated}
 				<span class="text-sm text-muted-foreground">· 更新于 {formatDate(data.post.metadata.updated)}</span>
 			{/if}

@@ -11,6 +11,7 @@
 	let headings = $state<Heading[]>([]);
 	let activeId = $state('');
 	let observer: IntersectionObserver | undefined;
+	let rebuildGeneration = 0;
 
 	let mobileOpen = $derived(tocFloating.open);
 	let minLevel = $derived(headings.length ? Math.min(...headings.map((h) => h.level)) : 1);
@@ -21,8 +22,9 @@
 	}
 
 	async function rebuild() {
+		const gen = ++rebuildGeneration;
 		await tick();
-		if (!container) return;
+		if (!container || gen !== rebuildGeneration) return;
 		observer?.disconnect();
 
 		const els = Array.from(container.querySelectorAll<HTMLHeadingElement>('h1, h2, h3, h4, h5, h6'));
@@ -44,6 +46,7 @@
 			list.push({ id, text, level: Number(el.tagName.slice(1)) });
 		}
 
+		if (gen !== rebuildGeneration) return;
 		headings = list;
 		tocFloating.setAvailable(list.length > 0);
 		if (list.length === 0) return;
@@ -100,7 +103,7 @@
 	{#if mobileOpen}
 		<div class="xl:hidden">
 			<button type="button" aria-label="关闭目录" class="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm" onclick={() => tocFloating.setOpen(false)}></button>
-			<div transition:fly={{ y: 20, duration: 200 }} class="fixed right-6 bottom-24 z-50 max-h-[60vh] w-72 overflow-y-auto rounded-lg border border-border bg-card p-4 shadow-xl">
+			<div transition:fly={{ y: 20, duration: 200 }} role="dialog" aria-modal="true" aria-label="目录" class="fixed right-6 bottom-24 z-50 max-h-[60vh] w-72 overflow-y-auto rounded-lg border border-border bg-card p-4 shadow-xl">
 				<div class="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">目录</div>
 				<ul class="space-y-1 border-l border-border text-sm">
 					{#each headings as h (h.id)}
