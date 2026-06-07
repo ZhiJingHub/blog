@@ -15,7 +15,7 @@
 		"build:cloudflare": "cross-env ADAPTER=cloudflare vite build && cross-env OUTPUT_DIR=.svelte-kit/cloudflare node scripts/post-images.js",
 		"build:cf-pages": "cross-env ADAPTER=cf-pages vite build && cross-env OUTPUT_DIR=.svelte-kit/cloudflare node scripts/post-images.js",
 		"build:netlify": "cross-env ADAPTER=netlify vite build && node scripts/post-images.js",
-		"build:vercel": "cross-env ADAPTER=vercel vite build && node scripts/post-images.js",
+		"build:vercel": "cross-env ADAPTER=vercel vite build && cross-env OUTPUT_DIR=.vercel/output/static node scripts/post-images.js",
 		"build:edgeone": "cross-env ADAPTER=static vite build && node scripts/post-images.js",
 		"preview": "vite preview",
 		"deploy:cloudflare": "pnpm build:cloudflare && wrangler deploy",
