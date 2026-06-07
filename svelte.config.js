@@ -5,13 +5,16 @@ const PLATFORM = process.env.ADAPTER || 'static';
 
 /**
  * 适配器映射
- * - static/cloudflare/edgeone: 使用 adapter-static（全量预渲染，无服务端 API）
- * - netlify/vercel: 使用平台原生适配器（支持 /api 路由的服务端函数）
+ * - static/edgeone: adapter-static（全量预渲染，无服务端 API）
+ * - cloudflare/cf-pages: adapter-cloudflare（Workers/Pages Functions + KV）
+ * - netlify: adapter-netlify（Netlify Functions）
+ * - vercel: adapter-vercel（Vercel Serverless Functions）
  */
 /** @type {Record<string, () => Promise<{ default: any }>>} */
 const adapterMap = {
 	static: () => import('@sveltejs/adapter-static'),
 	cloudflare: () => import('@sveltejs/adapter-cloudflare'),
+	'cf-pages': () => import('@sveltejs/adapter-cloudflare'),
 	netlify: () => import('@sveltejs/adapter-netlify'),
 	vercel: () => import('@sveltejs/adapter-vercel'),
 	edgeone: () => import('@sveltejs/adapter-static')
@@ -20,6 +23,7 @@ const adapterMap = {
 const adapterConfigs = {
 	static: { strict: false, pages: 'build', assets: 'build', fallback: undefined },
 	cloudflare: {},
+	'cf-pages': {},
 	netlify: {},
 	vercel: {},
 	edgeone: { strict: false, pages: 'build', assets: 'build', fallback: undefined }
