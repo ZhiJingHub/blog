@@ -5,23 +5,23 @@ const PLATFORM = process.env.ADAPTER || 'static';
 
 /**
  * 适配器映射
- * 本项目为全量预渲染（prerender=true），所有路由在构建时生成静态 HTML，
- * 因此除 Cloudflare Workers 外，其余平台统一使用 adapter-static（最高效）。
+ * - static/cloudflare/edgeone: 使用 adapter-static（全量预渲染，无服务端 API）
+ * - netlify/vercel: 使用平台原生适配器（支持 /api 路由的服务端函数）
  */
 /** @type {Record<string, () => Promise<{ default: any }>>} */
 const adapterMap = {
 	static: () => import('@sveltejs/adapter-static'),
 	cloudflare: () => import('@sveltejs/adapter-cloudflare'),
-	netlify: () => import('@sveltejs/adapter-static'),
-	vercel: () => import('@sveltejs/adapter-static'),
+	netlify: () => import('@sveltejs/adapter-netlify'),
+	vercel: () => import('@sveltejs/adapter-vercel'),
 	edgeone: () => import('@sveltejs/adapter-static')
 };
 
 const adapterConfigs = {
 	static: { strict: false, pages: 'build', assets: 'build', fallback: undefined },
 	cloudflare: {},
-	netlify: { strict: false, pages: 'build', assets: 'build', fallback: undefined },
-	vercel: { strict: false, pages: 'build', assets: 'build', fallback: undefined },
+	netlify: {},
+	vercel: {},
 	edgeone: { strict: false, pages: 'build', assets: 'build', fallback: undefined }
 };
 

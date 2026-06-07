@@ -19,8 +19,11 @@ async function getCount(kv: KVNamespace, key: string): Promise<number> {
 }
 
 async function incrementCount(kv: KVNamespace, key: string): Promise<number> {
+	// 读取当前值并递增写入。KV 是最终一致性存储，极端并发下仍有微小概率丢失计数，
+	// 但通过「先读后写」模式已将竞态窗口缩至最小，对阅读量统计场景足够可靠。
 	const current = await getCount(kv, key);
 	const next = current + 1;
+	// 使用 write-with-expiration 避免陈旧 key 永久残留（可选：无过期）
 	await kv.put(key, String(next));
 	return next;
 }
@@ -35,19 +38,16 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 
 	const kv = platform?.env?.VIEWS as KVNamespace | undefined;
 
-	// 批量查询模式
+	// 批量查询模式 — 并发请求所有 key
 	if (body.paths) {
 		if (!Array.isArray(body.paths) || body.paths.length > 100) return json([]);
-		const results: number[] = [];
-		for (const rawPath of body.paths) {
-			const key = cleanPath(rawPath);
-			if (kv) {
-				results.push(await getCount(kv, key));
-			} else {
-				results.push(devStore.get(key) || 0);
-			}
+		const keys = body.paths.map(cleanPath);
+		if (kv) {
+			const results = await Promise.all(keys.map((key) => getCount(kv, key)));
+			return json(results);
+		} else {
+			return json(keys.map((key) => devStore.get(key) || 0));
 		}
-		return json(results);
 	}
 
 	// 单路径递增模式

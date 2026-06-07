@@ -2,13 +2,16 @@ import fs from 'fs';
 import path from 'path';
 
 /**
+ * 路径安全检查：确保 targetPath 解析后严格位于 basePath 目录内。
+ * 使用 path.sep 作为后缀防止前缀相似目录绕过（如 /posts vs /posts_secret）。
  * @param {string} basePath
  * @param {string} targetPath
  * @returns {boolean}
  */
 function isPathSafe(basePath, targetPath) {
+	const normalizedBase = path.resolve(basePath) + path.sep;
 	const resolved = path.resolve(basePath, targetPath);
-	return resolved.startsWith(basePath) && !resolved.includes('..');
+	return resolved.startsWith(normalizedBase);
 }
 
 /**
@@ -20,7 +23,7 @@ export function postImagesPlugin() {
 		apply: 'serve',
 		configureServer(server) {
 			server.middlewares.use('/posts', (req, res, next) => {
-				const urlPath = (req.url ?? '').split('?')[0].split('#')[0];
+				const urlPath = decodeURIComponent((req.url ?? '').split('?')[0].split('#')[0]);
 				const match = urlPath.match(/^\/([^\/]+)\/img\/(.+)$/);
 				if (match) {
 					const [, slug, filename] = match;
