@@ -2,8 +2,6 @@
 
 基于 **SvelteKit 2 + Svelte 5** 构建的现代静态博客，集成封面制作、隐图工具、友链管理，支持 5 种部署平台。
 
-🌐 [iwexe.top](https://iwexe.top)
-
 ---
 
 ## 技术栈
