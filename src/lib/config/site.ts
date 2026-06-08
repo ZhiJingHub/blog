@@ -52,6 +52,7 @@ export const siteConfig = {
 		{ label: "博客", icon: "mdi:post-outline", href: "/posts" },
 		{ label: "封面制作", icon: "mdi:image-edit", href: "/cover" },
 		{ label: "隐藏图", icon: "mdi:layers-triple", href: "/ptg" },
+		{ label: "格式转换", icon: "mdi:image-sync", href: "/convert" },
 		{ label: "友链", icon: "mdi:link-variant", href: "/friends" },
 		{ label: "统计", icon: "mdi:chart-line", href: "https://u.iwexe.top/share/iAHxxL5xADM8Ll43" }
 	] as const
