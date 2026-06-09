@@ -20,7 +20,7 @@
 | 图标 | Iconify（mdi + simple-icons） | ^5.2 |
 | 图片处理 | Sharp（AVIF 转换） | ^0.34 |
 | 图片浏览 | PhotoSwipe | ^5.4 |
-| 统计 | Umami（自托管） | — |
+| 统计 | Umami（自托管） + Vercel Analytics + Speed Insights | — |
 | 包管理 | pnpm | — |
 
 ---
@@ -38,6 +38,8 @@
 - Mermaid 图表渲染（CDN 按需加载，深色主题自动切换）
 - GitHub 风格告警提示（`[!NOTE]`、`[!TIP]`、`[!WARNING]`、`[!CAUTION]`）
 - 外部链接自动添加 `target="_blank"` 和安全属性
+- 外链跳转中间页（`/go/[slug]`），3 秒倒计时 + 手动确认，全站统一拦截
+- 自定义短链重定向（`/go/github` 等），构建时生成静态页面
 - 文章目录导航（桌面侧边固定 + 移动端抽屉弹窗）
 - 图片灯箱（PhotoSwipe），支持缩放浏览
 - 前端搜索（标题 / 描述 / 标签）
@@ -66,6 +68,21 @@
 ### 友链 — `/friends/`
 
 JSON 文件驱动，自动加载，分页展示（12个/页），支持双向链接验证，一键复制申请模板。
+
+### 外链跳转中间页 — `/go/[slug]`
+
+全站外部链接自动走中间页跳转，显示目标域名和完整地址，3 秒倒计时自动跳转 + 手动确认按钮。文章内链接由 rehype 插件在构建时改写，页面组件链接由 `ExternalLinkInterceptor` 运行时拦截，双层保障。
+
+自定义短链在 `src/lib/config/redirects.ts` 中配置：
+
+```ts
+export const redirects: Record<string, string> = {
+  '/go/github': 'https://github.com/ZhiJingHub',
+  '/go/telegram': 'https://t.me/ZhiJing_PM_Bot'
+};
+```
+
+站内链接白名单在 `src/lib/config/site.ts` 的 `domains` 字段中配置，支持精确匹配和子域名匹配（如 `*.iwexe.top`）。
 
 ### 页面浏览量
 
@@ -129,6 +146,7 @@ export const siteConfig = {
   title: "你的博客名",
   subtitle: "你的副标题",
   url: "https://你的域名.com",
+  domains: ["你的域名.com", "其他域名.com"],  // 站内链接白名单（支持子域名）
   description: "站点描述",
   keywords: ["关键词1", "关键词2"],
   ogImage: "/og-image.svg",
@@ -376,14 +394,20 @@ blog/
 │   │   │   ├── ImageViewer.svelte # 图片灯箱
 │   │   │   ├── PageViews.svelte   # 阅读量
 │   │   │   ├── CoverGenerator.svelte  # 封面生成器
+│   │   │   ├── ExternalLinkInterceptor.svelte # 全局外链拦截
 │   │   │   ├── cover/             # 封面子组件 + composables
 │   │   │   └── ui/                # shadcn-svelte 基础组件
 │   │   ├── stores/                # 状态管理（theme、toast、toc）
-│   │   └── utils/                 # 工具函数（posts、format、mermaid 等）
+│   │   ├── utils/                 # 工具函数（posts、format、mermaid 等）
+│   │   └── config/
+│   │       ├── site.ts            # 站点配置（含域名白名单）
+│   │       ├── redirects.ts       # 自定义短链映射
+│   │       └── mdsvex.config.js   # Markdown 配置（Shiki、插件）
 │   └── routes/
-│       ├── +layout.svelte         # 全局布局（NavBar、Footer、Analytics）
+│       ├── +layout.svelte         # 全局布局（NavBar、Footer、Analytics、外链拦截）
 │       ├── +page.svelte           # 首页
 │       ├── posts/                 # 文章列表 + 详情
+│       ├── go/[slug]/             # 外链跳转中间页
 │       ├── friends/               # 友链页面
 │       ├── cover/                 # 封面生成器
 │       ├── ptg/                   # 隐图工具
