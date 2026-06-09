@@ -2,9 +2,7 @@
 	import '../app.css';
 	import '$lib/icons';
 	import { page } from '$app/state';
-	import { dev } from '$app/environment';
 	import { siteConfig } from '$lib/config/site';
-	import { inject } from '@vercel/analytics';
 	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 	import BackToTop from '$lib/components/BackToTop.svelte';
 	import NavBar from '$lib/components/NavBar.svelte';
@@ -12,7 +10,6 @@
 	import Toast from '$lib/components/Toast.svelte';
 	import ExternalLinkInterceptor from '$lib/components/ExternalLinkInterceptor.svelte';
 
-	inject({ mode: dev ? 'development' : 'production' });
 	injectSpeedInsights();
 
 	let { children } = $props();
