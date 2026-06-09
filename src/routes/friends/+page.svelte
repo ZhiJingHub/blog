@@ -5,7 +5,6 @@
 	import Icon from '@iconify/svelte';
 	import { siteConfig } from '$lib/config/site';
 	import { toast } from '$lib/stores/toast.svelte';
-	import PageHeader from '$lib/components/PageHeader.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -49,7 +48,17 @@
 
 <div class="min-h-screen bg-background">
 	<div class="container mx-auto max-w-6xl px-4 pt-6 pb-12 sm:pt-8">
-		<PageHeader title="友情链接" icon="mdi:link-variant" description="这里是我的朋友们，欢迎互相访问交流" />
+		<div class="mb-6">
+			<a href="/" class="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+				返回首页
+			</a>
+		</div>
+
+		<div class="mb-8 text-center">
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">友情链接</h1>
+			<p class="mt-2 text-lg text-muted-foreground">这里是我的朋友们，欢迎互相访问交流</p>
+		</div>
 
 		<Card class="mb-8">
 			<CardHeader>

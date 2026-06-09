@@ -11,7 +11,6 @@
   import TabsTrigger from '$lib/components/ui/tabs/tabs-trigger.svelte';
   import TabsContent from '$lib/components/ui/tabs/tabs-content.svelte';
   import Icon from '@iconify/svelte';
-  import PageHeader from '$lib/components/PageHeader.svelte';
   import type {
     ConvertOptions,
     ConvertResult,
@@ -460,8 +459,18 @@
 <div class="convert-layout">
   <!-- 标题 -->
   <div class="convert-title-col">
-    <PageHeader title="图片格式转换" icon="mdi:image-sync" description="在线图片格式转换工具，支持 PNG、JPG、WebP、AVIF、BMP、GIF、SVG 格式相互转换" />
-    <div class="mt-2">
+    <a href="/" class="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+      <Icon icon="mdi:chevron-left" class="size-4" />
+      返回首页
+    </a>
+    <h1 class="flex items-center gap-3 text-2xl font-bold tracking-tight sm:text-3xl">
+      <Icon icon="mdi:image-sync" class="size-8 text-primary" />
+      图片格式转换
+    </h1>
+    <p class="mt-2 text-sm text-muted-foreground">
+      在线图片格式转换工具，支持 PNG、JPG、WebP、AVIF、BMP、GIF、SVG 格式相互转换
+    </p>
+    <div class="mt-4">
       <Root value={mode} onValueChange={(v: string) => (mode = v as 'single' | 'batch')}>
         <TabsList>
           <TabsTrigger value="single" class="gap-1.5">

@@ -9,7 +9,6 @@
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import Icon from '@iconify/svelte';
 	import { siteConfig } from '$lib/config/site';
-	import PageHeader from '$lib/components/PageHeader.svelte';
 	import {
 		type ToolMode, type UploadKind, type LoadedImage, type ModeResult,
 		DEFAULT_SOURCE_BRIGHTNESS, DEFAULT_SOURCE_CONTRAST,
@@ -179,11 +178,23 @@
 
 <div class="min-h-screen bg-background">
 	<div class="container mx-auto max-w-7xl px-4 pt-6 pb-12 sm:pt-8">
-		<PageHeader title="隐藏图制作" icon="mdi:layers-triple" description="支持光棱坦克与幻影坦克两种模式，浏览器本地处理，不上传服务端" />
+		<div class="mb-6">
+			<a href="/" class="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+				返回首页
+			</a>
+		</div>
 
 		<div class="ptg-layout">
 			<!-- 左列：标题 + 结果预览 -->
 			<div class="ptg-left">
+				<div>
+					<h1 class="flex items-center gap-3 text-2xl font-bold tracking-tight sm:text-3xl">
+						<Icon icon="mdi:layers-triple" class="size-7 text-primary" />
+						隐藏图制作
+					</h1>
+					<p class="mt-2 text-sm text-muted-foreground">支持光棱坦克与幻影坦克两种模式，浏览器本地处理，不上传服务端</p>
+				</div>
 
 				<div class="rounded-xl border bg-muted/20 p-4">
 					<Tabs value={mode} onValueChange={(v: string) => (mode = v as ToolMode)}>

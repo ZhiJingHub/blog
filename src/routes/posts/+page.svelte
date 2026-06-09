@@ -6,7 +6,6 @@
 	import Icon from '@iconify/svelte';
 	import { siteConfig } from '$lib/config/site';
 	import { formatDate } from '$lib/utils/format';
-	import PageHeader from '$lib/components/PageHeader.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -47,18 +46,27 @@
 </svelte:head>
 
 <div class="container mx-auto max-w-4xl px-4 py-8 sm:py-12">
-	<PageHeader title="文章列表" icon="mdi:post-outline" description="分享技术、想法和经验" />
+	<div class="mb-6">
+		<a href="/" class="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+			返回首页
+		</a>
+	</div>
 
-	{#if data.posts.length > 0}
-		{@const totalWords = data.posts.reduce((sum, p) => sum + (p.metadata.stats?.wordCount ?? 0), 0)}
-		{@const totalImages = data.posts.reduce((sum, p) => sum + (p.metadata.stats?.imageCount ?? 0), 0)}
-		<p class="mb-6 text-sm text-muted-foreground">
-			共 {data.posts.length} 篇文章 · {totalWords.toLocaleString()} 字
-			{#if totalImages > 0}
-				 · {totalImages} 张图片
-			{/if}
-		</p>
-	{/if}
+	<div class="mb-8 text-center">
+		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">文章列表</h1>
+		<p class="mt-2 text-lg text-muted-foreground">分享技术、想法和经验</p>
+		{#if data.posts.length > 0}
+			{@const totalWords = data.posts.reduce((sum, p) => sum + (p.metadata.stats?.wordCount ?? 0), 0)}
+			{@const totalImages = data.posts.reduce((sum, p) => sum + (p.metadata.stats?.imageCount ?? 0), 0)}
+			<p class="mt-2 text-sm text-muted-foreground">
+				共 {data.posts.length} 篇文章 · {totalWords.toLocaleString()} 字
+				{#if totalImages > 0}
+					 · {totalImages} 张图片
+				{/if}
+			</p>
+		{/if}
+	</div>
 
 	<div class="mb-6 sm:mb-8">
 		<Input type="text" bind:value={searchQuery} placeholder="搜索文章标题、描述、标签..." class="w-full" aria-label="搜索文章" />
