@@ -12,9 +12,10 @@
 			const href = anchor.href;
 			if (!href || !/^https?:\/\//i.test(href)) return;
 
-			// 站内链接跳过
+			// 站内链接跳过（精确匹配 iwexe.top 及 *.iwexe.top）
 			try {
-				if (new URL(href).hostname.includes(siteHost)) return;
+				const host = new URL(href).hostname;
+				if (host === siteHost || host.endsWith(`.${siteHost}`)) return;
 			} catch {
 				return;
 			}

@@ -17,7 +17,8 @@ export default function rehypeExternalLinks() {
 
 				if (/^https?:\/\//i.test(href)) {
 					try {
-						if (new URL(href).hostname.includes(SITE_HOST)) return;
+						const host = new URL(href).hostname;
+						if (host === SITE_HOST || host.endsWith(`.${SITE_HOST}`)) return;
 					} catch {
 						return;
 					}
