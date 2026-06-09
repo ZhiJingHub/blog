@@ -4,7 +4,7 @@
 	import ThemeToggle from './ThemeToggle.svelte';
 
 	const isHomePage = $derived(page.route?.id === '/');
-	const hideNavBarRoutes = ['/cover', '/ptg', '/convert', '/friends'];
+	const hideNavBarRoutes = ['/posts', '/cover', '/ptg', '/convert', '/friends'];
 	const shouldHideNavBar = $derived(
 		isHomePage || hideNavBarRoutes.some((route) => page.route?.id?.startsWith(route))
 	);
