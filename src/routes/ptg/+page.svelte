@@ -180,7 +180,7 @@
 	<div class="container mx-auto max-w-7xl px-4 pt-6 pb-12 sm:pt-8">
 		<div class="mb-6">
 			<a href="/" class="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
-				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+				<Icon icon="mdi:chevron-left" class="size-4" />
 				返回首页
 			</a>
 		</div>
@@ -189,10 +189,7 @@
 			<!-- 左列：标题 + 结果预览 -->
 			<div class="ptg-left">
 				<div>
-					<h1 class="flex items-center gap-3 text-2xl font-bold tracking-tight sm:text-3xl">
-						<Icon icon="mdi:layers-triple" class="size-7 text-primary" />
-						隐藏图制作
-					</h1>
+					<h1 class="text-2xl font-bold tracking-tight sm:text-3xl">隐藏图制作</h1>
 					<p class="mt-2 text-sm text-muted-foreground">支持光棱坦克与幻影坦克两种模式，浏览器本地处理，不上传服务端</p>
 				</div>
 
@@ -375,7 +372,6 @@
 		flex-direction: column;
 		gap: 1.5rem;
 	}
-
 	.ptg-left {
 		display: flex;
 		flex-direction: column;
@@ -383,7 +379,6 @@
 		width: 100%;
 		min-width: 0;
 	}
-
 	.ptg-right {
 		display: flex;
 		flex-direction: column;
@@ -392,10 +387,7 @@
 		min-width: 0;
 		position: relative;
 	}
-
-	.scroll-indicator {
-		display: none;
-	}
+	.scroll-indicator { display: none; }
 
 	@media (min-width: 1024px) {
 		.ptg-layout {
@@ -405,14 +397,12 @@
 			gap: 1.5rem;
 			align-items: start;
 		}
-
 		.ptg-left {
 			grid-column: 1;
 			grid-row: 1 / -1;
 			position: sticky;
 			top: 1.5rem;
 		}
-
 		.ptg-right {
 			grid-column: 2;
 			grid-row: 1 / -1;
@@ -422,21 +412,9 @@
 			scrollbar-color: var(--muted-foreground) transparent;
 			scrollbar-gutter: stable;
 		}
-
-		.ptg-right::-webkit-scrollbar {
-			width: 6px;
-		}
-
-		.ptg-right::-webkit-scrollbar-track {
-			background: transparent;
-		}
-
-		.ptg-right::-webkit-scrollbar-thumb {
-			background-color: var(--muted-foreground);
-			border-radius: 3px;
-			min-height: 30px;
-		}
-
+		.ptg-right::-webkit-scrollbar { width: 6px; }
+		.ptg-right::-webkit-scrollbar-track { background: transparent; }
+		.ptg-right::-webkit-scrollbar-thumb { background-color: var(--muted-foreground); border-radius: 3px; min-height: 30px; }
 		.scroll-indicator {
 			display: block;
 			position: sticky;
@@ -463,14 +441,12 @@
 		outline: none !important;
 		box-shadow: none !important;
 	}
-
 	.ptg-right :global([data-slot='tabs-content']) {
 		display: flex;
 		flex-direction: column;
 		gap: 0.75rem;
 		padding-top: 0.75rem;
 	}
-
 	.ptg-right :global([data-slot='tabs-list']) {
 		flex-wrap: nowrap;
 		overflow-x: auto;
@@ -478,8 +454,5 @@
 		-ms-overflow-style: none;
 		width: 100%;
 	}
-
-	.ptg-right :global([data-slot='tabs-list']::-webkit-scrollbar) {
-		display: none;
-	}
+	.ptg-right :global([data-slot='tabs-list']::-webkit-scrollbar) { display: none; }
 </style>

@@ -456,13 +456,18 @@
   <meta name="description" content="在线图片格式转换工具，支持 PNG、JPG、WebP、AVIF、BMP、GIF、SVG 格式相互转换，支持批量转换、旋转翻转、压缩预设" />
 </svelte:head>
 
+<div class="min-h-screen bg-background">
+<div class="container mx-auto max-w-7xl px-4 pt-6 pb-12 sm:pt-8">
+<div class="mb-6">
+  <a href="/" class="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+    <Icon icon="mdi:chevron-left" class="size-4" />
+    返回首页
+  </a>
+</div>
+
 <div class="convert-layout">
   <!-- 标题 -->
   <div class="convert-title-col">
-    <a href="/" class="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
-      <Icon icon="mdi:chevron-left" class="size-4" />
-      返回首页
-    </a>
     <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">图片格式转换</h1>
     <p class="mt-2 text-sm text-muted-foreground">
       在线图片格式转换工具，支持 PNG、JPG、WebP、AVIF、BMP、GIF、SVG 格式相互转换
@@ -1018,6 +1023,8 @@
     <div class="scroll-indicator"></div>
   </div>
 </div>
+</div>
+</div>
 
 <style>
   .convert-layout {
@@ -1025,11 +1032,9 @@
     flex-direction: column;
     gap: 1.5rem;
   }
-
   .convert-title-col {
     display: block;
   }
-
   .convert-preview-col {
     display: flex;
     flex-direction: column;
@@ -1037,7 +1042,6 @@
     width: 100%;
     min-width: 0;
   }
-
   .convert-settings-col {
     display: flex;
     flex-direction: column;
@@ -1046,6 +1050,7 @@
     min-width: 0;
     position: relative;
   }
+  .scroll-indicator { display: none; }
 
   .upload-area {
     display: flex;
@@ -1061,20 +1066,9 @@
     border-color: var(--muted-foreground) / 25%;
     background: var(--card);
   }
-
-  .upload-area:hover {
-    border-color: var(--primary) / 50%;
-  }
-
-  .upload-area.dragging {
-    border-color: var(--primary);
-    background: var(--primary) / 5%;
-  }
-
-  .upload-area.has-image {
-    border-style: solid;
-    border-color: var(--border);
-  }
+  .upload-area:hover { border-color: var(--primary) / 50%; }
+  .upload-area.dragging { border-color: var(--primary); background: var(--primary) / 5%; }
+  .upload-area.has-image { border-style: solid; border-color: var(--border); }
 
   .settings-card {
     display: flex;
@@ -1085,7 +1079,6 @@
     background: var(--card);
     padding: 1rem;
   }
-
   .settings-title {
     display: flex;
     align-items: center;
@@ -1093,10 +1086,6 @@
     font-size: 0.875rem;
     font-weight: 500;
     margin-bottom: 0.5rem;
-  }
-
-  .scroll-indicator {
-    display: none;
   }
 
   @media (min-width: 1024px) {
@@ -1107,19 +1096,16 @@
       gap: 1.5rem;
       align-items: start;
     }
-
     .convert-title-col {
       grid-column: 1;
       grid-row: 1;
     }
-
     .convert-preview-col {
       grid-column: 1;
       grid-row: 2;
       position: sticky;
       top: 1.5rem;
     }
-
     .convert-settings-col {
       grid-column: 2;
       grid-row: 1 / -1;
@@ -1129,21 +1115,9 @@
       scrollbar-color: var(--muted-foreground) transparent;
       scrollbar-gutter: stable;
     }
-
-    .convert-settings-col::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .convert-settings-col::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .convert-settings-col::-webkit-scrollbar-thumb {
-      background-color: var(--muted-foreground);
-      border-radius: 3px;
-      min-height: 30px;
-    }
-
+    .convert-settings-col::-webkit-scrollbar { width: 6px; }
+    .convert-settings-col::-webkit-scrollbar-track { background: transparent; }
+    .convert-settings-col::-webkit-scrollbar-thumb { background-color: var(--muted-foreground); border-radius: 3px; min-height: 30px; }
     .scroll-indicator {
       display: block;
       position: sticky;
@@ -1171,7 +1145,6 @@
     gap: 0.75rem;
     padding-top: 0.75rem;
   }
-
   .convert-settings-col :global([data-slot='tabs-list']) {
     flex-wrap: nowrap;
     overflow-x: auto;
@@ -1179,11 +1152,7 @@
     -ms-overflow-style: none;
     width: 100%;
   }
-
-  .convert-settings-col :global([data-slot='tabs-list']::-webkit-scrollbar) {
-    display: none;
-  }
-
+  .convert-settings-col :global([data-slot='tabs-list']::-webkit-scrollbar) { display: none; }
   .convert-settings-col :global([data-slot='card']) {
     border: 1px solid var(--border) !important;
     outline: none !important;
