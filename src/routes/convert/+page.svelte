@@ -463,15 +463,24 @@
       <Icon icon="mdi:chevron-left" class="size-4" />
       返回首页
     </a>
-    <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">图片格式转换</h1>
+    <h1 class="flex items-center gap-3 text-2xl font-bold tracking-tight sm:text-3xl">
+      <Icon icon="mdi:image-sync" class="size-8 text-primary" />
+      图片格式转换
+    </h1>
     <p class="mt-2 text-sm text-muted-foreground">
       在线图片格式转换工具，支持 PNG、JPG、WebP、AVIF、BMP、GIF、SVG 格式相互转换
     </p>
     <div class="mt-4">
       <Root value={mode} onValueChange={(v: string) => (mode = v as 'single' | 'batch')}>
         <TabsList>
-          <TabsTrigger value="single">单图转换</TabsTrigger>
-          <TabsTrigger value="batch">批量转换</TabsTrigger>
+          <TabsTrigger value="single" class="gap-1.5">
+            <Icon icon="mdi:image" class="size-4" />
+            单图转换
+          </TabsTrigger>
+          <TabsTrigger value="batch" class="gap-1.5">
+            <Icon icon="mdi:image-multiple" class="size-4" />
+            批量转换
+          </TabsTrigger>
         </TabsList>
       </Root>
     </div>
@@ -511,9 +520,18 @@
               <Badge variant="secondary" class="absolute left-2 top-2">原图</Badge>
             </div>
             <div class="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
-              <span>{sourceImage.file.name}</span>
-              <span>{sourceImage.width} × {sourceImage.height}</span>
-              <span>{formatFileSize(sourceImage.file.size)}</span>
+              <span class="flex items-center gap-1">
+                <Icon icon="mdi:file-image" class="size-4" />
+                {sourceImage.file.name}
+              </span>
+              <span class="flex items-center gap-1">
+                <Icon icon="mdi:resize" class="size-4" />
+                {sourceImage.width} × {sourceImage.height}
+              </span>
+              <span class="flex items-center gap-1">
+                <Icon icon="mdi:harddisk" class="size-4" />
+                {formatFileSize(sourceImage.file.size)}
+              </span>
             </div>
           </div>
         {:else}
@@ -574,7 +592,10 @@
       <!-- 批量模式：上传区域 -->
       <div class="rounded-xl border border-border bg-card p-4">
         <div class="mb-3 flex items-center justify-between">
-          <h3 class="text-sm font-medium">批量上传</h3>
+          <h3 class="flex items-center gap-2 text-sm font-medium">
+            <Icon icon="mdi:image-multiple" class="size-4" />
+            批量上传
+          </h3>
           {#if batchItems.length > 0}
             <Button variant="ghost" size="sm" onclick={clearBatchItems}>
               <Icon icon="mdi:delete-sweep" class="mr-1 size-4" />
@@ -619,7 +640,10 @@
       {#if batchItems.length > 0}
         <div class="rounded-xl border border-border bg-card">
           <div class="flex items-center justify-between border-b px-4 py-3">
-            <span class="text-sm font-medium">图片列表</span>
+            <span class="flex items-center gap-2 text-sm font-medium">
+              <Icon icon="mdi:format-list-bulleted" class="size-4" />
+              图片列表
+            </span>
             <Badge variant="secondary">{batchItems.length} 张</Badge>
           </div>
           <div class="max-h-[400px] divide-y overflow-y-auto">
@@ -731,7 +755,10 @@
       <TabsContent value="format">
         <!-- 格式选择 -->
         <div class="settings-card">
-          <h3 class="settings-title">输出格式</h3>
+          <h3 class="settings-title">
+            <Icon icon="mdi:file-image" class="size-4" />
+            输出格式
+          </h3>
           <div class="grid grid-cols-4 gap-2">
             {#each availableFormats as format}
               <button
@@ -753,15 +780,21 @@
 
         <!-- 压缩预设 -->
         <div class="settings-card">
-          <h3 class="settings-title">快速预设</h3>
+          <h3 class="settings-title">
+            <Icon icon="mdi:tune-variant" class="size-4" />
+            快速预设
+          </h3>
           <div class="grid grid-cols-2 gap-2">
             {#each COMPRESSION_PRESETS as preset}
               <button
-                class="rounded-lg border p-3 text-left transition-all hover:border-primary/50 hover:bg-muted/50"
+                class="flex items-center gap-2 rounded-lg border p-3 text-left transition-all hover:border-primary/50 hover:bg-muted/50"
                 onclick={() => applyCompressionPreset(preset)}
               >
-                <p class="text-sm font-medium">{preset.label}</p>
-                <p class="text-xs text-muted-foreground">{preset.description}</p>
+                <Icon icon={preset.icon} class="size-4 shrink-0 text-primary" />
+                <div>
+                  <p class="text-sm font-medium">{preset.label}</p>
+                  <p class="text-xs text-muted-foreground">{preset.description}</p>
+                </div>
               </button>
             {/each}
           </div>
@@ -771,7 +804,10 @@
         {#if showQuality}
           <div class="settings-card">
             <div class="flex items-center justify-between">
-              <h3 class="settings-title mb-0">输出质量</h3>
+              <h3 class="settings-title mb-0">
+                <Icon icon="mdi:quality-high" class="size-4" />
+                输出质量
+              </h3>
               <Badge variant="secondary">{Math.round(options.quality * 100)}%</Badge>
             </div>
             <Slider
@@ -794,7 +830,10 @@
         <!-- 尺寸调整 -->
         <div class="settings-card">
           <div class="flex items-center justify-between">
-            <h3 class="settings-title mb-0">尺寸调整</h3>
+            <h3 class="settings-title mb-0">
+              <Icon icon="mdi:resize" class="size-4" />
+              尺寸调整
+            </h3>
             <div class="flex items-center gap-2">
               <span class="text-xs text-muted-foreground">锁定比例</span>
               <Switch bind:checked={options.maintainAspectRatio} />
@@ -825,7 +864,10 @@
             </div>
           </div>
           <div>
-            <p class="mb-2 text-xs text-muted-foreground">快速缩放</p>
+            <p class="mb-2 text-xs text-muted-foreground">
+              <Icon icon="mdi:magnify" class="mr-1 inline size-3" />
+              快速缩放
+            </p>
             <div class="flex flex-wrap gap-1.5">
               {#each PRESET_SCALES as preset}
                 <Button
@@ -844,7 +886,10 @@
 
         <!-- 旋转/翻转 -->
         <div class="settings-card">
-          <h3 class="settings-title">旋转/翻转</h3>
+          <h3 class="settings-title">
+            <Icon icon="mdi:rotate-3d" class="size-4" />
+            旋转/翻转
+          </h3>
           <div class="grid grid-cols-2 gap-2">
             <Button
               variant="outline"
@@ -896,7 +941,10 @@
       <TabsContent value="advanced">
         <!-- 自定义文件名 -->
         <div class="settings-card">
-          <h3 class="settings-title">输出文件名</h3>
+          <h3 class="settings-title">
+            <Icon icon="mdi:file-edit" class="size-4" />
+            输出文件名
+          </h3>
           <Input
             id="custom-filename"
             type="text"
@@ -916,7 +964,10 @@
         <!-- 高级选项 -->
         {#if options.format === 'image/jpeg' || options.format === 'image/bmp'}
           <div class="settings-card">
-            <h3 class="settings-title">背景颜色</h3>
+            <h3 class="settings-title">
+              <Icon icon="mdi:palette" class="size-4" />
+              背景颜色
+            </h3>
             <div class="flex items-center gap-2">
               <input
                 type="color"
@@ -1023,6 +1074,9 @@
   }
 
   .settings-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 0.875rem;
     font-weight: 500;
     margin-bottom: 0.5rem;
