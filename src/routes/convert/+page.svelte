@@ -462,15 +462,24 @@
     </a>
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 class="text-2xl font-bold sm:text-3xl">图片格式转换</h1>
+        <h1 class="flex items-center gap-3 text-2xl font-bold sm:text-3xl">
+          <Icon icon="mdi:image-sync" class="size-8 text-primary" />
+          图片格式转换
+        </h1>
         <p class="mt-2 text-muted-foreground">
           在线图片格式转换工具，支持 PNG、JPG、WebP、AVIF、BMP、GIF、SVG 格式
         </p>
       </div>
       <Tabs value={mode} onValueChange={(v: string) => (mode = v as 'single' | 'batch')}>
         <TabsList>
-          <TabsTrigger value="single">单图转换</TabsTrigger>
-          <TabsTrigger value="batch">批量转换</TabsTrigger>
+          <TabsTrigger value="single" class="gap-1.5">
+            <Icon icon="mdi:image" class="size-4" />
+            单图转换
+          </TabsTrigger>
+          <TabsTrigger value="batch" class="gap-1.5">
+            <Icon icon="mdi:image-multiple" class="size-4" />
+            批量转换
+          </TabsTrigger>
         </TabsList>
       </Tabs>
     </div>
@@ -729,14 +738,24 @@
         <CardContent class="pt-0">
           <div class="grid grid-cols-3 gap-2">
             {#each availableFormats as format}
+              {@const formatIcons: Record<string, string> = {
+                'image/png': 'mdi:file-png-box',
+                'image/jpeg': 'mdi:file-jpg-box',
+                'image/webp': 'mdi:file-webp-box',
+                'image/avif': 'mdi:file-image',
+                'image/bmp': 'mdi:file-image',
+                'image/gif': 'mdi:file-gif-box',
+                'image/svg+xml': 'mdi:svg'
+              }}
               <button
-                class="flex flex-col items-center gap-1 rounded-lg border-2 p-3 transition-all {options.format === format.value
+                class="flex flex-col items-center gap-1.5 rounded-lg border-2 p-3 transition-all {options.format === format.value
                   ? 'border-primary bg-primary/5'
                   : 'border-muted hover:border-primary/50'}"
                 onclick={() => (options.format = format.value)}
               >
+                <Icon icon={formatIcons[format.value] || 'mdi:file-image'} class="size-5 {options.format === format.value ? 'text-primary' : 'text-muted-foreground'}" />
                 <span class="text-sm font-medium">{format.label}</span>
-                <span class="text-xs text-muted-foreground">{format.description}</span>
+                <span class="text-center text-xs text-muted-foreground leading-tight">{format.description}</span>
               </button>
             {/each}
           </div>
@@ -762,10 +781,12 @@
           <div class="grid grid-cols-2 gap-2">
             {#each COMPRESSION_PRESETS as preset}
               <button
-                class="flex items-center gap-2 rounded-lg border p-3 text-left transition-all hover:border-primary/50 hover:bg-muted/50"
+                class="flex items-center gap-3 rounded-lg border p-3 text-left transition-all hover:border-primary/50 hover:bg-muted/50"
                 onclick={() => applyCompressionPreset(preset)}
               >
-                <Icon icon={preset.icon} class="size-4 shrink-0 text-muted-foreground" />
+                <div class="flex size-8 items-center justify-center rounded-md bg-primary/10">
+                  <Icon icon={preset.icon} class="size-4 text-primary" />
+                </div>
                 <div>
                   <p class="text-sm font-medium">{preset.label}</p>
                   <p class="text-xs text-muted-foreground">{preset.description}</p>
@@ -857,10 +878,17 @@
                   <Button
                     variant="outline"
                     size="sm"
-                    class="h-7 px-2 text-xs"
+                    class="h-7 gap-1 px-2 text-xs"
                     onclick={() => applyPresetScale(preset.value)}
                     disabled={!sourceImage}
                   >
+                    {#if preset.value < 1}
+                      <Icon icon="mdi:image-size-select-small" class="size-3" />
+                    {:else if preset.value === 1}
+                      <Icon icon="mdi:image-size-select-actual" class="size-3" />
+                    {:else}
+                      <Icon icon="mdi:image-size-select-large" class="size-3" />
+                    {/if}
                     {preset.label}
                   </Button>
                 {/each}
