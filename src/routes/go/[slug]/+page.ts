@@ -2,13 +2,19 @@ import { encodeUrl } from '$lib/utils/redirect';
 import { redirects } from '$lib/config/redirects';
 import type { EntryGenerator } from './$types';
 
-/** 扫描 Markdown 内容中的外链 */
+/** 从内容中提取外链 */
 function extractExternalLinks(raw: string): string[] {
-	const regex = /\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g;
 	const links: string[] = [];
+	// Markdown 链接语法: [text](url)
+	const mdRegex = /\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g;
 	let match: RegExpExecArray | null;
-	while ((match = regex.exec(raw)) !== null) {
+	while ((match = mdRegex.exec(raw)) !== null) {
 		links.push(match[2]);
+	}
+	// HTML/Svelte 中的 href="url" 或 href={url}
+	const hrefRegex = /href=["'](https?:\/\/[^"']+)["']/g;
+	while ((match = hrefRegex.exec(raw)) !== null) {
+		links.push(match[1]);
 	}
 	return links;
 }
@@ -16,13 +22,23 @@ function extractExternalLinks(raw: string): string[] {
 export const entries: EntryGenerator = () => {
 	const slugs = new Set<string>();
 
-	// 扫描所有文章中的外链
+	// 扫描 Markdown 文章中的外链
 	const rawPosts = import.meta.glob('/src/content/posts/**/index.md', {
 		query: '?raw',
 		eager: true
 	}) as Record<string, string>;
-
 	for (const content of Object.values(rawPosts)) {
+		for (const url of extractExternalLinks(content)) {
+			slugs.add(encodeUrl(url));
+		}
+	}
+
+	// 扫描 Svelte 组件中的外链
+	const rawSvelte = import.meta.glob('/src/**/*.svelte', {
+		query: '?raw',
+		eager: true
+	}) as Record<string, string>;
+	for (const content of Object.values(rawSvelte)) {
 		for (const url of extractExternalLinks(content)) {
 			slugs.add(encodeUrl(url));
 		}

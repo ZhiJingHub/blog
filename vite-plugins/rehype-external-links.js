@@ -16,7 +16,6 @@ export default function rehypeExternalLinks() {
 				const href = node.properties.href;
 
 				if (/^https?:\/\//i.test(href)) {
-					// 站内链接不处理
 					try {
 						if (new URL(href).hostname.includes(SITE_HOST)) return;
 					} catch {

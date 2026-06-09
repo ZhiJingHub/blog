@@ -7,6 +7,7 @@
 	import NavBar from '$lib/components/NavBar.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import Toast from '$lib/components/Toast.svelte';
+	import ExternalLinkInterceptor from '$lib/components/ExternalLinkInterceptor.svelte';
 
 	let { children } = $props();
 
@@ -49,3 +50,4 @@
 
 <BackToTop />
 <Toast />
+<ExternalLinkInterceptor />
