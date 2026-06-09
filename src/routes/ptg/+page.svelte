@@ -392,7 +392,7 @@
 	@media (min-width: 1024px) {
 		.ptg-layout {
 			display: grid;
-			grid-template-columns: 1fr 400px;
+			grid-template-columns: 1fr 420px;
 			grid-template-rows: auto 1fr;
 			gap: 1.5rem;
 			align-items: start;
@@ -432,7 +432,7 @@
 
 	@media (min-width: 1280px) {
 		.ptg-layout {
-			grid-template-columns: 1fr 460px;
+			grid-template-columns: 1fr 480px;
 		}
 	}
 
