@@ -90,7 +90,7 @@ export const COMPRESSION_PRESETS: CompressionPreset[] = [
     description: 'JPEG 低质量，文件最小',
     format: 'image/jpeg',
     quality: 0.6,
-    icon: 'mdi:arrow-collapse-down'
+    icon: 'mdi:zip-box'
   },
   {
     label: '社交媒体',

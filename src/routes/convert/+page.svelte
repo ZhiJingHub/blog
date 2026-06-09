@@ -591,18 +591,10 @@
     {:else}
       <!-- 批量模式：上传区域 -->
       <div class="rounded-xl border border-border bg-card p-4">
-        <div class="mb-3 flex items-center justify-between">
-          <h3 class="flex items-center gap-2 text-sm font-medium">
-            <Icon icon="mdi:image-multiple" class="size-4" />
-            批量上传
-          </h3>
-          {#if batchItems.length > 0}
-            <Button variant="ghost" size="sm" onclick={clearBatchItems}>
-              <Icon icon="mdi:delete-sweep" class="mr-1 size-4" />
-              清空
-            </Button>
-          {/if}
-        </div>
+        <h3 class="mb-3 flex items-center gap-2 text-sm font-medium">
+          <Icon icon="mdi:image-multiple" class="size-4" />
+          批量上传
+        </h3>
         <div
           class="upload-area {isDragging ? 'dragging' : ''}"
           ondragenter={handleDragenter}
@@ -739,6 +731,16 @@
             下载全部结果
           </Button>
         {/if}
+
+        <Button
+          variant="outline"
+          class="mt-2 w-full"
+          onclick={clearBatchItems}
+          disabled={batchItems.length === 0}
+        >
+          <Icon icon="mdi:delete-sweep" class="mr-2 size-4" />
+          清空列表
+        </Button>
       {/if}
     </div>
   </div>
@@ -761,13 +763,23 @@
           </h3>
           <div class="grid grid-cols-4 gap-2">
             {#each availableFormats as format}
+              {@const formatIcons: Record<string, string> = {
+                'image/png': 'mdi:file-png-box',
+                'image/jpeg': 'mdi:file-jpg-box',
+                'image/webp': 'mdi:file-webp-box',
+                'image/avif': 'mdi:file-image',
+                'image/bmp': 'mdi:file-image',
+                'image/gif': 'mdi:file-gif-box',
+                'image/svg+xml': 'mdi:svg'
+              }}
               <button
-                class="rounded-lg border-2 p-2 text-center transition-all {options.format === format.value
+                class="flex flex-col items-center gap-1 rounded-lg border-2 p-2 transition-all {options.format === format.value
                   ? 'border-primary bg-primary/5'
                   : 'border-muted hover:border-primary/50'}"
                 onclick={() => (options.format = format.value)}
               >
-                <span class="text-sm font-medium">{format.label}</span>
+                <Icon icon={formatIcons[format.value] || 'mdi:file-image'} class="size-4 {options.format === format.value ? 'text-primary' : 'text-muted-foreground'}" />
+                <span class="text-xs font-medium">{format.label}</span>
               </button>
             {/each}
           </div>
@@ -873,10 +885,17 @@
                 <Button
                   variant="outline"
                   size="sm"
-                  class="h-7 px-2 text-xs"
+                  class="h-7 gap-1 px-2 text-xs"
                   onclick={() => applyPresetScale(preset.value)}
                   disabled={!sourceImage}
                 >
+                  {#if preset.value < 1}
+                    <Icon icon="mdi:image-size-select-small" class="size-3" />
+                  {:else if preset.value === 1}
+                    <Icon icon="mdi:image-size-select-actual" class="size-3" />
+                  {:else}
+                    <Icon icon="mdi:image-size-select-large" class="size-3" />
+                  {/if}
                   {preset.label}
                 </Button>
               {/each}
