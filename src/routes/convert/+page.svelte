@@ -62,7 +62,21 @@
     customFilename: '',
     rotation: 0,
     flipH: false,
-    flipV: false
+    flipV: false,
+    watermark: {
+      enabled: false,
+      type: 'text',
+      text: '',
+      fontSize: 24,
+      color: '#ffffff',
+      opacity: 0.5,
+      rotation: 0,
+      position: 'bottom-right',
+      imageUrl: undefined,
+      imageFile: undefined,
+      imageSize: 100,
+      tileSpacing: 100
+    }
   });
 
   // 尺寸输入
@@ -411,6 +425,9 @@
     if (convertResult) {
       revokeUrl(convertResult.url);
     }
+    if (options.watermark.imageUrl) {
+      URL.revokeObjectURL(options.watermark.imageUrl);
+    }
 
     sourceImage = null;
     convertResult = null;
@@ -425,7 +442,21 @@
       customFilename: '',
       rotation: 0,
       flipH: false,
-      flipV: false
+      flipV: false,
+      watermark: {
+        enabled: false,
+        type: 'text',
+        text: '',
+        fontSize: 24,
+        color: '#ffffff',
+        opacity: 0.5,
+        rotation: 0,
+        position: 'bottom-right',
+        imageUrl: undefined,
+        imageFile: undefined,
+        imageSize: 100,
+        tileSpacing: 100
+      }
     };
   }
 
@@ -438,6 +469,11 @@
       }
       if (convertResult) {
         revokeUrl(convertResult.url);
+      }
+
+      // 清理水印图片资源
+      if (options.watermark.imageUrl) {
+        URL.revokeObjectURL(options.watermark.imageUrl);
       }
 
       // 清理批量模式资源
@@ -1008,6 +1044,218 @@
             </p>
           </div>
         {/if}
+
+        <!-- 水印设置 -->
+        <div class="settings-card">
+          <div class="flex items-center justify-between">
+            <h3 class="settings-title mb-0">
+              <Icon icon="mdi:watermark" class="size-4" />
+              水印
+            </h3>
+            <Switch bind:checked={options.watermark.enabled} />
+          </div>
+
+          {#if options.watermark.enabled}
+            <!-- 水印类型 -->
+            <div class="grid grid-cols-2 gap-2">
+              <Button
+                variant={options.watermark.type === 'text' ? 'default' : 'outline'}
+                size="sm"
+                onclick={() => (options.watermark.type = 'text')}
+              >
+                <Icon icon="mdi:format-text" class="mr-1 size-4" />
+                文字水印
+              </Button>
+              <Button
+                variant={options.watermark.type === 'image' ? 'default' : 'outline'}
+                size="sm"
+                onclick={() => (options.watermark.type = 'image')}
+              >
+                <Icon icon="mdi:image" class="mr-1 size-4" />
+                图片水印
+              </Button>
+            </div>
+
+            {#if options.watermark.type === 'text'}
+              <!-- 文字内容 -->
+              <div>
+                <label for="watermark-text" class="mb-1 block text-xs text-muted-foreground">水印文字</label>
+                <Input
+                  id="watermark-text"
+                  type="text"
+                  bind:value={options.watermark.text}
+                  placeholder="请输入水印文字"
+                  class="w-full"
+                />
+              </div>
+
+              <!-- 字体大小和颜色 -->
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="mb-1 block text-xs text-muted-foreground">字体大小</label>
+                  <div class="flex items-center gap-2">
+                    <Slider
+                      type="single"
+                      value={options.watermark.fontSize}
+                      onValueChange={(v: number) => (options.watermark.fontSize = v)}
+                      min={12}
+                      max={72}
+                      step={1}
+                    />
+                    <span class="w-8 text-right text-xs text-muted-foreground">{options.watermark.fontSize}</span>
+                  </div>
+                </div>
+                <div>
+                  <label class="mb-1 block text-xs text-muted-foreground">颜色</label>
+                  <div class="flex items-center gap-2">
+                    <input
+                      type="color"
+                      bind:value={options.watermark.color}
+                      class="size-9 cursor-pointer rounded border"
+                    />
+                  </div>
+                </div>
+              </div>
+            {:else}
+              <!-- 图片水印上传 -->
+              <div>
+                <label for="watermark-image" class="mb-1 block text-xs text-muted-foreground">水印图片</label>
+                <div class="flex items-center gap-2">
+                  {#if options.watermark.imageUrl}
+                    <img src={options.watermark.imageUrl} alt="水印预览" class="size-10 rounded border object-contain" />
+                  {/if}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onclick={() => document.getElementById('watermark-image-input')?.click()}
+                  >
+                    <Icon icon="mdi:upload" class="mr-1 size-4" />
+                    {options.watermark.imageUrl ? '更换' : '上传'}
+                  </Button>
+                  {#if options.watermark.imageUrl}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onclick={() => {
+                        if (options.watermark.imageUrl) URL.revokeObjectURL(options.watermark.imageUrl);
+                        options.watermark.imageUrl = undefined;
+                        options.watermark.imageFile = undefined;
+                      }}
+                    >
+                      <Icon icon="mdi:close" class="size-4" />
+                    </Button>
+                  {/if}
+                </div>
+                <input
+                  id="watermark-image-input"
+                  type="file"
+                  accept="image/*"
+                  class="hidden"
+                  onchange={(e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (file) {
+                      if (options.watermark.imageUrl) URL.revokeObjectURL(options.watermark.imageUrl);
+                      options.watermark.imageFile = file;
+                      options.watermark.imageUrl = URL.createObjectURL(file);
+                    }
+                  }}
+                />
+              </div>
+
+              <!-- 水印大小 -->
+              <div>
+                <label class="mb-1 block text-xs text-muted-foreground">水印大小</label>
+                <div class="flex items-center gap-2">
+                  <Slider
+                    type="single"
+                    value={options.watermark.imageSize}
+                    onValueChange={(v: number) => (options.watermark.imageSize = v)}
+                    min={20}
+                    max={300}
+                    step={5}
+                  />
+                  <span class="w-10 text-right text-xs text-muted-foreground">{options.watermark.imageSize}px</span>
+                </div>
+              </div>
+            {/if}
+
+            <!-- 位置选择 -->
+            <div>
+              <p class="mb-1 text-xs text-muted-foreground">位置</p>
+              <div class="grid grid-cols-3 gap-1.5">
+                {#each [
+                  { value: 'top-left', label: '左上' },
+                  { value: 'top-right', label: '右上' },
+                  { value: 'center', label: '居中' },
+                  { value: 'bottom-left', label: '左下' },
+                  { value: 'bottom-right', label: '右下' },
+                  { value: 'tile', label: '平铺' }
+                ] as pos}
+                  <Button
+                    variant={options.watermark.position === pos.value ? 'default' : 'outline'}
+                    size="sm"
+                    class="text-xs"
+                    onclick={() => (options.watermark.position = pos.value as any)}
+                  >
+                    {pos.label}
+                  </Button>
+                {/each}
+              </div>
+            </div>
+
+            <!-- 透明度 -->
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-muted-foreground">透明度</span>
+                <span class="text-xs text-muted-foreground">{Math.round(options.watermark.opacity * 100)}%</span>
+              </div>
+              <Slider
+                type="single"
+                value={options.watermark.opacity}
+                onValueChange={(v: number) => (options.watermark.opacity = v)}
+                min={0.05}
+                max={1}
+                step={0.05}
+              />
+            </div>
+
+            {#if options.watermark.type === 'text'}
+              <!-- 旋转角度 -->
+              <div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-muted-foreground">旋转角度</span>
+                  <span class="text-xs text-muted-foreground">{options.watermark.rotation}°</span>
+                </div>
+                <Slider
+                  type="single"
+                  value={options.watermark.rotation}
+                  onValueChange={(v: number) => (options.watermark.rotation = v)}
+                  min={-180}
+                  max={180}
+                  step={5}
+                />
+              </div>
+            {/if}
+
+            {#if options.watermark.position === 'tile'}
+              <!-- 平铺间距 -->
+              <div>
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-muted-foreground">平铺间距</span>
+                  <span class="text-xs text-muted-foreground">{options.watermark.tileSpacing}px</span>
+                </div>
+                <Slider
+                  type="single"
+                  value={options.watermark.tileSpacing}
+                  onValueChange={(v: number) => (options.watermark.tileSpacing = v)}
+                  min={50}
+                  max={300}
+                  step={10}
+                />
+              </div>
+            {/if}
+          {/if}
+        </div>
 
         <!-- 重置按钮 -->
         <Button

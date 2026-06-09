@@ -1,4 +1,144 @@
-import type { ConvertOptions, ConvertResult, OutputFormat } from './_types';
+import type { ConvertOptions, ConvertResult, OutputFormat, WatermarkOptions } from './_types';
+
+/**
+ * 获取水印位置坐标
+ */
+function getWatermarkPosition(
+  position: WatermarkOptions['position'],
+  canvasWidth: number,
+  canvasHeight: number,
+  watermarkWidth: number,
+  watermarkHeight: number,
+  margin: number = 20
+): { x: number; y: number } {
+  switch (position) {
+    case 'top-left':
+      return { x: margin, y: margin };
+    case 'top-right':
+      return { x: canvasWidth - watermarkWidth - margin, y: margin };
+    case 'bottom-left':
+      return { x: margin, y: canvasHeight - watermarkHeight - margin };
+    case 'bottom-right':
+      return { x: canvasWidth - watermarkWidth - margin, y: canvasHeight - watermarkHeight - margin };
+    case 'center':
+      return { x: (canvasWidth - watermarkWidth) / 2, y: (canvasHeight - watermarkHeight) / 2 };
+    default:
+      return { x: margin, y: margin };
+  }
+}
+
+/**
+ * 绘制文字水印
+ */
+function drawTextWatermark(
+  ctx: CanvasRenderingContext2D,
+  options: WatermarkOptions,
+  canvasWidth: number,
+  canvasHeight: number
+): void {
+  const fontSize = options.fontSize || 24;
+  const fontFamily = 'Arial, sans-serif';
+  ctx.font = `${fontSize}px ${fontFamily}`;
+
+  const textMetrics = ctx.measureText(options.text);
+  const textWidth = textMetrics.width;
+  const textHeight = fontSize;
+
+  ctx.save();
+  ctx.globalAlpha = options.opacity;
+  ctx.fillStyle = options.color;
+
+  if (options.position === 'tile') {
+    // 平铺模式
+    const spacing = options.tileSpacing || 100;
+    const rotation = (options.rotation * Math.PI) / 180;
+
+    for (let y = -canvasHeight; y < canvasHeight * 2; y += spacing) {
+      for (let x = -canvasWidth; x < canvasWidth * 2; x += spacing) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rotation);
+        ctx.fillText(options.text, 0, 0);
+        ctx.restore();
+      }
+    }
+  } else {
+    // 固定位置模式
+    const pos = getWatermarkPosition(options.position, canvasWidth, canvasHeight, textWidth, textHeight);
+
+    ctx.save();
+    ctx.translate(pos.x + textWidth / 2, pos.y + textHeight / 2);
+    ctx.rotate((options.rotation * Math.PI) / 180);
+    ctx.fillText(options.text, -textWidth / 2, textHeight / 2);
+    ctx.restore();
+  }
+
+  ctx.restore();
+}
+
+/**
+ * 绘制图片水印
+ */
+function drawImageWatermark(
+  ctx: CanvasRenderingContext2D,
+  watermarkImage: HTMLImageElement,
+  options: WatermarkOptions,
+  canvasWidth: number,
+  canvasHeight: number
+): void {
+  const size = options.imageSize || 100;
+  const aspectRatio = watermarkImage.naturalWidth / watermarkImage.naturalHeight;
+  const watermarkWidth = size;
+  const watermarkHeight = size / aspectRatio;
+
+  ctx.save();
+  ctx.globalAlpha = options.opacity;
+
+  if (options.position === 'tile') {
+    // 平铺模式
+    const spacing = options.tileSpacing || 100;
+
+    for (let y = -watermarkHeight; y < canvasHeight + watermarkHeight; y += watermarkHeight + spacing) {
+      for (let x = -watermarkWidth; x < canvasWidth + watermarkWidth; x += watermarkWidth + spacing) {
+        ctx.drawImage(watermarkImage, x, y, watermarkWidth, watermarkHeight);
+      }
+    }
+  } else {
+    // 固定位置模式
+    const pos = getWatermarkPosition(options.position, canvasWidth, canvasHeight, watermarkWidth, watermarkHeight);
+    ctx.drawImage(watermarkImage, pos.x, pos.y, watermarkWidth, watermarkHeight);
+  }
+
+  ctx.restore();
+}
+
+/**
+ * 应用水印到 Canvas
+ */
+export async function applyWatermark(
+  ctx: CanvasRenderingContext2D,
+  watermarkOptions: WatermarkOptions,
+  canvasWidth: number,
+  canvasHeight: number
+): Promise<void> {
+  if (!watermarkOptions.enabled || !watermarkOptions.text && watermarkOptions.type === 'text') {
+    return;
+  }
+
+  if (watermarkOptions.type === 'text') {
+    drawTextWatermark(ctx, watermarkOptions, canvasWidth, canvasHeight);
+  } else if (watermarkOptions.type === 'image' && watermarkOptions.imageUrl) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        drawImageWatermark(ctx, img, watermarkOptions, canvasWidth, canvasHeight);
+        resolve();
+      };
+      img.onerror = reject;
+      img.src = watermarkOptions.imageUrl!;
+    });
+  }
+}
 
 /**
  * 将图片转换为 SVG 格式
@@ -115,6 +255,11 @@ export async function convertImage(
 
   // 恢复状态
   ctx.restore();
+
+  // 应用水印
+  if (options.watermark?.enabled) {
+    await applyWatermark(ctx, options.watermark, canvas.width, canvas.height);
+  }
 
   // 导出为指定格式和质量
   return new Promise((blobResolve, reject) => {

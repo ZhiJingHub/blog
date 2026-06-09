@@ -1,3 +1,28 @@
+export interface WatermarkOptions {
+  enabled: boolean;
+  type: 'text' | 'image';
+
+  // 文字水印选项
+  text: string;
+  fontSize: number;
+  color: string;
+
+  // 通用选项
+  opacity: number;
+  rotation: number;
+
+  // 位置选项
+  position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center' | 'tile';
+
+  // 图片水印选项
+  imageUrl?: string;
+  imageFile?: File;
+  imageSize: number;
+
+  // 平铺选项
+  tileSpacing: number;
+}
+
 export interface ConvertOptions {
   format: OutputFormat;
   quality: number; // 0-1
@@ -9,6 +34,7 @@ export interface ConvertOptions {
   rotation: number; // 0, 90, 180, 270
   flipH: boolean;
   flipV: boolean;
+  watermark: WatermarkOptions;
 }
 
 export type OutputFormat =
