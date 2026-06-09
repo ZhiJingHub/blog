@@ -30,6 +30,7 @@
 		"format": "prettier --write ."
 	},
 	"devDependencies": {
+		"@vercel/speed-insights": "^2.0.0",
 		"@eslint/js": "^10.0.1",
 		"@iconify-json/mdi": "^1.2.3",
 		"@iconify-json/simple-icons": "^1.2.85",
