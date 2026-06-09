@@ -4,9 +4,13 @@
 	import ThemeToggle from './ThemeToggle.svelte';
 
 	const isHomePage = $derived(page.route?.id === '/');
+	const hideNavBarRoutes = ['/cover', '/convert'];
+	const shouldHideNavBar = $derived(
+		isHomePage || hideNavBarRoutes.some((route) => page.route?.id?.startsWith(route))
+	);
 </script>
 
-{#if !isHomePage}
+{#if !shouldHideNavBar}
 	<nav
 		aria-label="主导航"
 		class="sticky top-0 z-40 w-full bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/60"
