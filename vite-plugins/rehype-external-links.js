@@ -1,6 +1,10 @@
 import { visit } from './ast-visit.js';
 
-const SITE_HOST = 'iwexe.top';
+const ALLOWED_DOMAINS = ['iwexe.top', 'iwecc.dpdns.org', 'iwecc.qzz.io'];
+
+function isInternal(host) {
+	return ALLOWED_DOMAINS.some((d) => host === d || host.endsWith(`.${d}`));
+}
 
 function toBase64Url(str) {
 	const encoded = typeof Buffer !== 'undefined'
@@ -17,8 +21,7 @@ export default function rehypeExternalLinks() {
 
 				if (/^https?:\/\//i.test(href)) {
 					try {
-						const host = new URL(href).hostname;
-						if (host === SITE_HOST || host.endsWith(`.${SITE_HOST}`)) return;
+						if (isInternal(new URL(href).hostname)) return;
 					} catch {
 						return;
 					}

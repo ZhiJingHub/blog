@@ -2,7 +2,11 @@
 	import { encodeUrl } from '$lib/utils/redirect';
 	import { siteConfig } from '$lib/config/site';
 
-	const siteHost = new URL(siteConfig.url).hostname;
+	const allowedDomains = siteConfig.domains;
+
+	function isInternal(host: string): boolean {
+		return allowedDomains.some((d) => host === d || host.endsWith(`.${d}`));
+	}
 
 	$effect(() => {
 		function handleClick(e: MouseEvent) {
@@ -12,10 +16,9 @@
 			const href = anchor.href;
 			if (!href || !/^https?:\/\//i.test(href)) return;
 
-			// 站内链接跳过（精确匹配 iwexe.top 及 *.iwexe.top）
+			// 站内链接跳过
 			try {
-				const host = new URL(href).hostname;
-				if (host === siteHost || host.endsWith(`.${siteHost}`)) return;
+				if (isInternal(new URL(href).hostname)) return;
 			} catch {
 				return;
 			}
