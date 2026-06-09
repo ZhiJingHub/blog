@@ -349,21 +349,6 @@
 	to { opacity: 1; }
 }
 
-/* Motion One 动画初始状态 */
-.mo-fade-in-up,
-.mo-fade-in,
-.mo-slide-left,
-.mo-slide-right,
-.mo-pop-in,
-.mo-stagger > * {
-	opacity: 0;
-}
-.mo-fade-in-up { transform: translateY(20px); }
-.mo-slide-left { transform: translateX(-30px); }
-.mo-slide-right { transform: translateX(30px); }
-.mo-pop-in { transform: scale(0.8); }
-.mo-stagger > * { transform: translateY(15px); }
-
 html,
 body {
 	overflow-x: hidden;

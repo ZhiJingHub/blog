@@ -11,6 +11,7 @@
   import TabsTrigger from '$lib/components/ui/tabs/tabs-trigger.svelte';
   import TabsContent from '$lib/components/ui/tabs/tabs-content.svelte';
   import Icon from '@iconify/svelte';
+  import { WATERMARK_POSITIONS } from '$lib/types/watermark';
   import type {
     ConvertOptions,
     ConvertResult,
@@ -1183,19 +1184,12 @@
             <div>
               <p class="mb-1 text-xs text-muted-foreground">位置</p>
               <div class="grid grid-cols-3 gap-1.5">
-                {#each [
-                  { value: 'top-left', label: '左上' },
-                  { value: 'top-right', label: '右上' },
-                  { value: 'center', label: '居中' },
-                  { value: 'bottom-left', label: '左下' },
-                  { value: 'bottom-right', label: '右下' },
-                  { value: 'tile', label: '平铺' }
-                ] as pos}
+                {#each WATERMARK_POSITIONS as pos}
                   <Button
                     variant={options.watermark.position === pos.value ? 'default' : 'outline'}
                     size="sm"
                     class="text-xs"
-                    onclick={() => (options.watermark.position = pos.value as any)}
+                    onclick={() => (options.watermark.position = pos.value)}
                   >
                     {pos.label}
                   </Button>

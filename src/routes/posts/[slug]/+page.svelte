@@ -3,11 +3,13 @@
 	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
 	import { Badge } from '$lib/components/ui/badge';
+	import Icon from '@iconify/svelte';
 	import { siteConfig } from '$lib/config/site';
 	import { formatDate } from '$lib/utils/format';
 	import { renderMermaidIn } from '$lib/utils/mermaid';
 	import PostToc from '$lib/components/PostToc.svelte';
 	import ImageViewer from '$lib/components/ImageViewer.svelte';
+	import PageViews from '$lib/components/PageViews.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -71,6 +73,10 @@
 			<time datetime={data.post.metadata.published} class="text-sm text-muted-foreground">{formatDate(data.post.metadata.published)}</time>
 			<span class="text-sm text-muted-foreground">· {(data.post.metadata.stats?.wordCount ?? 0).toLocaleString()} 字</span>
 			<span class="text-sm text-muted-foreground">· 约 {data.post.metadata.stats?.readTime ?? 0} 分钟</span>
+			<span class="inline-flex items-center gap-1 text-sm text-muted-foreground">
+				· <Icon icon="mdi:eye" class="size-3.5" />
+				<PageViews pathname="/posts/{page.params.slug}/" increment={false} class="text-sm text-muted-foreground" />
+			</span>
 			{#if data.post.metadata.updated}
 				<span class="text-sm text-muted-foreground">· 更新于 {formatDate(data.post.metadata.updated)}</span>
 			{/if}
@@ -86,9 +92,9 @@
 		{/if}
 
 		{#if data.post.metadata.tags && data.post.metadata.tags.length > 0}
-			<div class="mt-4 flex flex-wrap gap-2">
+			<div class="mt-4 flex flex-wrap gap-1.5">
 				{#each data.post.metadata.tags as tag}
-					<span class="rounded-md bg-muted px-2.5 py-1 text-sm text-muted-foreground">{tag}</span>
+					<span class="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">{tag}</span>
 				{/each}
 			</div>
 		{/if}

@@ -4,6 +4,7 @@
 	import { siteConfig } from '$lib/config/site';
 	import Icon from '@iconify/svelte';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
+	import PageViews from '$lib/components/PageViews.svelte';
 </script>
 
 <svelte:head>
@@ -31,7 +32,7 @@
 	<div class="w-full max-w-2xl mx-auto">
 		<Card class="relative overflow-hidden">
 			<CardHeader class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-				<CardTitle class="text-center text-5xl font-black tracking-widest text-foreground/[0.04] dark:text-foreground/[0.06] select-none">社交</CardTitle>
+				<CardTitle class="text-center text-5xl font-black tracking-widest text-foreground/[0.06] dark:text-foreground/[0.08] select-none">社交</CardTitle>
 			</CardHeader>
 			<CardContent class="relative z-10">
 				<div class="flex flex-wrap gap-3 justify-center">
@@ -61,7 +62,7 @@
 	<div class="w-full max-w-2xl mx-auto">
 		<Card class="relative overflow-hidden">
 			<CardHeader class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-				<CardTitle class="text-center text-5xl font-black tracking-widest text-foreground/[0.04] dark:text-foreground/[0.06] select-none">导航</CardTitle>
+				<CardTitle class="text-center text-5xl font-black tracking-widest text-foreground/[0.06] dark:text-foreground/[0.08] select-none">导航</CardTitle>
 			</CardHeader>
 			<CardContent class="relative z-10">
 				<div class="flex flex-wrap gap-3 justify-center">
@@ -80,5 +81,10 @@
 				</div>
 			</CardContent>
 		</Card>
+	</div>
+
+	<!-- 浏览量 -->
+	<div class="text-center">
+		<PageViews pathname="/" class="text-xs text-muted-foreground" />
 	</div>
 </div>

@@ -1,3 +1,5 @@
+import type { WatermarkPosition } from '$lib/types/watermark';
+
 export interface WatermarkItem {
   id: string;
   type: 'text' | 'image';
@@ -17,7 +19,7 @@ export interface WatermarkItem {
   // 通用设置
   opacity: number;
   rotation: number;
-  position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center' | 'tile';
+  position: WatermarkPosition;
   tileSpacing: number;
 }
 
@@ -44,12 +46,3 @@ export const DEFAULT_WATERMARK: Omit<WatermarkItem, 'id'> = {
   position: 'bottom-right',
   tileSpacing: 100
 };
-
-export const POSITION_OPTIONS = [
-  { value: 'top-left', label: '左上' },
-  { value: 'top-right', label: '右上' },
-  { value: 'center', label: '居中' },
-  { value: 'bottom-left', label: '左下' },
-  { value: 'bottom-right', label: '右下' },
-  { value: 'tile', label: '平铺' }
-] as const;

@@ -7,7 +7,6 @@
 	import NavBar from '$lib/components/NavBar.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import Toast from '$lib/components/Toast.svelte';
-	import PageViews from '$lib/components/PageViews.svelte';
 
 	let { children } = $props();
 
@@ -45,9 +44,6 @@
 	<main class="flex-1">
 		{@render children()}
 	</main>
-	<div class="text-center py-4">
-		<PageViews pathname={page.url.pathname} class="text-xs text-muted-foreground" />
-	</div>
 	<Footer />
 </div>
 

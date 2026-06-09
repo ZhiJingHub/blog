@@ -8,8 +8,9 @@
   import { Badge } from '$lib/components/ui/badge';
   import Icon from '@iconify/svelte';
   import { siteConfig } from '$lib/config/site';
+  import { WATERMARK_POSITIONS } from '$lib/types/watermark';
   import type { WatermarkItem } from './_types';
-  import { DEFAULT_WATERMARK, POSITION_OPTIONS } from './_types';
+  import { DEFAULT_WATERMARK } from './_types';
   import type { LoadedImage } from './_image-utils';
   import { loadImage, revokeUrl, formatFileSize } from './_image-utils';
   import { generatePreview, exportWatermarkedImage } from './_watermark';
@@ -473,7 +474,7 @@
                 <div>
                   <p class="mb-1 text-xs text-muted-foreground">位置</p>
                   <div class="grid grid-cols-3 gap-1.5">
-                    {#each POSITION_OPTIONS as pos}
+                    {#each WATERMARK_POSITIONS as pos}
                       <Button
                         variant={watermark.position === pos.value ? 'default' : 'outline'}
                         size="sm"

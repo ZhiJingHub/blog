@@ -50,7 +50,7 @@
 	<div class="container mx-auto max-w-6xl px-4 pt-6 pb-12 sm:pt-8">
 		<div class="mb-6">
 			<a href="/" class="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
-				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+				<Icon icon="mdi:chevron-left" class="size-4" />
 				返回首页
 			</a>
 		</div>

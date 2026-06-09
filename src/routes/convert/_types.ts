@@ -1,3 +1,5 @@
+import type { WatermarkPosition } from '$lib/types/watermark';
+
 export interface WatermarkOptions {
   enabled: boolean;
   type: 'text' | 'image';
@@ -12,7 +14,7 @@ export interface WatermarkOptions {
   rotation: number;
 
   // 位置选项
-  position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center' | 'tile';
+  position: WatermarkPosition;
 
   // 图片水印选项
   imageUrl?: string;

@@ -6,6 +6,7 @@
 	import Icon from '@iconify/svelte';
 	import { siteConfig } from '$lib/config/site';
 	import { formatDate } from '$lib/utils/format';
+	import PageViews from '$lib/components/PageViews.svelte';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -48,7 +49,7 @@
 <div class="container mx-auto max-w-4xl px-4 py-8 sm:py-12">
 	<div class="mb-6">
 		<a href="/" class="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
-			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+			<Icon icon="mdi:chevron-left" class="size-4" />
 			返回首页
 		</a>
 	</div>
@@ -114,6 +115,10 @@
 										<time datetime={post.metadata.published} class="shrink-0 text-sm text-muted-foreground">{formatDate(post.metadata.published)}</time>
 										<span class="shrink-0 text-sm text-muted-foreground">· {(post.metadata.stats?.wordCount ?? 0).toLocaleString()} 字</span>
 										<span class="shrink-0 text-sm text-muted-foreground">· 约 {post.metadata.stats?.readTime ?? 0} 分钟</span>
+										<span class="inline-flex shrink-0 items-center gap-1 text-sm text-muted-foreground">
+											· <Icon icon="mdi:eye" class="size-3.5" />
+											<PageViews pathname="/posts/{post.slug}/" increment={false} class="text-sm text-muted-foreground" />
+										</span>
 									</div>
 									<h2 class="mb-2 text-xl font-semibold break-words group-hover:text-primary sm:text-2xl">{post.metadata.title}</h2>
 									<p class="line-clamp-2 text-sm text-muted-foreground sm:text-base">{post.metadata.description}</p>
