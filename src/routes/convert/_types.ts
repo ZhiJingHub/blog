@@ -5,6 +5,7 @@ export interface ConvertOptions {
   height?: number;
   maintainAspectRatio: boolean;
   backgroundColor?: string;
+  customFilename?: string;
 }
 
 export type OutputFormat =
@@ -13,7 +14,8 @@ export type OutputFormat =
   | 'image/webp'
   | 'image/avif'
   | 'image/bmp'
-  | 'image/gif';
+  | 'image/gif'
+  | 'image/svg+xml';
 
 export interface LoadedImage {
   file: File;
@@ -43,7 +45,8 @@ export const FORMAT_OPTIONS: {
   { value: 'image/webp', label: 'WebP', extension: '.webp', description: '现代格式，体积更小' },
   { value: 'image/avif', label: 'AVIF', extension: '.avif', description: '最新格式，压缩率最高' },
   { value: 'image/bmp', label: 'BMP', extension: '.bmp', description: '位图格式，无压缩' },
-  { value: 'image/gif', label: 'GIF', extension: '.gif', description: '支持动画和透明' }
+  { value: 'image/gif', label: 'GIF', extension: '.gif', description: '支持动画和透明' },
+  { value: 'image/svg+xml', label: 'SVG', extension: '.svg', description: '矢量格式，可缩放' }
 ];
 
 export const PRESET_SCALES = [

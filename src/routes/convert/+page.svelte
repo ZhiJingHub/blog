@@ -43,7 +43,8 @@
     format: 'image/webp',
     quality: 0.85,
     maintainAspectRatio: true,
-    backgroundColor: '#ffffff'
+    backgroundColor: '#ffffff',
+    customFilename: ''
   });
 
   // 尺寸输入
@@ -215,7 +216,20 @@
     if (!convertResult || !sourceImage) return;
 
     const extension = getFormatExtension(options.format);
-    const filename = generateOutputFilename(sourceImage.file.name, extension);
+    let filename: string;
+
+    if (options.customFilename?.trim()) {
+      // 使用自定义文件名
+      filename = options.customFilename.trim();
+      // 如果没有扩展名，自动添加
+      if (!filename.includes('.')) {
+        filename += extension;
+      }
+    } else {
+      // 使用原始文件名
+      filename = generateOutputFilename(sourceImage.file.name, extension);
+    }
+
     downloadBlob(convertResult.blob, filename);
   }
 
@@ -237,7 +251,8 @@
       format: 'image/webp',
       quality: 0.85,
       maintainAspectRatio: true,
-      backgroundColor: '#ffffff'
+      backgroundColor: '#ffffff',
+      customFilename: ''
     };
   }
 
@@ -562,6 +577,34 @@
           </CardContent>
         </Card>
       {/if}
+
+      <!-- 自定义文件名 -->
+      <Card>
+        <CardHeader class="pb-3">
+          <CardTitle class="flex items-center gap-2 text-base">
+            <Icon icon="mdi:file-edit" class="size-5" />
+            输出文件名
+          </CardTitle>
+        </CardHeader>
+        <CardContent class="pt-0">
+          <div class="space-y-2">
+            <Input
+              id="custom-filename"
+              type="text"
+              bind:value={options.customFilename}
+              placeholder="留空则使用原文件名"
+              class="w-full"
+            />
+            <p class="text-xs text-muted-foreground">
+              {#if options.customFilename?.trim()}
+                将保存为: <span class="font-medium">{options.customFilename.trim()}{options.customFilename.includes('.') ? '' : getFormatExtension(options.format)}</span>
+              {:else}
+                留空将自动使用原文件名
+              {/if}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       <!-- 操作按钮 -->
       <div class="space-y-3">

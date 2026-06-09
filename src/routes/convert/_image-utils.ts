@@ -186,6 +186,13 @@ export function getFormatInfo(format: OutputFormat): {
       description: '支持动画和透明',
       supportsTransparency: true,
       supportsAnimation: true
+    },
+    'image/svg+xml': {
+      label: 'SVG',
+      extension: '.svg',
+      description: '矢量格式，可缩放',
+      supportsTransparency: true,
+      supportsAnimation: true
     }
   };
 
