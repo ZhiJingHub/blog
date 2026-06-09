@@ -363,6 +363,7 @@
 						{/if}
 					</CardContent>
 				</Card>
+				<div class="scroll-indicator"></div>
 			</div>
 		</div>
 	</div>
@@ -374,6 +375,7 @@
 		flex-direction: column;
 		gap: 1.5rem;
 	}
+
 	.ptg-left {
 		display: flex;
 		flex-direction: column;
@@ -381,44 +383,103 @@
 		width: 100%;
 		min-width: 0;
 	}
+
 	.ptg-right {
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
+		gap: 0.75rem;
 		width: 100%;
 		min-width: 0;
+		position: relative;
+	}
+
+	.scroll-indicator {
+		display: none;
 	}
 
 	@media (min-width: 1024px) {
 		.ptg-layout {
 			display: grid;
-			grid-template-columns: 1fr 1fr;
+			grid-template-columns: 1fr 400px;
+			grid-template-rows: auto 1fr;
 			gap: 1.5rem;
 			align-items: start;
 		}
+
 		.ptg-left {
+			grid-column: 1;
+			grid-row: 1 / -1;
 			position: sticky;
 			top: 1.5rem;
 		}
+
 		.ptg-right {
+			grid-column: 2;
+			grid-row: 1 / -1;
 			max-height: calc(100vh - 3rem);
 			overflow-y: auto;
 			scrollbar-width: thin;
 			scrollbar-color: var(--muted-foreground) transparent;
 			scrollbar-gutter: stable;
 		}
-		.ptg-right::-webkit-scrollbar { width: 6px; }
-		.ptg-right::-webkit-scrollbar-track { background: transparent; }
-		.ptg-right::-webkit-scrollbar-thumb { background-color: var(--muted-foreground); border-radius: 3px; min-height: 30px; }
+
+		.ptg-right::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		.ptg-right::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		.ptg-right::-webkit-scrollbar-thumb {
+			background-color: var(--muted-foreground);
+			border-radius: 3px;
+			min-height: 30px;
+		}
+
+		.scroll-indicator {
+			display: block;
+			position: sticky;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			height: 2rem;
+			background: linear-gradient(to top, var(--background), transparent);
+			pointer-events: none;
+			flex-shrink: 0;
+			margin-top: -2rem;
+			z-index: 1;
+		}
 	}
 
 	@media (min-width: 1280px) {
 		.ptg-layout {
-			grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+			grid-template-columns: 1fr 460px;
 		}
 	}
 
 	.ptg-right :global([data-slot='card']) {
-		border: 1px solid var(--border);
+		border: 1px solid var(--border) !important;
+		outline: none !important;
+		box-shadow: none !important;
+	}
+
+	.ptg-right :global([data-slot='tabs-content']) {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		padding-top: 0.75rem;
+	}
+
+	.ptg-right :global([data-slot='tabs-list']) {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+		width: 100%;
+	}
+
+	.ptg-right :global([data-slot='tabs-list']::-webkit-scrollbar) {
+		display: none;
 	}
 </style>

@@ -1023,10 +1023,7 @@
   .convert-layout {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
-    padding: 2rem;
-    max-width: 90rem;
-    margin: 0 auto;
+    gap: 1.5rem;
   }
 
   .convert-title-col {
@@ -1036,7 +1033,7 @@
   .convert-preview-col {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
     width: 100%;
     min-width: 0;
   }
@@ -1044,7 +1041,7 @@
   .convert-settings-col {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.75rem;
     width: 100%;
     min-width: 0;
     position: relative;
@@ -1052,14 +1049,14 @@
 
   .upload-area {
     display: flex;
-    min-height: 250px;
+    min-height: 200px;
     cursor: pointer;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border-radius: 1rem;
+    border-radius: 0.75rem;
     border: 2px dashed;
-    padding: 2.5rem;
+    padding: 2rem;
     transition: all 0.2s;
     border-color: var(--muted-foreground) / 25%;
     background: var(--card);
@@ -1082,11 +1079,11 @@
   .settings-card {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    border-radius: 1rem;
+    gap: 0.75rem;
+    border-radius: 0.75rem;
     border: 1px solid var(--border);
     background: var(--card);
-    padding: 1.25rem;
+    padding: 1rem;
   }
 
   .settings-title {
@@ -1095,19 +1092,19 @@
     gap: 0.5rem;
     font-size: 0.875rem;
     font-weight: 500;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
   }
 
   .scroll-indicator {
     display: none;
   }
 
-  @media (min-width: 1280px) {
+  @media (min-width: 1024px) {
     .convert-layout {
       display: grid;
-      grid-template-columns: 1fr 440px;
+      grid-template-columns: 1fr 400px;
       grid-template-rows: auto 1fr;
-      gap: 2rem;
+      gap: 1.5rem;
       align-items: start;
     }
 
@@ -1120,13 +1117,13 @@
       grid-column: 1;
       grid-row: 2;
       position: sticky;
-      top: 2rem;
+      top: 1.5rem;
     }
 
     .convert-settings-col {
       grid-column: 2;
       grid-row: 1 / -1;
-      max-height: calc(100vh - 4rem);
+      max-height: calc(100vh - 3rem);
       overflow-y: auto;
       scrollbar-width: thin;
       scrollbar-color: var(--muted-foreground) transparent;
@@ -1160,5 +1157,36 @@
       margin-top: -2rem;
       z-index: 1;
     }
+  }
+
+  @media (min-width: 1280px) {
+    .convert-layout {
+      grid-template-columns: 1fr 460px;
+    }
+  }
+
+  .convert-settings-col :global([data-slot='tabs-content']) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-top: 0.75rem;
+  }
+
+  .convert-settings-col :global([data-slot='tabs-list']) {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    width: 100%;
+  }
+
+  .convert-settings-col :global([data-slot='tabs-list']::-webkit-scrollbar) {
+    display: none;
+  }
+
+  .convert-settings-col :global([data-slot='card']) {
+    border: 1px solid var(--border) !important;
+    outline: none !important;
+    box-shadow: none !important;
   }
 </style>
