@@ -6,6 +6,9 @@ export interface ConvertOptions {
   maintainAspectRatio: boolean;
   backgroundColor?: string;
   customFilename?: string;
+  rotation: number; // 0, 90, 180, 270
+  flipH: boolean;
+  flipV: boolean;
 }
 
 export type OutputFormat =
@@ -58,3 +61,54 @@ export const PRESET_SCALES = [
   { label: '200%', value: 2 },
   { label: '300%', value: 3 }
 ];
+
+export interface CompressionPreset {
+  label: string;
+  description: string;
+  format: OutputFormat;
+  quality: number;
+  icon: string;
+}
+
+export const COMPRESSION_PRESETS: CompressionPreset[] = [
+  {
+    label: '网页优化',
+    description: 'WebP 格式，平衡质量和大小',
+    format: 'image/webp',
+    quality: 0.8,
+    icon: 'mdi:web'
+  },
+  {
+    label: '高质量',
+    description: 'PNG 无损压缩',
+    format: 'image/png',
+    quality: 1,
+    icon: 'mdi:quality-high'
+  },
+  {
+    label: '最小体积',
+    description: 'JPEG 低质量，文件最小',
+    format: 'image/jpeg',
+    quality: 0.6,
+    icon: 'mdi:file-compress'
+  },
+  {
+    label: '社交媒体',
+    description: 'JPEG 中等质量',
+    format: 'image/jpeg',
+    quality: 0.85,
+    icon: 'mdi:share-variant'
+  }
+];
+
+export interface BatchItem {
+  id: string;
+  file: File;
+  url: string;
+  img: HTMLImageElement;
+  width: number;
+  height: number;
+  status: 'pending' | 'converting' | 'done' | 'error';
+  result?: ConvertResult;
+  error?: string;
+}

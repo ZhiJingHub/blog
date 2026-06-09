@@ -66,18 +66,55 @@ export async function convertImage(
     throw new Error('无法创建 Canvas 上下文');
   }
 
-  // 设置尺寸
-  canvas.width = options.width || source.naturalWidth;
-  canvas.height = options.height || source.naturalHeight;
+  const srcWidth = source.naturalWidth;
+  const srcHeight = source.naturalHeight;
+  const targetWidth = options.width || srcWidth;
+  const targetHeight = options.height || srcHeight;
+
+  // 判断是否需要旋转（90度或270度会交换宽高）
+  const isRotated = options.rotation === 90 || options.rotation === 270;
+
+  // 设置画布尺寸（考虑旋转）
+  canvas.width = isRotated ? targetHeight : targetWidth;
+  canvas.height = isRotated ? targetWidth : targetHeight;
+
+  // 保存状态
+  ctx.save();
+
+  // 移动到中心点进行变换
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+
+  // 应用旋转
+  if (options.rotation) {
+    ctx.rotate((options.rotation * Math.PI) / 180);
+  }
+
+  // 应用翻转
+  if (options.flipH) {
+    ctx.scale(-1, 1);
+  }
+  if (options.flipV) {
+    ctx.scale(1, -1);
+  }
 
   // 如果输出格式是 JPG 或 BMP 且原图可能有透明度，填充背景色
   if (options.format === 'image/jpeg' || options.format === 'image/bmp') {
     ctx.fillStyle = options.backgroundColor || '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // 需要在绘制图片之前填充背景
+    ctx.fillRect(-canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
   }
 
-  // 绘制图片
-  ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+  // 绘制图片（从中心点绘制）
+  ctx.drawImage(
+    source,
+    -targetWidth / 2,
+    -targetHeight / 2,
+    targetWidth,
+    targetHeight
+  );
+
+  // 恢复状态
+  ctx.restore();
 
   // 导出为指定格式和质量
   return new Promise((blobResolve, reject) => {
