@@ -56,19 +56,13 @@
 		</div>
 
 		<div class="mb-8 text-center">
-			<h1 class="flex items-center justify-center gap-3 text-3xl font-bold tracking-tight sm:text-4xl">
-				<Icon icon="mdi:link-variant" class="size-8 text-primary" />
-				友情链接
-			</h1>
+			<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">友情链接</h1>
 			<p class="mt-2 text-lg text-muted-foreground">这里是我的朋友们，欢迎互相访问交流</p>
 		</div>
 
 		<Card class="mb-8">
 			<CardHeader>
-				<CardTitle class="flex items-center gap-2 text-xl">
-					<Icon icon="mdi:link-plus" class="size-5" />
-					申请友链
-				</CardTitle>
+				<CardTitle class="text-xl">申请友链</CardTitle>
 			</CardHeader>
 			<CardContent class="space-y-8">
 				<p class="text-base text-muted-foreground">欢迎与我交换友链，请在你的站点添加以下信息后提交 PR。</p>
@@ -106,10 +100,7 @@
 		</Card>
 
 		<div>
-			<h2 class="mb-6 flex items-center gap-2 text-xl font-bold">
-				<Icon icon="mdi:account-group" class="size-5" />
-				友链列表 ({friends.length})
-			</h2>
+			<h2 class="mb-6 text-xl font-bold">友链列表 ({friends.length})</h2>
 			{#if friends.length === 0}
 				<Card><CardContent class="py-12 text-center text-muted-foreground">暂无友链</CardContent></Card>
 			{:else}

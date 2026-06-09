@@ -54,10 +54,7 @@
 	</div>
 
 	<div class="mb-8 text-center">
-		<h1 class="flex items-center justify-center gap-3 text-3xl font-bold tracking-tight sm:text-4xl">
-			<Icon icon="mdi:post-outline" class="size-8 text-primary" />
-			文章列表
-		</h1>
+		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">文章列表</h1>
 		<p class="mt-2 text-lg text-muted-foreground">分享技术、想法和经验</p>
 		{#if data.posts.length > 0}
 			{@const totalWords = data.posts.reduce((sum, p) => sum + (p.metadata.stats?.wordCount ?? 0), 0)}

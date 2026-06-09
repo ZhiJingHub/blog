@@ -463,10 +463,7 @@
       <Icon icon="mdi:chevron-left" class="size-4" />
       返回首页
     </a>
-    <h1 class="flex items-center gap-3 text-2xl font-bold tracking-tight sm:text-3xl">
-      <Icon icon="mdi:image-sync" class="size-8 text-primary" />
-      图片格式转换
-    </h1>
+    <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">图片格式转换</h1>
     <p class="mt-2 text-sm text-muted-foreground">
       在线图片格式转换工具，支持 PNG、JPG、WebP、AVIF、BMP、GIF、SVG 格式相互转换
     </p>
