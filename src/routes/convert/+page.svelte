@@ -1026,9 +1026,9 @@
   .convert-layout {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    padding: 1.5rem;
-    max-width: 80rem;
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 90rem;
     margin: 0 auto;
   }
 
@@ -1039,7 +1039,7 @@
   .convert-preview-col {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
     width: 100%;
     min-width: 0;
   }
@@ -1047,7 +1047,7 @@
   .convert-settings-col {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1rem;
     width: 100%;
     min-width: 0;
     position: relative;
@@ -1055,14 +1055,14 @@
 
   .upload-area {
     display: flex;
-    min-height: 200px;
+    min-height: 250px;
     cursor: pointer;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border-radius: 0.75rem;
+    border-radius: 1rem;
     border: 2px dashed;
-    padding: 2rem;
+    padding: 2.5rem;
     transition: all 0.2s;
     border-color: var(--muted-foreground) / 25%;
     background: var(--card);
@@ -1085,11 +1085,11 @@
   .settings-card {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    border-radius: 0.75rem;
+    gap: 1rem;
+    border-radius: 1rem;
     border: 1px solid var(--border);
     background: var(--card);
-    padding: 1rem;
+    padding: 1.25rem;
   }
 
   .settings-title {
@@ -1098,19 +1098,19 @@
     gap: 0.5rem;
     font-size: 0.875rem;
     font-weight: 500;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
   }
 
   .scroll-indicator {
     display: none;
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 1280px) {
     .convert-layout {
       display: grid;
-      grid-template-columns: 1fr 400px;
+      grid-template-columns: 1fr 440px;
       grid-template-rows: auto 1fr;
-      gap: 1.5rem;
+      gap: 2rem;
       align-items: start;
     }
 
@@ -1123,13 +1123,13 @@
       grid-column: 1;
       grid-row: 2;
       position: sticky;
-      top: 1.5rem;
+      top: 2rem;
     }
 
     .convert-settings-col {
       grid-column: 2;
       grid-row: 1 / -1;
-      max-height: calc(100vh - 3rem);
+      max-height: calc(100vh - 4rem);
       overflow-y: auto;
       scrollbar-width: thin;
       scrollbar-color: var(--muted-foreground) transparent;
