@@ -6,7 +6,10 @@
   import { Switch } from '$lib/components/ui/switch';
   import { Slider } from '$lib/components/ui/slider';
   import { Badge } from '$lib/components/ui/badge';
-  import { Tabs, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
+  import Root from '$lib/components/ui/tabs/tabs.svelte';
+  import TabsList from '$lib/components/ui/tabs/tabs-list.svelte';
+  import TabsTrigger from '$lib/components/ui/tabs/tabs-trigger.svelte';
+  import TabsContent from '$lib/components/ui/tabs/tabs-content.svelte';
   import Icon from '@iconify/svelte';
   import type {
     ConvertOptions,
@@ -453,658 +456,639 @@
   <meta name="description" content="在线图片格式转换工具，支持 PNG、JPG、WebP、AVIF、BMP、GIF、SVG 格式相互转换，支持批量转换、旋转翻转、压缩预设" />
 </svelte:head>
 
-<div class="container mx-auto max-w-7xl px-4 py-6 sm:py-8">
+<div class="convert-layout">
   <!-- 标题 -->
-  <div class="mb-6">
+  <div class="convert-title-col">
     <a href="/" class="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
       <Icon icon="mdi:chevron-left" class="size-4" />
       返回首页
     </a>
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-      <div>
-        <h1 class="flex items-center gap-3 text-2xl font-bold sm:text-3xl">
-          <Icon icon="mdi:image-sync" class="size-8 text-primary" />
-          图片格式转换
-        </h1>
-        <p class="mt-2 text-muted-foreground">
-          在线图片格式转换工具，支持 PNG、JPG、WebP、AVIF、BMP、GIF、SVG 格式
-        </p>
-      </div>
-      <Tabs value={mode} onValueChange={(v: string) => (mode = v as 'single' | 'batch')}>
+    <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">图片格式转换</h1>
+    <p class="mt-2 text-sm text-muted-foreground">
+      在线图片格式转换工具，支持 PNG、JPG、WebP、AVIF、BMP、GIF、SVG 格式相互转换
+    </p>
+    <div class="mt-4">
+      <Root value={mode} onValueChange={(v: string) => (mode = v as 'single' | 'batch')}>
         <TabsList>
-          <TabsTrigger value="single" class="gap-1.5">
-            <Icon icon="mdi:image" class="size-4" />
-            单图转换
-          </TabsTrigger>
-          <TabsTrigger value="batch" class="gap-1.5">
-            <Icon icon="mdi:image-multiple" class="size-4" />
-            批量转换
-          </TabsTrigger>
+          <TabsTrigger value="single">单图转换</TabsTrigger>
+          <TabsTrigger value="batch">批量转换</TabsTrigger>
         </TabsList>
-      </Tabs>
+      </Root>
     </div>
   </div>
 
-  <!-- 主要内容区域 -->
-  <div class="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_380px]">
-    <!-- 左栏：上传和预览 -->
-    <div class="space-y-6">
-      {#if mode === 'single'}
-        <!-- 单图模式：上传区域 -->
-        <Card>
-          <CardContent class="p-4 sm:p-6">
-            <div
-              class="relative flex min-h-[180px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors sm:min-h-[240px] sm:p-8 {isDragging
-                ? 'border-primary bg-primary/5'
-                : 'border-muted-foreground/25 hover:border-primary/50'}"
-              ondragenter={handleDragenter}
-              ondragover={handleDragover}
-              ondragleave={handleDragleave}
-              ondrop={handleDrop}
-              onclick={() => document.getElementById('file-input')?.click()}
-              onkeydown={(e) => e.key === 'Enter' && document.getElementById('file-input')?.click()}
-              role="button"
-              tabindex="0"
-            >
-              <input
-                id="file-input"
-                type="file"
-                accept="image/*"
-                class="hidden"
-                onchange={handleFileChange}
+  <!-- 预览区域 -->
+  <div class="convert-preview-col">
+    {#if mode === 'single'}
+      <!-- 单图模式：上传区域 -->
+      <div
+        class="upload-area {isDragging ? 'dragging' : ''} {sourceImage ? 'has-image' : ''}"
+        ondragenter={handleDragenter}
+        ondragover={handleDragover}
+        ondragleave={handleDragleave}
+        ondrop={handleDrop}
+        onclick={() => document.getElementById('file-input')?.click()}
+        onkeydown={(e) => e.key === 'Enter' && document.getElementById('file-input')?.click()}
+        role="button"
+        tabindex="0"
+      >
+        <input
+          id="file-input"
+          type="file"
+          accept="image/*"
+          class="hidden"
+          onchange={handleFileChange}
+        />
+
+        {#if sourceImage}
+          <div class="flex w-full flex-col items-center gap-4">
+            <div class="relative w-full">
+              <img
+                src={sourceImage.url}
+                alt="原图预览"
+                class="mx-auto max-h-[300px] rounded-lg object-contain"
               />
-
-              {#if sourceImage}
-                <div class="flex w-full flex-col items-center gap-4">
-                  <!-- 原图预览 -->
-                  <div class="relative w-full max-w-md">
-                    <img
-                      src={sourceImage.url}
-                      alt="原图预览"
-                      class="mx-auto max-h-[250px] rounded-lg object-contain sm:max-h-[300px]"
-                    />
-                    <Badge variant="secondary" class="absolute left-2 top-2">原图</Badge>
-                  </div>
-
-                  <!-- 文件信息 -->
-                  <div class="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
-                    <span class="flex items-center gap-1">
-                      <Icon icon="mdi:file-image" class="size-4" />
-                      {sourceImage.file.name}
-                    </span>
-                    <span class="flex items-center gap-1">
-                      <Icon icon="mdi:resize" class="size-4" />
-                      {sourceImage.width} × {sourceImage.height}
-                    </span>
-                    <span class="flex items-center gap-1">
-                      <Icon icon="mdi:harddisk" class="size-4" />
-                      {formatFileSize(sourceImage.file.size)}
-                    </span>
-                  </div>
-                </div>
-              {:else}
-                <div class="flex flex-col items-center gap-3 text-muted-foreground">
-                  <Icon icon="mdi:image-plus" class="size-12" />
-                  <div class="text-center">
-                    <p class="text-lg font-medium">点击或拖拽上传图片</p>
-                    <p class="mt-1 text-sm">支持 PNG、JPG、WebP、GIF、BMP、SVG</p>
-                  </div>
-                </div>
-              {/if}
+              <Badge variant="secondary" class="absolute left-2 top-2">原图</Badge>
             </div>
-          </CardContent>
-        </Card>
-      {:else}
-        <!-- 批量模式：上传区域 -->
-        <Card>
-          <CardHeader class="pb-3">
-            <CardTitle class="flex items-center justify-between text-base">
-              <span class="flex items-center gap-2">
-                <Icon icon="mdi:image-multiple" class="size-5" />
-                批量上传
-              </span>
-              {#if batchItems.length > 0}
-                <Button variant="ghost" size="sm" onclick={clearBatchItems}>
-                  <Icon icon="mdi:delete-sweep" class="mr-1 size-4" />
-                  清空
-                </Button>
-              {/if}
-            </CardTitle>
-          </CardHeader>
-          <CardContent class="pt-0">
-            <div
-              class="relative flex min-h-[120px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors {isDragging
-                ? 'border-primary bg-primary/5'
-                : 'border-muted-foreground/25 hover:border-primary/50'}"
-              ondragenter={handleDragenter}
-              ondragover={handleDragover}
-              ondragleave={handleDragleave}
-              ondrop={(e) => {
-                e.preventDefault();
-                isDragging = false;
-                if (e.dataTransfer?.files.length) {
-                  handleBatchUpload(e.dataTransfer.files);
-                }
-              }}
-              onclick={() => document.getElementById('batch-file-input')?.click()}
-              onkeydown={(e) => e.key === 'Enter' && document.getElementById('batch-file-input')?.click()}
-              role="button"
-              tabindex="0"
-            >
-              <input
-                id="batch-file-input"
-                type="file"
-                accept="image/*"
-                multiple
-                class="hidden"
-                onchange={handleBatchFileChange}
-              />
-              <div class="flex flex-col items-center gap-2 text-muted-foreground">
-                <Icon icon="mdi:image-multiple-plus" class="size-8" />
-                <p class="text-sm font-medium">点击或拖拽上传多张图片</p>
-                <p class="text-xs">已添加 {batchItems.length} 张图片</p>
-              </div>
+            <div class="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground">
+              <span>{sourceImage.file.name}</span>
+              <span>{sourceImage.width} × {sourceImage.height}</span>
+              <span>{formatFileSize(sourceImage.file.size)}</span>
             </div>
-          </CardContent>
-        </Card>
-
-        <!-- 批量图片列表 -->
-        {#if batchItems.length > 0}
-          <Card>
-            <CardHeader class="pb-3">
-              <CardTitle class="flex items-center justify-between text-base">
-                <span class="flex items-center gap-2">
-                  <Icon icon="mdi:format-list-bulleted" class="size-5" />
-                  图片列表
-                </span>
-                <Badge variant="secondary">{batchItems.length} 张</Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent class="pt-0">
-              <div class="max-h-[400px] space-y-2 overflow-y-auto">
-                {#each batchItems as item (item.id)}
-                  <div class="flex items-center gap-3 rounded-lg border p-3">
-                    <img
-                      src={item.url}
-                      alt={item.file.name}
-                      class="size-12 rounded object-cover"
-                    />
-                    <div class="min-w-0 flex-1">
-                      <p class="truncate text-sm font-medium">{item.file.name}</p>
-                      <p class="text-xs text-muted-foreground">
-                        {item.width} × {item.height} · {formatFileSize(item.file.size)}
-                      </p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                      {#if item.status === 'pending'}
-                        <Badge variant="outline">等待中</Badge>
-                      {:else if item.status === 'converting'}
-                        <Badge variant="secondary">
-                          <Icon icon="mdi:loading" class="mr-1 size-3 animate-spin" />
-                          转换中
-                        </Badge>
-                      {:else if item.status === 'done'}
-                        <Badge variant="default" class="bg-green-500">完成</Badge>
-                      {:else if item.status === 'error'}
-                        <Badge variant="destructive">失败</Badge>
-                      {/if}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        class="size-8 p-0"
-                        onclick={() => removeBatchItem(item.id)}
-                      >
-                        <Icon icon="mdi:close" class="size-4" />
-                      </Button>
-                    </div>
-                  </div>
-                {/each}
-              </div>
-            </CardContent>
-          </Card>
+          </div>
+        {:else}
+          <div class="flex flex-col items-center gap-3 text-muted-foreground">
+            <Icon icon="mdi:image-plus" class="size-12" />
+            <div class="text-center">
+              <p class="text-lg font-medium">点击或拖拽上传图片</p>
+              <p class="mt-1 text-sm">支持 PNG、JPG、WebP、GIF、BMP、SVG</p>
+            </div>
+          </div>
         {/if}
-      {/if}
+      </div>
 
-      <!-- 转换结果预览（单图模式） -->
-      {#if mode === 'single' && convertResult}
-        <Card>
-          <CardContent class="p-4 sm:p-6">
-            <div class="flex flex-col items-center gap-4">
-              <!-- 结果预览 -->
-              <div class="relative w-full max-w-md">
-                <img
-                  src={convertResult.url}
-                  alt="转换结果"
-                  class="mx-auto max-h-[250px] rounded-lg object-contain sm:max-h-[300px]"
-                />
-                <Badge variant="default" class="absolute left-2 top-2">转换后</Badge>
-              </div>
-
-              <!-- 文件大小对比 -->
-              <div class="w-full max-w-md rounded-lg bg-muted/50 p-4">
-                <div class="mb-3 flex items-center justify-between text-sm">
-                  <span class="text-muted-foreground">原始大小</span>
-                  <span class="font-medium">{formatFileSize(convertResult.originalSize)}</span>
-                </div>
-                <div class="mb-3 flex items-center justify-between text-sm">
-                  <span class="text-muted-foreground">转换后大小</span>
-                  <span class="font-medium">{formatFileSize(convertResult.convertedSize)}</span>
-                </div>
-                <div class="flex items-center justify-between border-t pt-3 text-sm">
-                  <span class="text-muted-foreground">压缩率</span>
-                  <span
-                    class="font-medium {compressionRate > 0
-                      ? 'text-green-500'
-                      : compressionRate < 0
-                        ? 'text-red-500'
-                        : ''}"
-                  >
-                    {compressionRate > 0 ? '↓' : compressionRate < 0 ? '↑' : ''}{Math.abs(compressionRate)}%
-                  </span>
-                </div>
-              </div>
-
-              <!-- 下载按钮 -->
-              <Button onclick={handleDownload} class="w-full max-w-md" size="lg">
-                <Icon icon="mdi:download" class="mr-2 size-5" />
-                下载转换结果
-              </Button>
+      <!-- 转换结果预览 -->
+      {#if convertResult}
+        <div class="rounded-xl border border-border bg-card p-4">
+          <div class="flex flex-col items-center gap-4">
+            <div class="relative w-full">
+              <img
+                src={convertResult.url}
+                alt="转换结果"
+                class="mx-auto max-h-[300px] rounded-lg object-contain"
+              />
+              <Badge variant="default" class="absolute left-2 top-2">转换后</Badge>
             </div>
-          </CardContent>
-        </Card>
-      {/if}
 
-      <!-- 错误提示 -->
-      {#if error}
-        <div class="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
-          <div class="flex items-center gap-2">
-            <Icon icon="mdi:alert-circle" class="size-5" />
-            <p>{error}</p>
+            <div class="w-full rounded-lg bg-muted/50 p-4">
+              <div class="mb-3 flex items-center justify-between text-sm">
+                <span class="text-muted-foreground">原始大小</span>
+                <span class="font-medium">{formatFileSize(convertResult.originalSize)}</span>
+              </div>
+              <div class="mb-3 flex items-center justify-between text-sm">
+                <span class="text-muted-foreground">转换后大小</span>
+                <span class="font-medium">{formatFileSize(convertResult.convertedSize)}</span>
+              </div>
+              <div class="flex items-center justify-between border-t pt-3 text-sm">
+                <span class="text-muted-foreground">压缩率</span>
+                <span
+                  class="font-medium {compressionRate > 0
+                    ? 'text-green-500'
+                    : compressionRate < 0
+                      ? 'text-red-500'
+                      : ''}"
+                >
+                  {compressionRate > 0 ? '↓' : compressionRate < 0 ? '↑' : ''}{Math.abs(compressionRate)}%
+                </span>
+              </div>
+            </div>
+
+            <Button onclick={handleDownload} class="w-full" size="lg">
+              <Icon icon="mdi:download" class="mr-2 size-5" />
+              下载转换结果
+            </Button>
           </div>
         </div>
       {/if}
-    </div>
+    {:else}
+      <!-- 批量模式：上传区域 -->
+      <div class="rounded-xl border border-border bg-card p-4">
+        <div class="mb-3 flex items-center justify-between">
+          <h3 class="text-sm font-medium">批量上传</h3>
+          {#if batchItems.length > 0}
+            <Button variant="ghost" size="sm" onclick={clearBatchItems}>
+              <Icon icon="mdi:delete-sweep" class="mr-1 size-4" />
+              清空
+            </Button>
+          {/if}
+        </div>
+        <div
+          class="upload-area {isDragging ? 'dragging' : ''}"
+          ondragenter={handleDragenter}
+          ondragover={handleDragover}
+          ondragleave={handleDragleave}
+          ondrop={(e) => {
+            e.preventDefault();
+            isDragging = false;
+            if (e.dataTransfer?.files.length) {
+              handleBatchUpload(e.dataTransfer.files);
+            }
+          }}
+          onclick={() => document.getElementById('batch-file-input')?.click()}
+          onkeydown={(e) => e.key === 'Enter' && document.getElementById('batch-file-input')?.click()}
+          role="button"
+          tabindex="0"
+        >
+          <input
+            id="batch-file-input"
+            type="file"
+            accept="image/*"
+            multiple
+            class="hidden"
+            onchange={handleBatchFileChange}
+          />
+          <div class="flex flex-col items-center gap-2 text-muted-foreground">
+            <Icon icon="mdi:image-multiple-plus" class="size-8" />
+            <p class="text-sm font-medium">点击或拖拽上传多张图片</p>
+            <p class="text-xs">已添加 {batchItems.length} 张图片</p>
+          </div>
+        </div>
+      </div>
 
-    <!-- 右栏：转换设置 -->
-    <div class="space-y-4">
-      <!-- 格式选择 -->
-      <Card>
-        <CardHeader class="pb-3">
-          <CardTitle class="flex items-center gap-2 text-base">
-            <Icon icon="mdi:file-image" class="size-5" />
-            输出格式
-          </CardTitle>
-        </CardHeader>
-        <CardContent class="pt-0">
-          <div class="grid grid-cols-3 gap-2">
+      <!-- 批量图片列表 -->
+      {#if batchItems.length > 0}
+        <div class="rounded-xl border border-border bg-card">
+          <div class="flex items-center justify-between border-b px-4 py-3">
+            <span class="text-sm font-medium">图片列表</span>
+            <Badge variant="secondary">{batchItems.length} 张</Badge>
+          </div>
+          <div class="max-h-[400px] divide-y overflow-y-auto">
+            {#each batchItems as item (item.id)}
+              <div class="flex items-center gap-3 p-3">
+                <img
+                  src={item.url}
+                  alt={item.file.name}
+                  class="size-10 rounded object-cover"
+                />
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-sm">{item.file.name}</p>
+                  <p class="text-xs text-muted-foreground">
+                    {item.width}×{item.height} · {formatFileSize(item.file.size)}
+                  </p>
+                </div>
+                <div class="flex items-center gap-2">
+                  {#if item.status === 'pending'}
+                    <Badge variant="outline" class="text-xs">等待</Badge>
+                  {:else if item.status === 'converting'}
+                    <Badge variant="secondary" class="text-xs">
+                      <Icon icon="mdi:loading" class="mr-1 size-3 animate-spin" />
+                      转换中
+                    </Badge>
+                  {:else if item.status === 'done'}
+                    <Badge variant="default" class="bg-green-500 text-xs">完成</Badge>
+                  {:else if item.status === 'error'}
+                    <Badge variant="destructive" class="text-xs">失败</Badge>
+                  {/if}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    class="size-7 p-0"
+                    onclick={() => removeBatchItem(item.id)}
+                  >
+                    <Icon icon="mdi:close" class="size-4" />
+                  </Button>
+                </div>
+              </div>
+            {/each}
+          </div>
+        </div>
+      {/if}
+    {/if}
+
+    <!-- 错误提示 -->
+    {#if error}
+      <div class="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+        <Icon icon="mdi:alert-circle" class="mr-2 inline size-4" />
+        {error}
+      </div>
+    {/if}
+
+    <!-- 操作按钮 -->
+    <div class="rounded-xl border border-border bg-card p-4">
+      {#if mode === 'single'}
+        <Button
+          class="w-full"
+          size="lg"
+          onclick={handleConvert}
+          disabled={!sourceImage || isConverting}
+        >
+          {#if isConverting}
+            <Icon icon="mdi:loading" class="mr-2 size-5 animate-spin" />
+            转换中...
+          {:else}
+            <Icon icon="mdi:swap-horizontal" class="mr-2 size-5" />
+            开始转换
+          {/if}
+        </Button>
+      {:else}
+        <Button
+          class="w-full"
+          size="lg"
+          onclick={handleBatchConvert}
+          disabled={batchItems.length === 0 || isBatchConverting}
+        >
+          {#if isBatchConverting}
+            <Icon icon="mdi:loading" class="mr-2 size-5 animate-spin" />
+            批量转换中...
+          {:else}
+            <Icon icon="mdi:swap-horizontal" class="mr-2 size-5" />
+            批量转换 ({batchItems.length} 张)
+          {/if}
+        </Button>
+
+        {#if batchItems.some((i) => i.status === 'done')}
+          <Button
+            class="mt-2 w-full bg-green-600 hover:bg-green-700"
+            onclick={downloadBatchResults}
+          >
+            <Icon icon="mdi:download-multiple" class="mr-2 size-5" />
+            下载全部结果
+          </Button>
+        {/if}
+      {/if}
+    </div>
+  </div>
+
+  <!-- 设置面板 -->
+  <div class="convert-settings-col">
+    <Root value="format" class="w-full">
+      <TabsList class="w-full">
+        <TabsTrigger value="format">格式</TabsTrigger>
+        <TabsTrigger value="adjust">调整</TabsTrigger>
+        <TabsTrigger value="advanced">高级</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="format">
+        <!-- 格式选择 -->
+        <div class="settings-card">
+          <h3 class="settings-title">输出格式</h3>
+          <div class="grid grid-cols-4 gap-2">
             {#each availableFormats as format}
-              {@const formatIcons: Record<string, string> = {
-                'image/png': 'mdi:file-png-box',
-                'image/jpeg': 'mdi:file-jpg-box',
-                'image/webp': 'mdi:file-webp-box',
-                'image/avif': 'mdi:file-image',
-                'image/bmp': 'mdi:file-image',
-                'image/gif': 'mdi:file-gif-box',
-                'image/svg+xml': 'mdi:svg'
-              }}
               <button
-                class="flex flex-col items-center gap-1.5 rounded-lg border-2 p-3 transition-all {options.format === format.value
+                class="rounded-lg border-2 p-2 text-center transition-all {options.format === format.value
                   ? 'border-primary bg-primary/5'
                   : 'border-muted hover:border-primary/50'}"
                 onclick={() => (options.format = format.value)}
               >
-                <Icon icon={formatIcons[format.value] || 'mdi:file-image'} class="size-5 {options.format === format.value ? 'text-primary' : 'text-muted-foreground'}" />
                 <span class="text-sm font-medium">{format.label}</span>
-                <span class="text-center text-xs text-muted-foreground leading-tight">{format.description}</span>
               </button>
             {/each}
           </div>
-
           {#if options.format === 'image/avif' && !avifSupported}
-            <p class="mt-3 text-sm text-yellow-600 dark:text-yellow-400">
-              <Icon icon="mdi:alert" class="mr-1 inline size-4" />
+            <p class="mt-2 text-xs text-yellow-600 dark:text-yellow-400">
               您的浏览器可能不支持 AVIF 格式
             </p>
           {/if}
-        </CardContent>
-      </Card>
+        </div>
 
-      <!-- 压缩预设 -->
-      <Card>
-        <CardHeader class="pb-3">
-          <CardTitle class="flex items-center gap-2 text-base">
-            <Icon icon="mdi:tune-variant" class="size-5" />
-            快速预设
-          </CardTitle>
-        </CardHeader>
-        <CardContent class="pt-0">
+        <!-- 压缩预设 -->
+        <div class="settings-card">
+          <h3 class="settings-title">快速预设</h3>
           <div class="grid grid-cols-2 gap-2">
             {#each COMPRESSION_PRESETS as preset}
               <button
-                class="flex items-center gap-3 rounded-lg border p-3 text-left transition-all hover:border-primary/50 hover:bg-muted/50"
+                class="rounded-lg border p-3 text-left transition-all hover:border-primary/50 hover:bg-muted/50"
                 onclick={() => applyCompressionPreset(preset)}
               >
-                <div class="flex size-8 items-center justify-center rounded-md bg-primary/10">
-                  <Icon icon={preset.icon} class="size-4 text-primary" />
-                </div>
-                <div>
-                  <p class="text-sm font-medium">{preset.label}</p>
-                  <p class="text-xs text-muted-foreground">{preset.description}</p>
-                </div>
+                <p class="text-sm font-medium">{preset.label}</p>
+                <p class="text-xs text-muted-foreground">{preset.description}</p>
               </button>
             {/each}
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      <!-- 质量设置 -->
-      {#if showQuality}
-        <Card>
-          <CardHeader class="pb-3">
-            <CardTitle class="flex items-center justify-between text-base">
-              <span class="flex items-center gap-2">
-                <Icon icon="mdi:quality-high" class="size-5" />
-                输出质量
-              </span>
+        <!-- 质量设置 -->
+        {#if showQuality}
+          <div class="settings-card">
+            <div class="flex items-center justify-between">
+              <h3 class="settings-title mb-0">输出质量</h3>
               <Badge variant="secondary">{Math.round(options.quality * 100)}%</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent class="pt-0">
-            <div class="space-y-2">
-              <Slider
-                type="single"
-                value={options.quality}
-                onValueChange={(v: number) => (options.quality = v)}
-                min={0.1}
-                max={1}
-                step={0.05}
-              />
-              <div class="flex justify-between text-xs text-muted-foreground">
-                <span>小文件</span>
-                <span>高质量</span>
-              </div>
             </div>
-          </CardContent>
-        </Card>
-      {/if}
+            <Slider
+              type="single"
+              value={options.quality}
+              onValueChange={(v: number) => (options.quality = v)}
+              min={0.1}
+              max={1}
+              step={0.05}
+            />
+            <div class="flex justify-between text-xs text-muted-foreground">
+              <span>小文件</span>
+              <span>高质量</span>
+            </div>
+          </div>
+        {/if}
+      </TabsContent>
 
-      <!-- 尺寸调整 -->
-      <Card>
-        <CardHeader class="pb-3">
-          <CardTitle class="flex items-center justify-between text-base">
-            <span class="flex items-center gap-2">
-              <Icon icon="mdi:resize" class="size-5" />
-              尺寸调整
-            </span>
+      <TabsContent value="adjust">
+        <!-- 尺寸调整 -->
+        <div class="settings-card">
+          <div class="flex items-center justify-between">
+            <h3 class="settings-title mb-0">尺寸调整</h3>
             <div class="flex items-center gap-2">
               <span class="text-xs text-muted-foreground">锁定比例</span>
               <Switch bind:checked={options.maintainAspectRatio} />
             </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent class="pt-0">
-          <div class="space-y-4">
-            <!-- 宽高输入 -->
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label for="width-input" class="mb-1 block text-xs text-muted-foreground">宽度 (px)</label>
-                <Input
-                  id="width-input"
-                  type="number"
-                  bind:value={widthInput}
-                  placeholder="宽度"
-                  min="1"
-                  onchange={handleWidthChange}
-                />
-              </div>
-              <div>
-                <label for="height-input" class="mb-1 block text-xs text-muted-foreground">高度 (px)</label>
-                <Input
-                  id="height-input"
-                  type="number"
-                  bind:value={heightInput}
-                  placeholder="高度"
-                  min="1"
-                  onchange={handleHeightChange}
-                />
-              </div>
-            </div>
-
-            <!-- 预设缩放 -->
+          </div>
+          <div class="grid grid-cols-2 gap-3">
             <div>
-              <p class="mb-2 text-xs text-muted-foreground">快速缩放</p>
-              <div class="flex flex-wrap gap-1.5">
-                {#each PRESET_SCALES as preset}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    class="h-7 gap-1 px-2 text-xs"
-                    onclick={() => applyPresetScale(preset.value)}
-                    disabled={!sourceImage}
-                  >
-                    {#if preset.value < 1}
-                      <Icon icon="mdi:image-size-select-small" class="size-3" />
-                    {:else if preset.value === 1}
-                      <Icon icon="mdi:image-size-select-actual" class="size-3" />
-                    {:else}
-                      <Icon icon="mdi:image-size-select-large" class="size-3" />
-                    {/if}
-                    {preset.label}
-                  </Button>
-                {/each}
-              </div>
+              <label for="width-input" class="mb-1 block text-xs text-muted-foreground">宽度 (px)</label>
+              <Input
+                id="width-input"
+                type="number"
+                bind:value={widthInput}
+                placeholder="宽度"
+                min="1"
+                onchange={handleWidthChange}
+              />
+            </div>
+            <div>
+              <label for="height-input" class="mb-1 block text-xs text-muted-foreground">高度 (px)</label>
+              <Input
+                id="height-input"
+                type="number"
+                bind:value={heightInput}
+                placeholder="高度"
+                min="1"
+                onchange={handleHeightChange}
+              />
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      <!-- 旋转/翻转 -->
-      <Card>
-        <CardHeader class="pb-3">
-          <CardTitle class="flex items-center gap-2 text-base">
-            <Icon icon="mdi:rotate-3d" class="size-5" />
-            旋转/翻转
-          </CardTitle>
-        </CardHeader>
-        <CardContent class="pt-0">
-          <div class="space-y-3">
-            <!-- 旋转按钮 -->
-            <div class="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                class="flex-1"
-                onclick={() => rotateImage(-90)}
-                disabled={!sourceImage}
-              >
-                <Icon icon="mdi:rotate-left" class="mr-1 size-4" />
-                左转 90°
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                class="flex-1"
-                onclick={() => rotateImage(90)}
-                disabled={!sourceImage}
-              >
-                <Icon icon="mdi:rotate-right" class="mr-1 size-4" />
-                右转 90°
-              </Button>
+          <div>
+            <p class="mb-2 text-xs text-muted-foreground">快速缩放</p>
+            <div class="flex flex-wrap gap-1.5">
+              {#each PRESET_SCALES as preset}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  class="h-7 px-2 text-xs"
+                  onclick={() => applyPresetScale(preset.value)}
+                  disabled={!sourceImage}
+                >
+                  {preset.label}
+                </Button>
+              {/each}
             </div>
-
-            <!-- 翻转按钮 -->
-            <div class="flex items-center gap-2">
-              <Button
-                variant={options.flipH ? 'default' : 'outline'}
-                size="sm"
-                class="flex-1"
-                onclick={toggleFlipH}
-                disabled={!sourceImage}
-              >
-                <Icon icon="mdi:flip-horizontal" class="mr-1 size-4" />
-                水平翻转
-              </Button>
-              <Button
-                variant={options.flipV ? 'default' : 'outline'}
-                size="sm"
-                class="flex-1"
-                onclick={toggleFlipV}
-                disabled={!sourceImage}
-              >
-                <Icon icon="mdi:flip-vertical" class="mr-1 size-4" />
-                垂直翻转
-              </Button>
-            </div>
-
-            <!-- 当前状态 -->
-            {#if options.rotation !== 0 || options.flipH || options.flipV}
-              <div class="flex items-center gap-2 text-xs text-muted-foreground">
-                <Icon icon="mdi:information" class="size-3" />
-                <span>
-                  {#if options.rotation !== 0}
-                    旋转 {options.rotation}°
-                  {/if}
-                  {#if options.flipH}
-                    水平翻转
-                  {/if}
-                  {#if options.flipV}
-                    垂直翻转
-                  {/if}
-                </span>
-              </div>
-            {/if}
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      <!-- 高级选项 -->
-      {#if options.format === 'image/jpeg'}
-        <Card>
-          <CardHeader class="pb-3">
-            <CardTitle class="flex items-center gap-2 text-base">
-              <Icon icon="mdi:cog" class="size-5" />
-              高级选项
-            </CardTitle>
-          </CardHeader>
-          <CardContent class="pt-0">
-            <div>
-              <label for="bg-color-input" class="mb-1 block text-xs text-muted-foreground">背景颜色</label>
-              <div class="flex items-center gap-2">
-                <input
-                  type="color"
-                  bind:value={options.backgroundColor}
-                  class="size-9 cursor-pointer rounded border"
-                />
-                <Input
-                  id="bg-color-input"
-                  type="text"
-                  bind:value={options.backgroundColor}
-                  placeholder="#ffffff"
-                  class="flex-1"
-                />
-              </div>
-              <p class="mt-1.5 text-xs text-muted-foreground">
-                透明图片转 JPG 时的填充颜色
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      {/if}
-
-      <!-- 自定义文件名 -->
-      <Card>
-        <CardHeader class="pb-3">
-          <CardTitle class="flex items-center gap-2 text-base">
-            <Icon icon="mdi:file-edit" class="size-5" />
-            输出文件名
-          </CardTitle>
-        </CardHeader>
-        <CardContent class="pt-0">
-          <div class="space-y-2">
-            <Input
-              id="custom-filename"
-              type="text"
-              bind:value={options.customFilename}
-              placeholder="留空则使用原文件名"
-              class="w-full"
-            />
+        <!-- 旋转/翻转 -->
+        <div class="settings-card">
+          <h3 class="settings-title">旋转/翻转</h3>
+          <div class="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onclick={() => rotateImage(-90)}
+              disabled={!sourceImage}
+            >
+              <Icon icon="mdi:rotate-left" class="mr-1 size-4" />
+              左转 90°
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onclick={() => rotateImage(90)}
+              disabled={!sourceImage}
+            >
+              <Icon icon="mdi:rotate-right" class="mr-1 size-4" />
+              右转 90°
+            </Button>
+            <Button
+              variant={options.flipH ? 'default' : 'outline'}
+              size="sm"
+              onclick={toggleFlipH}
+              disabled={!sourceImage}
+            >
+              <Icon icon="mdi:flip-horizontal" class="mr-1 size-4" />
+              水平翻转
+            </Button>
+            <Button
+              variant={options.flipV ? 'default' : 'outline'}
+              size="sm"
+              onclick={toggleFlipV}
+              disabled={!sourceImage}
+            >
+              <Icon icon="mdi:flip-vertical" class="mr-1 size-4" />
+              垂直翻转
+            </Button>
+          </div>
+          {#if options.rotation !== 0 || options.flipH || options.flipV}
             <p class="text-xs text-muted-foreground">
-              {#if options.customFilename?.trim()}
-                将保存为: <span class="font-medium">{options.customFilename.trim()}{options.customFilename.includes('.') ? '' : getFormatExtension(options.format)}</span>
-              {:else}
-                留空将自动使用原文件名
-              {/if}
+              {#if options.rotation !== 0}旋转 {options.rotation}°{/if}
+              {#if options.flipH} 水平翻转{/if}
+              {#if options.flipV} 垂直翻转{/if}
+            </p>
+          {/if}
+        </div>
+      </TabsContent>
+
+      <TabsContent value="advanced">
+        <!-- 自定义文件名 -->
+        <div class="settings-card">
+          <h3 class="settings-title">输出文件名</h3>
+          <Input
+            id="custom-filename"
+            type="text"
+            bind:value={options.customFilename}
+            placeholder="留空则使用原文件名"
+            class="w-full"
+          />
+          <p class="text-xs text-muted-foreground">
+            {#if options.customFilename?.trim()}
+              将保存为: <span class="font-medium">{options.customFilename.trim()}{options.customFilename.includes('.') ? '' : getFormatExtension(options.format)}</span>
+            {:else}
+              留空将自动使用原文件名
+            {/if}
+          </p>
+        </div>
+
+        <!-- 高级选项 -->
+        {#if options.format === 'image/jpeg' || options.format === 'image/bmp'}
+          <div class="settings-card">
+            <h3 class="settings-title">背景颜色</h3>
+            <div class="flex items-center gap-2">
+              <input
+                type="color"
+                bind:value={options.backgroundColor}
+                class="size-9 cursor-pointer rounded border"
+              />
+              <Input
+                id="bg-color-input"
+                type="text"
+                bind:value={options.backgroundColor}
+                placeholder="#ffffff"
+                class="flex-1"
+              />
+            </div>
+            <p class="text-xs text-muted-foreground">
+              透明图片转 JPG/BMP 时的填充颜色
             </p>
           </div>
-        </CardContent>
-      </Card>
-
-      <!-- 操作按钮 -->
-      <div class="space-y-3">
-        {#if mode === 'single'}
-          <!-- 单图模式按钮 -->
-          <Button
-            class="w-full"
-            size="lg"
-            onclick={handleConvert}
-            disabled={!sourceImage || isConverting}
-          >
-            {#if isConverting}
-              <Icon icon="mdi:loading" class="mr-2 size-5 animate-spin" />
-              转换中...
-            {:else}
-              <Icon icon="mdi:swap-horizontal" class="mr-2 size-5" />
-              开始转换
-            {/if}
-          </Button>
-
-          <Button
-            variant="outline"
-            class="w-full"
-            onclick={handleReset}
-          >
-            <Icon icon="mdi:refresh" class="mr-2 size-4" />
-            重置
-          </Button>
-        {:else}
-          <!-- 批量模式按钮 -->
-          <Button
-            class="w-full"
-            size="lg"
-            onclick={handleBatchConvert}
-            disabled={batchItems.length === 0 || isBatchConverting}
-          >
-            {#if isBatchConverting}
-              <Icon icon="mdi:loading" class="mr-2 size-5 animate-spin" />
-              批量转换中...
-            {:else}
-              <Icon icon="mdi:swap-horizontal" class="mr-2 size-5" />
-              批量转换 ({batchItems.length} 张)
-            {/if}
-          </Button>
-
-          {#if batchItems.some((i) => i.status === 'done')}
-            <Button
-              variant="default"
-              class="w-full bg-green-600 hover:bg-green-700"
-              onclick={downloadBatchResults}
-            >
-              <Icon icon="mdi:download-multiple" class="mr-2 size-5" />
-              下载全部结果
-            </Button>
-          {/if}
-
-          <Button
-            variant="outline"
-            class="w-full"
-            onclick={clearBatchItems}
-            disabled={batchItems.length === 0}
-          >
-            <Icon icon="mdi:delete-sweep" class="mr-2 size-4" />
-            清空列表
-          </Button>
         {/if}
-      </div>
-    </div>
+
+        <!-- 重置按钮 -->
+        <Button
+          variant="outline"
+          class="w-full"
+          onclick={handleReset}
+        >
+          <Icon icon="mdi:refresh" class="mr-2 size-4" />
+          重置所有设置
+        </Button>
+      </TabsContent>
+    </Root>
+    <div class="scroll-indicator"></div>
   </div>
 </div>
+
+<style>
+  .convert-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    max-width: 80rem;
+    margin: 0 auto;
+  }
+
+  .convert-title-col {
+    display: block;
+  }
+
+  .convert-preview-col {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .convert-settings-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    min-width: 0;
+    position: relative;
+  }
+
+  .upload-area {
+    display: flex;
+    min-height: 200px;
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+    border: 2px dashed;
+    padding: 2rem;
+    transition: all 0.2s;
+    border-color: var(--muted-foreground) / 25%;
+    background: var(--card);
+  }
+
+  .upload-area:hover {
+    border-color: var(--primary) / 50%;
+  }
+
+  .upload-area.dragging {
+    border-color: var(--primary);
+    background: var(--primary) / 5%;
+  }
+
+  .upload-area.has-image {
+    border-style: solid;
+    border-color: var(--border);
+  }
+
+  .settings-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--card);
+    padding: 1rem;
+  }
+
+  .settings-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  .scroll-indicator {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .convert-layout {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      grid-template-rows: auto 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .convert-title-col {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .convert-preview-col {
+      grid-column: 1;
+      grid-row: 2;
+      position: sticky;
+      top: 1.5rem;
+    }
+
+    .convert-settings-col {
+      grid-column: 2;
+      grid-row: 1 / -1;
+      max-height: calc(100vh - 3rem);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--muted-foreground) transparent;
+      scrollbar-gutter: stable;
+    }
+
+    .convert-settings-col::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .convert-settings-col::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .convert-settings-col::-webkit-scrollbar-thumb {
+      background-color: var(--muted-foreground);
+      border-radius: 3px;
+      min-height: 30px;
+    }
+
+    .scroll-indicator {
+      display: block;
+      position: sticky;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2rem;
+      background: linear-gradient(to top, var(--background), transparent);
+      pointer-events: none;
+      flex-shrink: 0;
+      margin-top: -2rem;
+      z-index: 1;
+    }
+  }
+</style>
