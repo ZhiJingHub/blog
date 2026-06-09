@@ -768,7 +768,7 @@
               {@const formatIcons: Record<string, string> = {
                 'image/png': 'mdi:file-png-box',
                 'image/jpeg': 'mdi:file-jpg-box',
-                'image/webp': 'mdi:file-webp-box',
+                'image/webp': 'mdi:file-webp',
                 'image/avif': 'mdi:file-image',
                 'image/bmp': 'mdi:file-image',
                 'image/gif': 'mdi:file-gif-box',
