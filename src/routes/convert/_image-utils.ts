@@ -1,4 +1,4 @@
-import type { LoadedImage } from './_types';
+import type { LoadedImage, OutputFormat } from './_types';
 
 /**
  * 加载图片文件
@@ -102,6 +102,18 @@ export async function supportsAVIF(): Promise<boolean> {
 }
 
 /**
+ * 检测浏览器是否支持 WebP 格式
+ */
+export async function supportsWebP(): Promise<boolean> {
+  return new Promise((resolve) => {
+    const webp = new Image();
+    webp.onload = () => resolve(true);
+    webp.onerror = () => resolve(false);
+    webp.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+  });
+}
+
+/**
  * 从文件名获取扩展名
  */
 export function getFileExtension(filename: string): string {
@@ -114,4 +126,68 @@ export function getFileExtension(filename: string): string {
 export function generateOutputFilename(originalName: string, newExtension: string): string {
   const baseName = originalName.replace(/\.[^/.]+$/, '');
   return `${baseName}${newExtension}`;
+}
+
+/**
+ * 获取格式的详细信息
+ */
+export function getFormatInfo(format: OutputFormat): {
+  label: string;
+  extension: string;
+  description: string;
+  supportsTransparency: boolean;
+  supportsAnimation: boolean;
+} {
+  const formatMap: Record<OutputFormat, {
+    label: string;
+    extension: string;
+    description: string;
+    supportsTransparency: boolean;
+    supportsAnimation: boolean;
+  }> = {
+    'image/png': {
+      label: 'PNG',
+      extension: '.png',
+      description: '无损压缩，支持透明',
+      supportsTransparency: true,
+      supportsAnimation: false
+    },
+    'image/jpeg': {
+      label: 'JPEG',
+      extension: '.jpg',
+      description: '有损压缩，文件更小',
+      supportsTransparency: false,
+      supportsAnimation: false
+    },
+    'image/webp': {
+      label: 'WebP',
+      extension: '.webp',
+      description: '现代格式，体积更小',
+      supportsTransparency: true,
+      supportsAnimation: true
+    },
+    'image/avif': {
+      label: 'AVIF',
+      extension: '.avif',
+      description: '最新格式，压缩率最高',
+      supportsTransparency: true,
+      supportsAnimation: true
+    },
+    'image/bmp': {
+      label: 'BMP',
+      extension: '.bmp',
+      description: '位图格式，无压缩',
+      supportsTransparency: false,
+      supportsAnimation: false
+    },
+    'image/gif': {
+      label: 'GIF',
+      extension: '.gif',
+      description: '支持动画和透明',
+      supportsTransparency: true,
+      supportsAnimation: true
+    }
+  };
+
+  return formatMap[format];
 }

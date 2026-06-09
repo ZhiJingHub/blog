@@ -18,8 +18,8 @@ export async function convertImage(
   canvas.width = options.width || source.naturalWidth;
   canvas.height = options.height || source.naturalHeight;
 
-  // 如果输出格式是 JPG 且原图可能有透明度，填充背景色
-  if (options.format === 'image/jpeg') {
+  // 如果输出格式是 JPG 或 BMP 且原图可能有透明度，填充背景色
+  if (options.format === 'image/jpeg' || options.format === 'image/bmp') {
     ctx.fillStyle = options.backgroundColor || '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
@@ -79,7 +79,9 @@ export function getFormatExtension(format: OutputFormat): string {
     'image/png': '.png',
     'image/jpeg': '.jpg',
     'image/webp': '.webp',
-    'image/avif': '.avif'
+    'image/avif': '.avif',
+    'image/bmp': '.bmp',
+    'image/gif': '.gif'
   };
   return extensions[format];
 }
@@ -88,7 +90,8 @@ export function getFormatExtension(format: OutputFormat): string {
  * 检查格式是否支持质量参数
  */
 export function formatSupportsQuality(format: OutputFormat): boolean {
-  return format !== 'image/png';
+  // PNG、BMP、GIF 不支持质量参数
+  return !['image/png', 'image/bmp', 'image/gif'].includes(format);
 }
 
 /**
