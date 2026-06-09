@@ -54,7 +54,10 @@
 	</div>
 
 	<div class="mb-8 text-center">
-		<h1 class="text-3xl font-bold tracking-tight sm:text-4xl">文章列表</h1>
+		<h1 class="flex items-center justify-center gap-3 text-3xl font-bold tracking-tight sm:text-4xl">
+			<Icon icon="mdi:post-outline" class="size-8 text-primary" />
+			文章列表
+		</h1>
 		<p class="mt-2 text-lg text-muted-foreground">分享技术、想法和经验</p>
 		{#if data.posts.length > 0}
 			{@const totalWords = data.posts.reduce((sum, p) => sum + (p.metadata.stats?.wordCount ?? 0), 0)}
@@ -69,7 +72,10 @@
 	</div>
 
 	<div class="mb-6 sm:mb-8">
-		<Input type="text" bind:value={searchQuery} placeholder="搜索文章标题、描述、标签..." class="w-full" aria-label="搜索文章" />
+		<div class="relative">
+			<Icon icon="mdi:magnify" class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+			<Input type="text" bind:value={searchQuery} placeholder="搜索文章标题、描述、标签..." class="w-full pl-10" aria-label="搜索文章" />
+		</div>
 		{#if searchQuery}
 			<div class="mt-2 min-h-[20px]">
 				{#if displayPosts.length === 0}
