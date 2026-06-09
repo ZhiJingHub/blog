@@ -15,6 +15,7 @@
 	import TabsContent from '$lib/components/ui/tabs/tabs-content.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import Icon from '@iconify/svelte';
+	import PageHeader from './PageHeader.svelte';
 	import { useIconSearch } from './cover/composables/useIconSearch.svelte';
 	import { useBgInteraction } from './cover/composables/useBgInteraction.svelte';
 	import { useFontManager } from './cover/composables/useFontManager.svelte';
@@ -106,8 +107,7 @@
 
 <div class="cover-layout">
 	<div class="cover-title-col">
-		<h1 class="text-2xl font-bold tracking-tight sm:text-3xl">封面制作</h1>
-		<p class="mt-2 text-sm text-muted-foreground">在线封面图制作工具，支持自定义文本、图标、背景，导出 PNG / SVG 格式</p>
+		<PageHeader title="封面制作" icon="mdi:image-edit" description="在线封面图制作工具，支持自定义文本、图标、背景，导出 PNG / SVG 格式" />
 	</div>
 	<div class="cover-preview-col">
 		<CoverPreview
