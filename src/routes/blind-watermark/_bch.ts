@@ -1,38 +1,7 @@
 /**
- * BCH(127,64) 纠错编码
- * 可纠正最多 10 位错误
+ * 纠错编码：Hamming(7,4) + 3x 重复码
  * 用于盲水印的前向纠错
  */
-
-const BCH_N = 127;
-const BCH_K = 64;
-const BCH_T = 10; // 可纠正的最大错误数
-
-// GF(2^7) 本原多项式: x^7 + x + 1 (0x83)
-const PRIMITIVE_POLY = 0x83;
-
-// 生成 GF(2^7) 的指数表和对数表
-const gfExp = new Uint8Array(254);
-const gfLog = new Uint8Array(128);
-
-(function initGf() {
-	let val = 1;
-	for (let i = 0; i < 127; i++) {
-		gfExp[i] = val;
-		gfLog[val] = i;
-		val <<= 1;
-		if (val >= 128) val ^= PRIMITIVE_POLY & 0x7f;
-	}
-	// 循环填充
-	for (let i = 127; i < 254; i++) {
-		gfExp[i] = gfExp[i - 127];
-	}
-})();
-
-function gfMul(a: number, b: number): number {
-	if (a === 0 || b === 0) return 0;
-	return gfExp[gfLog[a] + gfLog[b]];
-}
 
 /**
  * 将字节数组编码为比特流

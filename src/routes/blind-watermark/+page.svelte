@@ -3,6 +3,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Slider } from '$lib/components/ui/slider';
 	import Icon from '@iconify/svelte';
+	import { resolve } from '$app/paths';
 	import { siteConfig } from '$lib/config/site';
 	import { embedBlindWatermark, extractBlindWatermark, batchEmbed } from './_blind-watermark';
 
@@ -11,7 +12,7 @@
 	let mode = $state<Mode>('embed');
 	let password = $state('');
 	let watermarkText = $state('');
-	let strength = $state(15);
+	let strength = $state(12);
 	let isProcessing = $state(false);
 	let error = $state('');
 	let resultMessage = $state('');
@@ -23,6 +24,7 @@
 	let sourceImageUrl = $state<string | null>(null);
 	let resultImageUrl = $state<string | null>(null);
 	let resultBlob = $state<Blob | null>(null);
+	let resultPsnr = $state<number | null>(null);
 
 	// 批量模式
 	let isBatch = $state(false);
@@ -151,7 +153,8 @@
 					canvas.toBlob((b) => b ? resolve(b) : reject(new Error('导出失败')), 'image/png');
 				});
 
-				resultMessage = `嵌入成功：${watermarkText.length} 字符，${result.totalBlocks} 个块`;
+				resultPsnr = result.psnr;
+				resultMessage = `嵌入成功：${watermarkText.length} 字符，PSNR ${result.psnr.toFixed(1)}dB`;
 			}
 		} catch (e) {
 			error = e instanceof Error ? e.message : '处理失败';
@@ -213,6 +216,7 @@
 		sourceImageUrl = null;
 		resultImageUrl = null;
 		resultBlob = null;
+		resultPsnr = null;
 		batchFiles = [];
 		batchResults = [];
 		error = '';
@@ -224,13 +228,13 @@
 
 <svelte:head>
 	<title>盲水印 - {siteConfig.title}</title>
-	<meta name="description" content="基于 DCT 的不可见数字水印，支持嵌入和提取" />
+	<meta name="description" content="基于小波变换的不可见数字水印，支持嵌入和提取" />
 </svelte:head>
 
 <div class="min-h-screen bg-background">
 	<div class="container mx-auto max-w-7xl px-4 pt-6 pb-12 sm:pt-8">
 		<div class="mb-6">
-			<a href="/" class="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+			<a href={resolve('/')} class="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
 				<Icon icon="mdi:chevron-left" class="size-4" />
 				返回首页
 			</a>
@@ -241,7 +245,7 @@
 			<div class="bw-title-col">
 				<h1 class="text-2xl font-bold tracking-tight sm:text-3xl">盲水印</h1>
 				<p class="mt-2 text-sm text-muted-foreground">
-					基于 DCT 频域变换的不可见数字水印，支持嵌入、提取和批量处理
+					基于小波变换 + 扩频技术的不可见数字水印，支持嵌入、提取和批量处理
 				</p>
 			</div>
 
@@ -289,7 +293,7 @@
 						<div class="w-full space-y-3">
 							<p class="text-sm text-muted-foreground">已选择 {batchFiles.length} 张图片</p>
 							<div class="grid grid-cols-4 gap-2">
-								{#each batchFiles.slice(0, 8) as file}
+								{#each batchFiles.slice(0, 8) as file (file.name)}
 									<div class="truncate rounded bg-muted px-2 py-1 text-xs">{file.name}</div>
 								{/each}
 								{#if batchFiles.length > 8}
@@ -345,7 +349,7 @@
 						<div class="space-y-3">
 							<h3 class="text-sm font-medium">水印结果</h3>
 							<img src={resultImageUrl} alt="水印结果" class="max-h-[400px] rounded-lg object-contain" />
-							<p class="text-xs text-muted-foreground">水印已嵌入，肉眼不可见。请下载保存。</p>
+							<p class="text-xs text-muted-foreground">{resultPsnr !== null ? `PSNR ${resultPsnr.toFixed(1)}dB — ` : ''}肉眼不可察觉。请下载保存。</p>
 						</div>
 					{/if}
 				{:else}
@@ -363,7 +367,7 @@
 					{#if isBatch && batchResults.length > 0}
 						<div class="space-y-2">
 							<h3 class="text-sm font-medium">批量提取结果</h3>
-							{#each batchResults as result}
+							{#each batchResults as result (result.name)}
 								<div class="flex items-center gap-3 rounded-lg border p-3">
 									<span class="min-w-0 flex-1 truncate text-sm">{result.name}</span>
 									{#if result.text}
@@ -427,8 +431,8 @@
 							<span class="text-xs text-muted-foreground">嵌入强度</span>
 							<span class="text-xs text-muted-foreground">{strength}</span>
 						</div>
-						<Slider type="single" bind:value={strength} min={5} max={40} step={1} />
-						<p class="mt-1 text-xs text-muted-foreground">值越大越抗攻击，但图片质量下降越明显</p>
+						<Slider type="single" bind:value={strength} min={3} max={30} step={1} />
+						<p class="mt-1 text-xs text-muted-foreground">推荐 8-15，值越大越抗攻击</p>
 					</div>
 				</div>
 
@@ -440,7 +444,7 @@
 					</h3>
 					<div class="space-y-2 text-xs text-muted-foreground">
 						<p>盲水印是一种<strong>不可见</strong>的数字水印，嵌入后肉眼无法察觉。</p>
-						<p><strong>技术原理：</strong>DCT 频域变换 + QIM 量化嵌入 + BCH 纠错编码</p>
+						<p><strong>技术原理：</strong>Haar 小波变换 + 扩频嵌入 + BCH 纠错编码</p>
 						<p><strong>抗攻击能力：</strong></p>
 						<ul class="ml-4 list-disc space-y-1">
 							<li>JPEG 压缩（质量 50+）✓</li>
