@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onDestroy } from 'svelte';
+
 	import CoverPreview from './cover/CoverPreview.svelte';
 	import TextSettings from './cover/TextSettings.svelte';
 	import IconSettings from './cover/IconSettings.svelte';
@@ -96,11 +96,13 @@
 		icon.iconSize = value;
 	}
 
-	onDestroy(() => {
-		icon.dispose();
-		bgInteraction.dispose();
-		fontManager.dispose();
-		iconSearch.dispose();
+	$effect(() => {
+		return () => {
+			icon.dispose();
+			bgInteraction.dispose();
+			fontManager.dispose();
+			iconSearch.dispose();
+		};
 	});
 </script>
 

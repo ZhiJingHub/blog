@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onDestroy } from 'svelte';
+
+
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Tabs, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
 	import { Button } from '$lib/components/ui/button';
@@ -156,14 +157,16 @@
 			});
 	}
 
-	onDestroy(() => {
-		revokeFileUrl(sourceImage?.url);
-		revokeFileUrl(hiddenImage?.url);
-		for (const key of ['prism', 'shadow'] as const) {
-			const url = results[key]?.url;
-			if (url?.startsWith('blob:')) URL.revokeObjectURL(url);
-		}
-		revokeAllFileUrls();
+	$effect(() => {
+		return () => {
+			revokeFileUrl(sourceImage?.url);
+			revokeFileUrl(hiddenImage?.url);
+			for (const key of ['prism', 'shadow'] as const) {
+				const url = results[key]?.url;
+				if (url?.startsWith('blob:')) URL.revokeObjectURL(url);
+			}
+			revokeAllFileUrls();
+		};
 	});
 </script>
 

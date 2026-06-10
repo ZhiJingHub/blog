@@ -115,7 +115,7 @@
 										<span class="shrink-0 text-sm text-muted-foreground">· 约 {post.metadata.stats?.readTime ?? 0} 分钟</span>
 										<span class="inline-flex shrink-0 items-center gap-1 text-sm text-muted-foreground">
 											· <Icon icon="mdi:eye" class="size-3.5" />
-											<PageViews pathname="/posts/{post.slug}/" increment={false} class="text-sm text-muted-foreground" />
+											<PageViews pathname="/posts/{post.slug}/" increment={false} initialCount={data.viewCounts?.[`/posts/${post.slug}/`] ?? 0} class="text-sm text-muted-foreground" />
 										</span>
 									</div>
 									<h2 class="mb-2 text-xl font-semibold break-words group-hover:text-primary sm:text-2xl">{post.metadata.title}</h2>

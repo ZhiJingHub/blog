@@ -7,6 +7,7 @@
 	import { siteConfig } from '$lib/config/site';
 	import { formatDate } from '$lib/utils/format';
 	import { renderMermaidIn } from '$lib/utils/mermaid';
+	import 'katex/dist/katex.min.css';
 	import PostToc from '$lib/components/PostToc.svelte';
 	import ImageViewer from '$lib/components/ImageViewer.svelte';
 	import PageViews from '$lib/components/PageViews.svelte';

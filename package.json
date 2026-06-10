@@ -31,8 +31,6 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
-		"@iconify-json/mdi": "^1.2.3",
-		"@iconify-json/simple-icons": "^1.2.85",
 		"@iconify/svelte": "^5.2.1",
 		"@shikijs/transformers": "^4.2.0",
 		"@sveltejs/adapter-cloudflare": "^7.2.8",
@@ -69,9 +67,7 @@
 		"typescript": "^6.0.2",
 		"typescript-eslint": "^8.58.1",
 		"vite": "^8.0.7",
-		"wrangler": "^4.98.0"
-	},
-	"dependencies": {
+		"wrangler": "^4.98.0",
 		"@vercel/analytics": "^2.0.1",
 		"@vercel/speed-insights": "^2.0.0"
 	}
