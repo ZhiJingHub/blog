@@ -23,14 +23,6 @@ export interface WatermarkItem {
   tileSpacing: number;
 }
 
-export interface LoadedWatermarkImage {
-  file: File;
-  url: string;
-  img: HTMLImageElement;
-  width: number;
-  height: number;
-}
-
 export const DEFAULT_WATERMARK: Omit<WatermarkItem, 'id'> = {
   type: 'text',
   enabled: true,

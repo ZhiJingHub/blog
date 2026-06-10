@@ -12,15 +12,13 @@
 	let { data }: { data: PageData } = $props();
 
 	let searchQuery = $state('');
-	let prevSearchQuery = $state('');
 	let currentPage = $state(1);
 	const postsPerPage = 10;
 
+	// 搜索时重置页码
 	$effect(() => {
-		if (searchQuery !== prevSearchQuery) {
-			prevSearchQuery = searchQuery;
-			currentPage = 1;
-		}
+		searchQuery;
+		currentPage = 1;
 	});
 
 	let displayPosts = $derived.by(() => {
@@ -104,7 +102,7 @@
 							<div class="flex flex-col gap-4 sm:flex-row">
 								{#if post.metadata.image}
 									<div class="sm:w-44 sm:shrink-0">
-										<img src={post.metadata.image} alt={post.metadata.title} class="h-40 w-full rounded-lg object-cover sm:h-32" />
+										<img src={post.metadata.image} alt={post.metadata.title} loading="lazy" decoding="async" class="h-40 w-full rounded-lg object-cover sm:h-32" />
 									</div>
 								{/if}
 								<div class="min-w-0 flex-1">

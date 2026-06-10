@@ -33,7 +33,6 @@ export const load: PageLoad = async ({ params }) => {
 			...post,
 			metadata
 		},
-		component,
-		slug: params.slug
+		component
 	};
 };

@@ -1,9 +1,11 @@
+import { SITE_DOMAINS } from '../../../vite-plugins/site-domains.js';
+
 export const siteConfig = {
 	name: "ZhiJing's Blog",
 	title: "ZhiJing's Blog",
 	subtitle: "一个基于 SvelteKit 构建的现代博客",
 	url: "https://iwexe.top",
-	domains: ['iwexe.top', 'iwecc.dpdns.org', 'iwecc.qzz.io'],
+	domains: SITE_DOMAINS,
 	icon: "/favicon.svg",
 	description: "Go with the flow.",
 	keywords: ["blog", "sveltekit", "技术博客", "静态博客"],

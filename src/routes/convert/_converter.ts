@@ -299,13 +299,6 @@ export async function performConversion(
 }
 
 /**
- * 获取格式对应的 MIME 类型
- */
-export function getMimeType(format: OutputFormat): string {
-  return format;
-}
-
-/**
  * 获取格式对应的文件扩展名
  */
 export function getFormatExtension(format: OutputFormat): string {

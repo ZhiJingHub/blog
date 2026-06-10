@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Button } from '$lib/components/ui/button';
-  import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Input } from '$lib/components/ui/input';
   import { Switch } from '$lib/components/ui/switch';
   import { Slider } from '$lib/components/ui/slider';
@@ -11,6 +10,7 @@
   import TabsTrigger from '$lib/components/ui/tabs/tabs-trigger.svelte';
   import TabsContent from '$lib/components/ui/tabs/tabs-content.svelte';
   import Icon from '@iconify/svelte';
+  import { siteConfig } from '$lib/config/site';
   import { WATERMARK_POSITIONS } from '$lib/types/watermark';
   import type {
     ConvertOptions,
@@ -489,7 +489,7 @@
 </script>
 
 <svelte:head>
-  <title>图片格式转换 - ZhiJing's Blog</title>
+  <title>图片格式转换 - {siteConfig.title}</title>
   <meta name="description" content="在线图片格式转换工具，支持 PNG、JPG、WebP、AVIF、BMP、GIF、SVG 格式相互转换，支持批量转换、旋转翻转、压缩预设" />
 </svelte:head>
 

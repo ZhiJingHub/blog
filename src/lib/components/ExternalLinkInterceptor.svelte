@@ -23,8 +23,8 @@
 				return;
 			}
 
-			// 已经在 /go/ 路径上的跳过
-			if (anchor.pathname.startsWith('/go/')) return;
+			// 已经在 /go/ 路径上的跳过（防止重定向页死循环）
+			if (anchor.pathname.startsWith('/go/') || window.location.pathname.startsWith('/go/')) return;
 
 			// 用户明确排除的链接跳过
 			if (anchor.hasAttribute('data-no-redirect')) return;

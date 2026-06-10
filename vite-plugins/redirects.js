@@ -3,19 +3,29 @@ import { join } from 'path';
 
 const SITE_TITLE = "ZhiJing's Blog";
 
+function escapeHtml(str) {
+	return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function escapeJs(str) {
+	return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/'/g, "\\'").replace(/</g, '\\x3c').replace(/>/g, '\\x3e');
+}
+
 function generateRedirectHTML(destination) {
+	const safeHtml = escapeHtml(destination);
+	const safeJs = escapeJs(destination);
 	return `<!DOCTYPE html>
 <html lang="zh_CN">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="robots" content="noindex, nofollow">
-	<meta http-equiv="refresh" content="3;url=${destination}">
+	<meta http-equiv="refresh" content="3;url=${safeHtml}">
 	<title>跳转中... - ${SITE_TITLE}</title>
 	<script>
 		let c = 3;
 		const t = setInterval(() => {
-			if (--c <= 0) { clearInterval(t); location.href = "${destination}"; }
+			if (--c <= 0) { clearInterval(t); location.href = "${safeJs}"; }
 		}, 1000);
 	<\/script>
 	<style>
@@ -50,11 +60,11 @@ function generateRedirectHTML(destination) {
 		<p class="desc">${SITE_TITLE} 正在将您重定向至外部链接</p>
 		<div class="url-box">
 			<small>目标地址</small><br>
-			<code>${destination}</code>
+			<code>${safeHtml}</code>
 		</div>
 		<div class="spin"><div class="spinner"></div><span>3 秒后自动跳转</span></div>
 		<div class="btns">
-			<a href="${destination}" class="btn primary">立即前往</a>
+			<a href="${safeHtml}" class="btn primary">立即前往</a>
 			<a href="/" class="btn outline">返回首页</a>
 		</div>
 	</div>
@@ -87,10 +97,14 @@ export default function redirectsPlugin(redirects) {
 		closeBundle() {
 			const outputDir = 'build';
 			for (const [path, destination] of Object.entries(redirects)) {
-				const outputPath = join(outputDir, path.slice(1));
-				mkdirSync(outputPath, { recursive: true });
-				writeFileSync(join(outputPath, 'index.html'), generateRedirectHTML(destination));
-				console.log(`  ✓ redirect: ${path} → ${destination}`);
+				try {
+					const outputPath = join(outputDir, path.slice(1));
+					mkdirSync(outputPath, { recursive: true });
+					writeFileSync(join(outputPath, 'index.html'), generateRedirectHTML(destination));
+					console.log(`  ✓ redirect: ${path} → ${destination}`);
+				} catch (err) {
+					console.error(`  ✗ redirect failed: ${path} → ${destination}`, err);
+				}
 			}
 		}
 	};

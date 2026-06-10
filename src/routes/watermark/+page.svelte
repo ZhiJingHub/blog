@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Button } from '$lib/components/ui/button';
-  import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
   import { Input } from '$lib/components/ui/input';
   import { Switch } from '$lib/components/ui/switch';
   import { Slider } from '$lib/components/ui/slider';
@@ -11,7 +10,7 @@
   import { WATERMARK_POSITIONS } from '$lib/types/watermark';
   import type { WatermarkItem } from './_types';
   import { DEFAULT_WATERMARK } from './_types';
-  import type { LoadedImage } from './_image-utils';
+  import type { LoadedImage } from './_types';
   import { loadImage, revokeUrl, formatFileSize } from './_image-utils';
   import { generatePreview, exportWatermarkedImage } from './_watermark';
 

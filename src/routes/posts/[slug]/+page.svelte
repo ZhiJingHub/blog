@@ -22,11 +22,7 @@
 		(async () => {
 			await tick();
 			if (proseEl) {
-				try {
-					await renderMermaidIn(proseEl);
-				} catch (e) {
-					console.error('[Mermaid] 渲染失败:', e);
-				}
+				await renderMermaidIn(proseEl);
 			}
 		})();
 	});
