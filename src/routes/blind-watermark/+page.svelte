@@ -12,7 +12,7 @@
 	let mode = $state<Mode>('embed');
 	let password = $state('');
 	let watermarkText = $state('');
-	let strength = $state(36);
+	let strength = $state(20);
 	let isProcessing = $state(false);
 	let error = $state('');
 	let resultMessage = $state('');
@@ -431,8 +431,8 @@
 							<span class="text-xs text-muted-foreground">嵌入强度</span>
 							<span class="text-xs text-muted-foreground">{strength}</span>
 						</div>
-						<Slider type="single" bind:value={strength} min={15} max={80} step={1} />
-						<p class="mt-1 text-xs text-muted-foreground">推荐 30-50，值越大越抗攻击但越可见</p>
+						<Slider type="single" bind:value={strength} min={8} max={50} step={1} />
+						<p class="mt-1 text-xs text-muted-foreground">推荐 15-30，值越大越抗攻击但越可见</p>
 					</div>
 				</div>
 

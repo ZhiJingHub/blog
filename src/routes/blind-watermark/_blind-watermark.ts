@@ -22,18 +22,6 @@ function rgbToYuv(r: number, g: number, b: number): [number, number, number] {
 	return [y, u, v];
 }
 
-/** YUV 转 RGB */
-function yuvToRgb(y: number, u: number, v: number): [number, number, number] {
-	const r = y + 1.402 * (v - 128);
-	const g = y - 0.344 * (u - 128) - 0.714 * (v - 128);
-	const b = y + 1.772 * (u - 128);
-	return [
-		Math.max(0, Math.min(255, r)),
-		Math.max(0, Math.min(255, g)),
-		Math.max(0, Math.min(255, b))
-	];
-}
-
 /** ImageData 转 YUV 三个通道 */
 function imageDataToYuv(imageData: ImageData): { Y: Float64Array; U: Float64Array; V: Float64Array } {
 	const { data, width, height } = imageData;
@@ -51,20 +39,6 @@ function imageDataToYuv(imageData: ImageData): { Y: Float64Array; U: Float64Arra
 	}
 
 	return { Y, U, V };
-}
-
-/** YUV 三通道写回 ImageData */
-function yuvToImageData(Y: Float64Array, U: Float64Array, V: Float64Array, imageData: ImageData): void {
-	const { data, width, height } = imageData;
-	const size = width * height;
-
-	for (let i = 0; i < size; i++) {
-		const [r, g, b] = yuvToRgb(Y[i], U[i], V[i]);
-		const idx = i * 4;
-		data[idx] = r;
-		data[idx + 1] = g;
-		data[idx + 2] = b;
-	}
 }
 
 // ==================== DCT 4×4 ====================
@@ -266,12 +240,20 @@ export function embedBlindWatermark(
 	options: BlindWatermarkOptions
 ): BlindWatermarkResult {
 	const { width, height } = imageData;
-	const originalData = new Uint8ClampedArray(imageData.data);
+	const size = width * height;
 
-	// 1. RGB → YUV
-	const { Y, U, V } = imageDataToYuv(imageData);
+	// 1. 提取 Y 通道
+	const { data } = imageData;
+	const Y = new Float64Array(size);
+	for (let i = 0; i < size; i++) {
+		const idx = i * 4;
+		Y[i] = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+	}
 
-	// 2. Haar DWT 分解（仅对 Y 通道）
+	// 保存原始 Y 用于计算差值
+	const originalY = new Float64Array(Y);
+
+	// 2. Haar DWT 分解
 	const { ll, lh, hl, hh, w: w2, h: h2 } = dwt2d(Y, width, height);
 
 	// 3. 将文本编码为比特流
@@ -307,8 +289,6 @@ export function embedBlindWatermark(
 		const { U: u, s, V: v } = svd(dctBlock, 4, 4);
 
 		// 量化 s[0] 嵌入比特
-		// bit=0: s[0] % d1 ≈ d1 * 0.25
-		// bit=1: s[0] % d1 ≈ d1 * 0.75
 		s[0] = (Math.floor(s[0] / d1) + 0.25 + 0.5 * wmBit) * d1;
 
 		// 重构 DCT 块: U * diag(s) * V^T
@@ -325,18 +305,24 @@ export function embedBlindWatermark(
 		blocks[blockIdx] = idct4x4(reconstructed);
 	}
 
-	// 8. 将块写回 LL 子带
+	// 7. 将块写回 LL 子带
 	for (let b = 0; b < blocks.length; b++) {
 		const [x, y] = positions[b];
 		writeBlock(ll, w2, x, y, blocks[b]);
 	}
 
-	// 9. Haar IDWT 重构 Y 通道
+	// 8. Haar IDWT 重构 Y 通道
 	const newY = idwt2d(ll, lh, hl, hh, w2, h2, width, height);
 
-	// 10. YUV → RGB
-	const result = new ImageData(new Uint8ClampedArray(originalData), width, height);
-	yuvToImageData(newY, U, V, result);
+	// 9. 计算 Y 通道差值，应用到原始 RGB（保持颜色）
+	const result = new ImageData(new Uint8ClampedArray(data), width, height);
+	for (let i = 0; i < size; i++) {
+		const delta = newY[i] - originalY[i];
+		const idx = i * 4;
+		result.data[idx] = Math.max(0, Math.min(255, data[idx] + delta));
+		result.data[idx + 1] = Math.max(0, Math.min(255, data[idx + 1] + delta));
+		result.data[idx + 2] = Math.max(0, Math.min(255, data[idx + 2] + delta));
+	}
 
 	const psnr = calculatePSNR(imageData, result);
 
