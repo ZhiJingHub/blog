@@ -1,4 +1,4 @@
-import { SITE_DOMAINS } from '../../../vite-plugins/site-domains.js';
+import { SITE_DOMAINS } from '$lib/utils/site-domains.js';
 
 export const siteConfig = {
 	name: "ZhiJing's Blog",

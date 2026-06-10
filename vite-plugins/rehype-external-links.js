@@ -1,6 +1,6 @@
 import { visit } from './ast-visit.js';
-import { encodeBase64Url } from './base64url.js';
-import { isInternalDomain } from './site-domains.js';
+import { encodeBase64Url } from '../src/lib/utils/base64url.js';
+import { isInternalDomain } from '../src/lib/utils/site-domains.js';
 
 export default function rehypeExternalLinks() {
 	return (tree) => {
