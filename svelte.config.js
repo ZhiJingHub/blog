@@ -24,8 +24,8 @@ const adapterConfigs = {
 	static: { strict: false, pages: 'build', assets: 'build', fallback: undefined },
 	cloudflare: {},
 	'cf-pages': {},
-	netlify: {},
-	vercel: {},
+	netlify: { fallback: '404.html' },
+	vercel: { fallback: '404.html' },
 	edgeone: { strict: false, pages: 'build', assets: 'build', fallback: undefined }
 };
 
