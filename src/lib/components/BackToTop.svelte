@@ -26,6 +26,8 @@
 	onclick={scrollToTop}
 	class="fixed bottom-6 right-20 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-card text-muted-foreground shadow-md ring-1 ring-foreground/10 transition-all hover:text-foreground hover:ring-foreground/20 {visible ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0'}"
 	aria-label="回到顶部"
+	aria-hidden={!visible}
+	tabindex={visible ? 0 : -1}
 >
 	<Icon icon="mdi:chevron-up" class="size-5" />
 </button>

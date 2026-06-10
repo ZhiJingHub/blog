@@ -34,21 +34,22 @@
 			count = initialCount;
 			return;
 		}
-		const key = pathname.replace(/\/$/, '') || '/';
+		const pathKey = pathname.replace(/\/$/, '') || '/';
+		const cacheKey = `${increment ? 'inc' : 'read'}:${pathKey}`;
 		let cancelled = false;
 
-		if (!viewCache.has(key)) {
-			viewCache.set(key, fetch('/api/views', {
+		if (!viewCache.has(cacheKey)) {
+			viewCache.set(cacheKey, fetch('/api/views', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(increment ? { path: key } : { paths: [key] })
+				body: JSON.stringify(increment ? { path: pathKey } : { paths: [pathKey] })
 			}).then((res) => res.ok ? res.json() : null).then((data) => {
 				if (!data) return 0;
 				return increment ? data.count : data[0] || 0;
 			}).catch(() => 0));
 		}
 
-		viewCache.get(key)!.then((n) => { if (!cancelled) count = n; });
+		viewCache.get(cacheKey)!.then((n) => { if (!cancelled) count = n; });
 
 		return () => { cancelled = true; };
 	});

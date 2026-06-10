@@ -153,7 +153,7 @@
 				setModeError(currentMode, e instanceof Error ? e.message : '生成失败。', '生成失败。');
 			})
 			.finally(() => {
-				if (currentMode === mode) isGenerating = false;
+				isGenerating = false;
 			});
 	}
 

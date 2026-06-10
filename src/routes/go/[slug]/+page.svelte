@@ -6,7 +6,18 @@
 	import { Button } from '$lib/components/ui/button';
 	import Icon from '@iconify/svelte';
 
-	let target = $derived(decodeUrl(page.params.slug) ?? '');
+	let target = $derived.by(() => {
+		const decoded = decodeUrl(page.params.slug) ?? '';
+		if (!decoded) return '';
+		try {
+			const url = new URL(decoded);
+			// 只允许 http/https 协议，阻止 javascript:、data: 等危险协议
+			if (url.protocol !== 'http:' && url.protocol !== 'https:') return '';
+			return decoded;
+		} catch {
+			return '';
+		}
+	});
 	let targetHost = $derived.by(() => {
 		try {
 			return target ? new URL(target).host : '';

@@ -9,7 +9,7 @@ export const siteConfig = {
 	icon: "/favicon.svg",
 	description: "Go with the flow.",
 	keywords: ["blog", "sveltekit", "技术博客", "静态博客"],
-	lang: "zh_CN",
+	lang: "zh-CN",
 	ogImage: "/og-image.svg",
 	analytics: {
 		umami: {

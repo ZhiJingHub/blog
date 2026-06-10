@@ -1,6 +1,8 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
+export const prerender = false;
+
 const devStore = new Map<string, number>();
 
 function cleanPath(path: string): string {

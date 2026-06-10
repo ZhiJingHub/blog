@@ -101,7 +101,7 @@
 	</aside>
 
 	{#if mobileOpen}
-		<div class="xl:hidden">
+		<div class="xl:hidden" onkeydown={(e) => e.key === 'Escape' && tocFloating.setOpen(false)}>
 			<button type="button" aria-label="关闭目录" class="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm" onclick={() => tocFloating.setOpen(false)}></button>
 			<div transition:fly={{ y: 20, duration: 200 }} role="dialog" aria-modal="true" aria-label="目录" class="fixed right-6 bottom-24 z-50 max-h-[60vh] w-72 overflow-y-auto rounded-lg border border-border bg-card p-4 shadow-xl">
 				<div class="mb-2 text-xs font-semibold tracking-wide text-muted-foreground uppercase">目录</div>
