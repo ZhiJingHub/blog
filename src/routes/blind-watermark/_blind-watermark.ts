@@ -1,69 +1,244 @@
 /**
  * 盲水印核心算法
- * 基于 Haar DWT + 扩频 (Spread Spectrum)
+ * 基于 DWT + DCT + SVD 三重域
  *
- * 嵌入流程：图片 → 灰度 → Haar DWT → 在 LH/HL 子带扩频嵌入 → IDWT → 输出
- * 提取流程：图片 → 灰度 → Haar DWT → 在 LH/HL 子带相关检测 → 解码
+ * 嵌入流程：图片 → YUV → Haar DWT → LL 子带 4×4 分块 → DCT → SVD → 量化奇异值 → 逆变换
+ * 提取流程：图片 → YUV → Haar DWT → LL 子带 4×4 分块 → DCT → SVD → 读取奇异值余数 → 投票解码
  *
- * 特性：
- * - PSNR > 48dB（肉眼完全无法察觉）
- * - 扩频嵌入无硬量化边界，不可检测
- * - 密码派生伪随机序列保证安全性
+ * 参考：guofei9987/blind_watermark
  */
 
 import { stringToBits, bitsToString, bchEncode, bchDecode } from './_bch';
 import { dwt2d, idwt2d } from './_dwt';
+import { svd } from './_svd';
 
-// ==================== 伪随机序列 ====================
+// ==================== 色彩空间 ====================
 
-/** 密码派生哈希 */
-function hashPassword(password: string, salt: number): number {
-	let hash = salt;
+/** RGB 转 YUV (BT.601) */
+function rgbToYuv(r: number, g: number, b: number): [number, number, number] {
+	const y = 0.299 * r + 0.587 * g + 0.114 * b;
+	const u = -0.169 * r - 0.331 * g + 0.5 * b + 128;
+	const v = 0.5 * r - 0.419 * g - 0.081 * b + 128;
+	return [y, u, v];
+}
+
+/** YUV 转 RGB */
+function yuvToRgb(y: number, u: number, v: number): [number, number, number] {
+	const r = y + 1.402 * (v - 128);
+	const g = y - 0.344 * (u - 128) - 0.714 * (v - 128);
+	const b = y + 1.772 * (u - 128);
+	return [
+		Math.max(0, Math.min(255, r)),
+		Math.max(0, Math.min(255, g)),
+		Math.max(0, Math.min(255, b))
+	];
+}
+
+/** ImageData 转 YUV 三个通道 */
+function imageDataToYuv(imageData: ImageData): { Y: Float64Array; U: Float64Array; V: Float64Array } {
+	const { data, width, height } = imageData;
+	const size = width * height;
+	const Y = new Float64Array(size);
+	const U = new Float64Array(size);
+	const V = new Float64Array(size);
+
+	for (let i = 0; i < size; i++) {
+		const idx = i * 4;
+		const [y, u, v] = rgbToYuv(data[idx], data[idx + 1], data[idx + 2]);
+		Y[i] = y;
+		U[i] = u;
+		V[i] = v;
+	}
+
+	return { Y, U, V };
+}
+
+/** YUV 三通道写回 ImageData */
+function yuvToImageData(Y: Float64Array, U: Float64Array, V: Float64Array, imageData: ImageData): void {
+	const { data, width, height } = imageData;
+	const size = width * height;
+
+	for (let i = 0; i < size; i++) {
+		const [r, g, b] = yuvToRgb(Y[i], U[i], V[i]);
+		const idx = i * 4;
+		data[idx] = r;
+		data[idx + 1] = g;
+		data[idx + 2] = b;
+	}
+}
+
+// ==================== DCT 4×4 ====================
+
+/** 4×4 DCT 基矩阵 (预计算) */
+const DCT4 = new Float64Array([
+	0.5, 0.5, 0.5, 0.5,
+	0.6533, 0.2706, -0.2706, -0.6533,
+	0.5, -0.5, -0.5, 0.5,
+	0.2706, -0.6533, 0.6533, -0.2706
+]);
+
+const DCT4T = new Float64Array([
+	0.5, 0.6533, 0.5, 0.2706,
+	0.5, 0.2706, -0.5, -0.6533,
+	0.5, -0.2706, -0.5, 0.6533,
+	0.5, -0.6533, 0.5, -0.2706
+]);
+
+/** 4×4 2D DCT: DCT4 * block * DCT4^T */
+function dct4x4(block: Float64Array): Float64Array {
+	const temp = new Float64Array(16);
+	const result = new Float64Array(16);
+
+	// temp = DCT4 * block
+	for (let i = 0; i < 4; i++) {
+		for (let j = 0; j < 4; j++) {
+			let sum = 0;
+			for (let k = 0; k < 4; k++) sum += DCT4[i * 4 + k] * block[k * 4 + j];
+			temp[i * 4 + j] = sum;
+		}
+	}
+
+	// result = temp * DCT4^T
+	for (let i = 0; i < 4; i++) {
+		for (let j = 0; j < 4; j++) {
+			let sum = 0;
+			for (let k = 0; k < 4; k++) sum += temp[i * 4 + k] * DCT4T[k * 4 + j];
+			result[i * 4 + j] = sum;
+		}
+	}
+
+	return result;
+}
+
+/** 4×4 2D IDCT: DCT4^T * block * DCT4 */
+function idct4x4(block: Float64Array): Float64Array {
+	const temp = new Float64Array(16);
+	const result = new Float64Array(16);
+
+	// temp = DCT4^T * block
+	for (let i = 0; i < 4; i++) {
+		for (let j = 0; j < 4; j++) {
+			let sum = 0;
+			for (let k = 0; k < 4; k++) sum += DCT4T[i * 4 + k] * block[k * 4 + j];
+			temp[i * 4 + j] = sum;
+		}
+	}
+
+	// result = temp * DCT4
+	for (let i = 0; i < 4; i++) {
+		for (let j = 0; j < 4; j++) {
+			let sum = 0;
+			for (let k = 0; k < 4; k++) sum += temp[i * 4 + k] * DCT4[k * 4 + j];
+			result[i * 4 + j] = sum;
+		}
+	}
+
+	return result;
+}
+
+// ==================== 分块工具 ====================
+
+/** 从 2D 系数矩阵中提取 4×4 块 */
+function extractBlocks(coeffs: Float64Array, w: number, h: number): { blocks: Float64Array[]; positions: [number, number][] } {
+	const blocks: Float64Array[] = [];
+	const positions: [number, number][] = [];
+
+	for (let y = 0; y <= h - 4; y += 4) {
+		for (let x = 0; x <= w - 4; x += 4) {
+			const block = new Float64Array(16);
+			for (let by = 0; by < 4; by++) {
+				for (let bx = 0; bx < 4; bx++) {
+					block[by * 4 + bx] = coeffs[(y + by) * w + (x + bx)];
+				}
+			}
+			blocks.push(block);
+			positions.push([x, y]);
+		}
+	}
+
+	return { blocks, positions };
+}
+
+/** 将 4×4 块写回 2D 系数矩阵 */
+function writeBlock(coeffs: Float64Array, w: number, x: number, y: number, block: Float64Array): void {
+	for (let by = 0; by < 4; by++) {
+		for (let bx = 0; bx < 4; bx++) {
+			coeffs[(y + by) * w + (x + bx)] = block[by * 4 + bx];
+		}
+	}
+}
+
+// ==================== 伪随机 ====================
+
+/** 生成洗牌索引（密码派生） */
+function shuffleIndices(length: number, password: string): Uint32Array {
+	let hash = 0;
 	for (let i = 0; i < password.length; i++) {
 		hash = ((hash << 5) - hash + password.charCodeAt(i)) | 0;
 	}
-	return hash;
+
+	const indices = new Uint32Array(length);
+	for (let i = 0; i < length; i++) indices[i] = i;
+
+	let seed = Math.abs(hash);
+	for (let i = length - 1; i > 0; i--) {
+		seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+		const j = seed % (i + 1);
+		const tmp = indices[i];
+		indices[i] = indices[j];
+		indices[j] = tmp;
+	}
+
+	return indices;
 }
 
-/** 生成伪随机 ±1 序列 */
-function pnSequence(password: string, bitIndex: number, length: number): Int8Array {
-	const seed = Math.abs(hashPassword(password, bitIndex * 7919 + 104729));
-	const seq = new Int8Array(length);
-	let s = seed;
-	for (let i = 0; i < length; i++) {
-		s = (s * 1103515245 + 12345) & 0x7fffffff;
-		seq[i] = s & 1 ? 1 : -1;
+// ==================== K-means 阈值 ====================
+
+/** 一维 K-means 聚类（用于二值化提取结果） */
+function oneDimKmeans(data: number[], maxIter = 300): number {
+	if (data.length === 0) return 0.5;
+
+	// 初始化两个中心为 min 和 max
+	let c0 = Math.min(...data);
+	let c1 = Math.max(...data);
+	if (c0 === c1) return c0;
+
+	for (let iter = 0; iter < maxIter; iter++) {
+		let sum0 = 0, count0 = 0, sum1 = 0, count1 = 0;
+
+		for (const x of data) {
+			if (Math.abs(x - c0) < Math.abs(x - c1)) {
+				sum0 += x;
+				count0++;
+			} else {
+				sum1 += x;
+				count1++;
+			}
+		}
+
+		const newC0 = count0 > 0 ? sum0 / count0 : c0;
+		const newC1 = count1 > 0 ? sum1 / count1 : c1;
+
+		if (Math.abs(newC0 - c0) < 1e-10 && Math.abs(newC1 - c1) < 1e-10) break;
+		c0 = newC0;
+		c1 = newC1;
 	}
-	return seq;
+
+	return (c0 + c1) / 2;
 }
 
-// ==================== 图像处理 ====================
+// ==================== 公开 API ====================
 
-/** RGBA 转灰度 */
-function toGrayscale(imageData: ImageData): Float64Array {
-	const { data, width, height } = imageData;
-	const gray = new Float64Array(width * height);
-	for (let i = 0; i < width * height; i++) {
-		const idx = i * 4;
-		gray[i] = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
-	}
-	return gray;
+export interface BlindWatermarkOptions {
+	password: string;
+	strength: number; // 量化步长 d1，推荐 30-50
 }
 
-/** 灰度写回 ImageData（保持原始颜色，只修改亮度） */
-function applyDeltaToImageData(
-	original: ImageData,
-	originalGray: Float64Array,
-	newGray: Float64Array
-): void {
-	const { data, width, height } = original;
-	for (let i = 0; i < width * height; i++) {
-		const delta = newGray[i] - originalGray[i];
-		const idx = i * 4;
-		data[idx] = Math.max(0, Math.min(255, data[idx] + delta));
-		data[idx + 1] = Math.max(0, Math.min(255, data[idx + 1] + delta));
-		data[idx + 2] = Math.max(0, Math.min(255, data[idx + 2] + delta));
-	}
+export interface BlindWatermarkResult {
+	imageData: ImageData;
+	embeddedBits: number;
+	totalBlocks: number;
+	psnr: number;
 }
 
 /** 计算 PSNR */
@@ -82,20 +257,6 @@ function calculatePSNR(original: ImageData, modified: ImageData): number {
 	return 10 * Math.log10((255 * 255) / mse);
 }
 
-// ==================== 公开 API ====================
-
-export interface BlindWatermarkOptions {
-	password: string;
-	strength: number; // 嵌入强度 1-50，推荐 8-20
-}
-
-export interface BlindWatermarkResult {
-	imageData: ImageData;
-	embeddedBits: number;
-	totalCoeffs: number;
-	psnr: number;
-}
-
 /**
  * 嵌入盲水印
  */
@@ -105,15 +266,15 @@ export function embedBlindWatermark(
 	options: BlindWatermarkOptions
 ): BlindWatermarkResult {
 	const { width, height } = imageData;
-
-	// 保存原始数据用于 PSNR 计算和颜色恢复
-	const originalGray = toGrayscale(imageData);
 	const originalData = new Uint8ClampedArray(imageData.data);
 
-	// Haar DWT 分解
-	const { ll, lh, hl, hh, w: w2, h: h2 } = dwt2d(originalGray, width, height);
+	// 1. RGB → YUV
+	const { Y, U, V } = imageDataToYuv(imageData);
 
-	// 将文本编码为比特流（带 BCH 纠错）
+	// 2. Haar DWT 分解（仅对 Y 通道）
+	const { ll, lh, hl, hh, w: w2, h: h2 } = dwt2d(Y, width, height);
+
+	// 3. 将文本编码为比特流
 	const payloadBits = stringToBits(text);
 	const encodedBits = bchEncode(payloadBits);
 
@@ -121,54 +282,68 @@ export function embedBlindWatermark(
 		throw new Error('水印内容不能为空');
 	}
 
-	// 合并 LH + HL 子带作为嵌入域
-	const totalCoeffs = lh.length + hl.length;
-	const combined = new Float64Array(totalCoeffs);
-	combined.set(lh);
-	combined.set(hl, lh.length);
-
-	// 计算每个比特分配的系数数量
-	const groupSize = Math.max(16, Math.floor(totalCoeffs / encodedBits.length));
-	const maxBits = Math.min(encodedBits.length, Math.floor(totalCoeffs / groupSize));
-
-	// alpha 值：strength 映射到合适的嵌入强度
-	// DWT 系数范围通常在 -128~128，alpha 需要足够小以不可察觉
-	const alpha = options.strength * 0.15;
-
-	// 扩频嵌入
-	for (let i = 0; i < maxBits; i++) {
-		const bit = encodedBits[i];
-		const start = i * groupSize;
-		const end = Math.min(start + groupSize, totalCoeffs);
-		const len = end - start;
-
-		if (len <= 0) break;
-
-		const pn = pnSequence(options.password, i, len);
-		const sign = bit === 1 ? 1 : -1;
-
-		for (let j = 0; j < len; j++) {
-			combined[start + j] += alpha * sign * pn[j];
-		}
+	// 4. 对 LL 子带分 4×4 块
+	const { blocks, positions } = extractBlocks(ll, w2, h2);
+	if (blocks.length === 0) {
+		throw new Error('图片太小，无法嵌入水印');
 	}
 
-	// 拆分回 LH/HL
-	const newLh = combined.subarray(0, lh.length);
-	const newHl = combined.subarray(lh.length);
+	// 5. 生成洗牌索引
+	const shuffler = shuffleIndices(blocks.length, options.password);
 
-	// Haar DWT 重构
-	const newGray = idwt2d(ll, newLh, newHl, hh, w2, h2, width, height);
+	// 6. 量化步长
+	const d1 = options.strength;
 
-	// 恢复颜色：将灰度变化量应用到原始 RGB
+	// 7. 循环嵌入：每个比特嵌入到所有块中
+	for (let b = 0; b < blocks.length; b++) {
+		const blockIdx = shuffler[b];
+		const block = blocks[blockIdx];
+		const wmBit = encodedBits[b % encodedBits.length];
+
+		// DCT
+		const dctBlock = dct4x4(block);
+
+		// SVD
+		const { U: u, s, V: v } = svd(dctBlock, 4, 4);
+
+		// 量化 s[0] 嵌入比特
+		// bit=0: s[0] % d1 ≈ d1 * 0.25
+		// bit=1: s[0] % d1 ≈ d1 * 0.75
+		s[0] = (Math.floor(s[0] / d1) + 0.25 + 0.5 * wmBit) * d1;
+
+		// 重构 DCT 块: U * diag(s) * V^T
+		const reconstructed = new Float64Array(16);
+		for (let i = 0; i < 4; i++) {
+			for (let j = 0; j < 4; j++) {
+				let sum = 0;
+				for (let k = 0; k < 4; k++) sum += u[i * 4 + k] * s[k] * v[j * 4 + k];
+				reconstructed[i * 4 + j] = sum;
+			}
+		}
+
+		// IDCT
+		blocks[blockIdx] = idct4x4(reconstructed);
+	}
+
+	// 8. 将块写回 LL 子带
+	for (let b = 0; b < blocks.length; b++) {
+		const [x, y] = positions[b];
+		writeBlock(ll, w2, x, y, blocks[b]);
+	}
+
+	// 9. Haar IDWT 重构 Y 通道
+	const newY = idwt2d(ll, lh, hl, hh, w2, h2, width, height);
+
+	// 10. YUV → RGB
 	const result = new ImageData(new Uint8ClampedArray(originalData), width, height);
-	applyDeltaToImageData(result, originalGray, newGray);
+	yuvToImageData(newY, U, V, result);
 
 	const psnr = calculatePSNR(imageData, result);
 
 	return {
 		imageData: result,
-		embeddedBits: maxBits,
-		totalCoeffs,
+		embeddedBits: encodedBits.length,
+		totalBlocks: blocks.length,
 		psnr
 	};
 }
@@ -183,46 +358,53 @@ export function extractBlindWatermark(
 ): string | null {
 	const { width, height } = imageData;
 
-	// Haar DWT 分解
-	const gray = toGrayscale(imageData);
-	const { lh, hl } = dwt2d(gray, width, height);
+	// 1. RGB → YUV
+	const { Y } = imageDataToYuv(imageData);
 
-	// 合并 LH + HL
-	const totalCoeffs = lh.length + hl.length;
-	const combined = new Float64Array(totalCoeffs);
-	combined.set(lh);
-	combined.set(hl, lh.length);
+	// 2. Haar DWT
+	const { ll, w: w2, h: h2 } = dwt2d(Y, width, height);
 
-	// 估算最大可提取比特数（与嵌入端一致）
-	// 先用一个较大的 groupSize 估算
-	const estimatedGroupSize = Math.max(16, Math.floor(totalCoeffs / 128));
-	const maxExtractBits = Math.min(512, Math.floor(totalCoeffs / estimatedGroupSize));
+	// 3. 分块
+	const { blocks } = extractBlocks(ll, w2, h2);
+	if (blocks.length === 0) return null;
 
-	// 提取比特：通过相关检测
-	const extracted: number[] = [];
-	for (let i = 0; i < maxExtractBits; i++) {
-		const start = i * estimatedGroupSize;
-		const end = Math.min(start + estimatedGroupSize, totalCoeffs);
-		const len = end - start;
+	// 4. 洗牌索引
+	const shuffler = shuffleIndices(blocks.length, options.password);
+	const d1 = options.strength;
 
-		if (len <= 0) break;
+	// 5. 从每个块提取比特
+	const maxBits = Math.min(blocks.length, 512);
+	const extractedRaw: number[][] = Array.from({ length: maxBits }, () => []);
 
-		const pn = pnSequence(options.password, i, len);
+	for (let b = 0; b < blocks.length; b++) {
+		const blockIdx = shuffler[b];
+		const block = blocks[blockIdx];
 
-		// 计算相关值
-		let correlation = 0;
-		for (let j = 0; j < len; j++) {
-			correlation += combined[start + j] * pn[j];
-		}
-		correlation /= len;
+		// DCT → SVD
+		const dctBlock = dct4x4(block);
+		const { s } = svd(dctBlock, 4, 4);
 
-		extracted.push(correlation > 0 ? 1 : 0);
+		// 提取比特: s[0] % d1 > d1/2 ?
+		const remainder = s[0] % d1;
+		const bit = remainder > d1 / 2 ? 1 : 0;
+
+		const bitIdx = b % maxBits;
+		extractedRaw[bitIdx].push(bit);
 	}
 
-	// BCH 解码
+	// 6. 对每个比特位置取平均，然后用 K-means 阈值化
+	const averages = extractedRaw.map((votes) => {
+		if (votes.length === 0) return 0;
+		return votes.reduce((a, b) => a + b, 0) / votes.length;
+	});
+
+	const threshold = oneDimKmeans(averages);
+	const extracted: number[] = averages.map((avg) => (avg > threshold ? 1 : 0));
+
+	// 7. BCH 解码
 	const decodedBits = bchDecode(extracted, expectedLength);
 
-	// 尝试解码为字符串
+	// 8. 解码为字符串
 	return bitsToString(decodedBits);
 }
 

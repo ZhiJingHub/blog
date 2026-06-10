@@ -12,7 +12,7 @@
 	let mode = $state<Mode>('embed');
 	let password = $state('');
 	let watermarkText = $state('');
-	let strength = $state(12);
+	let strength = $state(36);
 	let isProcessing = $state(false);
 	let error = $state('');
 	let resultMessage = $state('');
@@ -431,8 +431,8 @@
 							<span class="text-xs text-muted-foreground">嵌入强度</span>
 							<span class="text-xs text-muted-foreground">{strength}</span>
 						</div>
-						<Slider type="single" bind:value={strength} min={3} max={30} step={1} />
-						<p class="mt-1 text-xs text-muted-foreground">推荐 8-15，值越大越抗攻击</p>
+						<Slider type="single" bind:value={strength} min={15} max={80} step={1} />
+						<p class="mt-1 text-xs text-muted-foreground">推荐 30-50，值越大越抗攻击但越可见</p>
 					</div>
 				</div>
 
@@ -444,13 +444,15 @@
 					</h3>
 					<div class="space-y-2 text-xs text-muted-foreground">
 						<p>盲水印是一种<strong>不可见</strong>的数字水印，嵌入后肉眼无法察觉。</p>
-						<p><strong>技术原理：</strong>Haar 小波变换 + 扩频嵌入 + BCH 纠错编码</p>
+						<p><strong>技术原理：</strong>DWT 小波分解 + DCT 频域变换 + SVD 奇异值量化</p>
 						<p><strong>抗攻击能力：</strong></p>
 						<ul class="ml-4 list-disc space-y-1">
-							<li>JPEG 压缩（质量 50+）✓</li>
-							<li>缩放（±30%）✓</li>
-							<li>裁剪（保留 50%+）✓</li>
-							<li>亮度/对比度调整 ✓</li>
+							<li>旋转（±45°）✓</li>
+							<li>随机裁剪 ✓</li>
+							<li>遮挡/马赛克 ✓</li>
+							<li>缩放 ✓</li>
+							<li>椒盐噪声 ✓</li>
+							<li>亮度调整 ✓</li>
 						</ul>
 						<p><strong>注意事项：</strong></p>
 						<ul class="ml-4 list-disc space-y-1">
