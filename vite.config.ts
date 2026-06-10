@@ -7,6 +7,9 @@ import { redirects } from './src/lib/config/redirects';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit(), postImagesPlugin(), redirectsPlugin(redirects)],
+	define: {
+		__PLATFORM__: JSON.stringify(process.env.ADAPTER || 'static')
+	},
 	build: {
 		target: 'es2022'
 	}

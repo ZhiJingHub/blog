@@ -3,6 +3,9 @@
 	import { quintOut } from 'svelte/easing';
 	import { browser } from '$app/environment';
 
+	// 仅在 Cloudflare 平台显示（KV 持久化存储）
+	const isCloudflare = __PLATFORM__ === 'cloudflare' || __PLATFORM__ === 'cf-pages';
+
 	let {
 		pathname,
 		class: className = '',
@@ -22,7 +25,7 @@
 	let count = $state<number | null>(null);
 
 	$effect(() => {
-		if (!browser) return;
+		if (!browser || !isCloudflare) return;
 		if (initialCount !== undefined) {
 			count = initialCount;
 			return;
@@ -48,7 +51,7 @@
 	});
 </script>
 
-{#if count !== null}
+{#if isCloudflare && count !== null}
 	<span class={className} transition:fly={{ y: 8, duration: 350, easing: quintOut }}>
 		{prefix}{count.toLocaleString()}{suffix}
 	</span>
