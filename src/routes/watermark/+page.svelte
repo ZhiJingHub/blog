@@ -7,7 +7,7 @@
   import { Badge } from '$lib/components/ui/badge';
   import Icon from '@iconify/svelte';
   import { siteConfig } from '$lib/config/site';
-  import { WATERMARK_POSITIONS } from '$lib/types/watermark';
+  import { WATERMARK_POSITIONS, WATERMARK_STYLES } from '$lib/types/watermark';
   import type { WatermarkItem } from './_types';
   import { DEFAULT_WATERMARK } from './_types';
   import type { LoadedImage } from './_types';
@@ -411,6 +411,66 @@
                       step={5}
                     />
                   </div>
+
+                  <!-- 水印样式 -->
+                  <div>
+                    <p class="mb-1 text-xs text-muted-foreground">水印样式</p>
+                    <div class="grid grid-cols-4 gap-1.5">
+                      {#each WATERMARK_STYLES as style}
+                        <Button
+                          variant={watermark.style === style.value ? 'default' : 'outline'}
+                          size="sm"
+                          class="text-xs"
+                          onclick={() => updateWatermark(watermark.id, { style: style.value })}
+                        >
+                          {style.label}
+                        </Button>
+                      {/each}
+                    </div>
+                  </div>
+
+                  <!-- 样式专属设置 -->
+                  {#if watermark.style === 'emboss'}
+                    <div>
+                      <div class="flex items-center justify-between">
+                        <span class="text-xs text-muted-foreground">浮雕深度</span>
+                        <span class="text-xs text-muted-foreground">{watermark.embossDepth}px</span>
+                      </div>
+                      <Slider
+                        type="single"
+                        value={watermark.embossDepth}
+                        onValueChange={(v: number) => updateWatermark(watermark.id, { embossDepth: v })}
+                        min={1}
+                        max={8}
+                        step={1}
+                      />
+                    </div>
+                  {:else if watermark.style === 'shadow'}
+                    <div>
+                      <div class="flex items-center justify-between">
+                        <span class="text-xs text-muted-foreground">阴影模糊</span>
+                        <span class="text-xs text-muted-foreground">{watermark.shadowBlur}px</span>
+                      </div>
+                      <Slider
+                        type="single"
+                        value={watermark.shadowBlur}
+                        onValueChange={(v: number) => updateWatermark(watermark.id, { shadowBlur: v })}
+                        min={1}
+                        max={20}
+                        step={1}
+                      />
+                    </div>
+                  {:else if watermark.style === 'gradient'}
+                    <div>
+                      <label class="mb-1 block text-xs text-muted-foreground">渐变结束色</label>
+                      <input
+                        type="color"
+                        value={watermark.gradientEndColor}
+                        oninput={(e) => updateWatermark(watermark.id, { gradientEndColor: (e.target as HTMLInputElement).value })}
+                        class="size-9 cursor-pointer rounded border"
+                      />
+                    </div>
+                  {/if}
                 {:else}
                   <!-- 图片水印上传 -->
                   <div>
@@ -503,7 +563,7 @@
                 </div>
 
                 <!-- 平铺间距 -->
-                {#if watermark.position === 'tile'}
+                {#if watermark.position === 'tile' || watermark.position === 'diagonal-tile'}
                   <div>
                     <div class="flex items-center justify-between">
                       <span class="text-xs text-muted-foreground">平铺间距</span>
