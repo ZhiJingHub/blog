@@ -1,6 +1,5 @@
 <script lang="ts">
 	import '../app.css';
-	import '$lib/icons';
 	import { page } from '$app/state';
 	import { siteConfig } from '$lib/config/site';
 	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';

@@ -2,9 +2,13 @@
 	import { fly } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 	import { browser } from '$app/environment';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	// 仅在 Cloudflare 平台显示（KV 持久化存储）
 	const isCloudflare = __PLATFORM__ === 'cloudflare' || __PLATFORM__ === 'cf-pages';
+
+	// 模块级请求缓存，避免列表页重复请求
+	const viewCache = new SvelteMap<string, Promise<number>>();
 
 	let {
 		pathname,
@@ -32,22 +36,21 @@
 		}
 		const key = pathname.replace(/\/$/, '') || '/';
 		let cancelled = false;
-		const controller = new AbortController();
-		const timeout = setTimeout(() => controller.abort(), 5000);
 
-		fetch('/api/views', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(increment ? { path: key } : { paths: [key] }),
-			signal: controller.signal
-		})
-			.then((res) => { clearTimeout(timeout); if (!cancelled && res.ok) return res.json(); })
-			.then((data) => {
-				if (!cancelled && data) count = increment ? data.count : data[0] || 0;
-			})
-			.catch(() => { clearTimeout(timeout); if (!cancelled) count = 0; });
+		if (!viewCache.has(key)) {
+			viewCache.set(key, fetch('/api/views', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(increment ? { path: key } : { paths: [key] })
+			}).then((res) => res.ok ? res.json() : null).then((data) => {
+				if (!data) return 0;
+				return increment ? data.count : data[0] || 0;
+			}).catch(() => 0));
+		}
 
-		return () => { cancelled = true; controller.abort(); };
+		viewCache.get(key)!.then((n) => { if (!cancelled) count = n; });
+
+		return () => { cancelled = true; };
 	});
 </script>
 

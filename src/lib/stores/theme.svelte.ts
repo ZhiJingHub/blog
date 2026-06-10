@@ -55,8 +55,6 @@ if (browser) {
 		$effect(() => {
 			localStorage.setItem(STORAGE_KEY, themeStore.mode);
 		});
-
-		return () => {};
 	});
 
 	const mq = window.matchMedia('(prefers-color-scheme: dark)');

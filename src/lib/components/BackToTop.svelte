@@ -1,9 +1,15 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
 	let visible = $state(false);
+	let ticking = false;
 
 	function onScroll() {
-		visible = window.scrollY > 300;
+		if (ticking) return;
+		ticking = true;
+		requestAnimationFrame(() => {
+			visible = window.scrollY > 300;
+			ticking = false;
+		});
 	}
 
 	function scrollToTop() {

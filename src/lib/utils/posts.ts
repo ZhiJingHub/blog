@@ -10,6 +10,7 @@ interface PostModule {
 }
 
 let cachedPosts: PostModule[] | null = null;
+let slugMap: Map<string, PostModule> | null = null;
 
 const DEFAULT_STATS = { wordCount: 0, readTime: 0, imageCount: 0 };
 
@@ -60,11 +61,14 @@ export function getAllPosts(): PostModule[] {
 		return getPublishedDate(b.metadata) - getPublishedDate(a.metadata);
 	});
 
+	slugMap = new Map(cachedPosts.map((p) => [p.slug, p]));
+
 	return cachedPosts;
 }
 
 export function getPostBySlug(slug: string): PostModule | undefined {
-	return getAllPosts().find((post) => post.slug === slug);
+	getAllPosts(); // 确保缓存已构建
+	return slugMap?.get(slug);
 }
 
 export async function getPostComponent(slug: string): Promise<Component | null> {

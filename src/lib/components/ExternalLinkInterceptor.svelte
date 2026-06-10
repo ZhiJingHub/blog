@@ -1,12 +1,6 @@
 <script lang="ts">
 	import { encodeUrl } from '$lib/utils/redirect';
-	import { siteConfig } from '$lib/config/site';
-
-	const allowedDomains = siteConfig.domains;
-
-	function isInternal(host: string): boolean {
-		return allowedDomains.some((d) => host === d || host.endsWith(`.${d}`));
-	}
+	import { isInternalDomain } from '$lib/utils/site-domains';
 
 	$effect(() => {
 		function handleClick(e: MouseEvent) {
@@ -18,7 +12,7 @@
 
 			// 站内链接跳过
 			try {
-				if (isInternal(new URL(href).hostname)) return;
+				if (isInternalDomain(new URL(href).hostname)) return;
 			} catch {
 				return;
 			}
