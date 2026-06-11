@@ -1,31 +1,5 @@
 import type { ConvertOptions, ConvertResult, OutputFormat, WatermarkOptions } from './_types';
-
-/**
- * 获取水印位置坐标
- */
-function getWatermarkPosition(
-  position: WatermarkOptions['position'],
-  canvasWidth: number,
-  canvasHeight: number,
-  watermarkWidth: number,
-  watermarkHeight: number,
-  margin: number = 20
-): { x: number; y: number } {
-  switch (position) {
-    case 'top-left':
-      return { x: margin, y: margin };
-    case 'top-right':
-      return { x: canvasWidth - watermarkWidth - margin, y: margin };
-    case 'bottom-left':
-      return { x: margin, y: canvasHeight - watermarkHeight - margin };
-    case 'bottom-right':
-      return { x: canvasWidth - watermarkWidth - margin, y: canvasHeight - watermarkHeight - margin };
-    case 'center':
-      return { x: (canvasWidth - watermarkWidth) / 2, y: (canvasHeight - watermarkHeight) / 2 };
-    default:
-      return { x: margin, y: margin };
-  }
-}
+import { getWatermarkPosition } from '$lib/utils/watermark-position';
 
 /**
  * 绘制文字水印

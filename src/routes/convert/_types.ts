@@ -48,14 +48,6 @@ export type OutputFormat =
   | 'image/gif'
   | 'image/svg+xml';
 
-export interface LoadedImage {
-  file: File;
-  url: string;
-  img: HTMLImageElement;
-  width: number;
-  height: number;
-}
-
 export interface ConvertResult {
   blob: Blob;
   url: string;

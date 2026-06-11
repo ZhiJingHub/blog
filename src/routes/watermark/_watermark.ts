@@ -1,31 +1,5 @@
 import type { WatermarkItem } from './_types';
-
-/**
- * 获取水印位置坐标
- */
-function getPosition(
-	position: WatermarkItem['position'],
-	canvasWidth: number,
-	canvasHeight: number,
-	watermarkWidth: number,
-	watermarkHeight: number,
-	margin: number = 20
-): { x: number; y: number } {
-	switch (position) {
-		case 'top-left':
-			return { x: margin, y: margin };
-		case 'top-right':
-			return { x: canvasWidth - watermarkWidth - margin, y: margin };
-		case 'bottom-left':
-			return { x: margin, y: canvasHeight - watermarkHeight - margin };
-		case 'bottom-right':
-			return { x: canvasWidth - watermarkWidth - margin, y: canvasHeight - watermarkHeight - margin };
-		case 'center':
-			return { x: (canvasWidth - watermarkWidth) / 2, y: (canvasHeight - watermarkHeight) / 2 };
-		default:
-			return { x: margin, y: margin };
-	}
-}
+import { getWatermarkPosition } from '$lib/utils/watermark-position';
 
 /**
  * 应用文字样式（浮雕/阴影/渐变）
@@ -195,7 +169,7 @@ function drawTextWatermark(
 		ctx.restore();
 	} else {
 		// 固定位置模式
-		const pos = getPosition(item.position, canvasWidth, canvasHeight, textWidth, textHeight);
+		const pos = getWatermarkPosition(item.position, canvasWidth, canvasHeight, textWidth, textHeight);
 		drawSingleTextWatermark(ctx, item, pos.x, pos.y);
 	}
 }
@@ -245,7 +219,7 @@ function drawImageWatermark(
 			}
 		}
 	} else {
-		const pos = getPosition(item.position, canvasWidth, canvasHeight, watermarkWidth, watermarkHeight);
+		const pos = getWatermarkPosition(item.position, canvasWidth, canvasHeight, watermarkWidth, watermarkHeight);
 		drawSingleImageWatermark(ctx, watermarkImage, item, pos.x, pos.y, watermarkWidth, watermarkHeight);
 	}
 }

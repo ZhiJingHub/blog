@@ -10,8 +10,8 @@
   import { WATERMARK_POSITIONS, WATERMARK_STYLES } from '$lib/types/watermark';
   import type { WatermarkItem } from './_types';
   import { DEFAULT_WATERMARK } from './_types';
-  import type { LoadedImage } from './_types';
-  import { loadImage, revokeUrl, formatFileSize } from './_image-utils';
+  import { loadImage, revokeUrl, formatFileSize } from '$lib/utils/image';
+  import type { LoadedImage } from '$lib/utils/image';
   import { generatePreview, exportWatermarkedImage } from './_watermark';
 
   // 状态

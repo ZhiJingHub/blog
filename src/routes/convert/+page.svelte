@@ -15,8 +15,6 @@
   import type {
     ConvertOptions,
     ConvertResult,
-    LoadedImage,
-    OutputFormat,
     CompressionPreset,
     BatchItem
   } from './_types';
@@ -25,10 +23,9 @@
     PRESET_SCALES,
     COMPRESSION_PRESETS
   } from './_types';
+  import { loadImage, revokeUrl, formatFileSize } from '$lib/utils/image';
+  import type { LoadedImage } from '$lib/utils/image';
   import {
-    loadImage,
-    revokeUrl,
-    formatFileSize,
     calculateCompressionRate,
     calculateDimensions,
     supportsAVIF,
