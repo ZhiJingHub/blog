@@ -288,8 +288,12 @@ export function embedBlindWatermark(
 		// SVD
 		const { U: u, s, V: v } = svd(dctBlock, 4, 4);
 
-		// 量化 s[0] 嵌入比特
-		s[0] = (Math.floor(s[0] / d1) + 0.25 + 0.5 * wmBit) * d1;
+		// 量化 s[0] 嵌入比特（微调方式，最大偏移 ±d1/4，避免大幅改变系数导致图片失真）
+		const remainder = ((s[0] % d1) + d1) % d1;
+		const target = wmBit ? 0.75 * d1 : 0.25 * d1;
+		if (Math.abs(remainder - target) > d1 * 0.25) {
+			s[0] += target - remainder;
+		}
 
 		// 重构 DCT 块: U * diag(s) * V^T
 		const reconstructed = new Float64Array(16);
