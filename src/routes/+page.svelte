@@ -5,6 +5,8 @@
 	import Icon from '@iconify/svelte';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	import PageViews from '$lib/components/PageViews.svelte';
+
+	const isCloudflare = __PLATFORM__ === 'cloudflare' || __PLATFORM__ === 'cf-pages';
 </script>
 
 <svelte:head>
@@ -83,8 +85,10 @@
 		</Card>
 	</div>
 
-	<!-- 浏览量 -->
-	<div class="text-center">
-		<PageViews pathname="/" class="text-xs text-muted-foreground" />
-	</div>
+	{#if isCloudflare}
+		<!-- 浏览量 -->
+		<div class="text-center">
+			<PageViews pathname="/" class="text-xs text-muted-foreground" />
+		</div>
+	{/if}
 </div>

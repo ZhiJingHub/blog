@@ -13,6 +13,8 @@
 	import PageViews from '$lib/components/PageViews.svelte';
 	import type { PageData } from './$types';
 
+	const isCloudflare = __PLATFORM__ === 'cloudflare' || __PLATFORM__ === 'cf-pages';
+
 	let { data }: { data: PageData } = $props();
 
 	let proseEl: HTMLDivElement | undefined = $state();
@@ -70,10 +72,12 @@
 			<time datetime={data.post.metadata.published} class="text-sm text-muted-foreground">{formatDate(data.post.metadata.published)}</time>
 			<span class="text-sm text-muted-foreground">· {(data.post.metadata.stats?.wordCount ?? 0).toLocaleString()} 字</span>
 			<span class="text-sm text-muted-foreground">· 约 {data.post.metadata.stats?.readTime ?? 0} 分钟</span>
-			<span class="inline-flex items-center gap-1 text-sm text-muted-foreground">
-				· <Icon icon="mdi:eye" class="size-3.5" />
-				<PageViews pathname="/posts/{page.params.slug}/" increment={false} class="text-sm text-muted-foreground" />
-			</span>
+			{#if isCloudflare}
+				<span class="inline-flex items-center gap-1 text-sm text-muted-foreground">
+					· <Icon icon="mdi:eye" class="size-3.5" />
+					<PageViews pathname="/posts/{page.params.slug}/" increment={false} class="text-sm text-muted-foreground" />
+				</span>
+			{/if}
 			{#if data.post.metadata.updated}
 				<span class="text-sm text-muted-foreground">· 更新于 {formatDate(data.post.metadata.updated)}</span>
 			{/if}
