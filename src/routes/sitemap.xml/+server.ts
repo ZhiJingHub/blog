@@ -28,7 +28,6 @@ export const GET: RequestHandler = () => {
 		{ path: '/ptg/', changefreq: 'monthly', priority: '0.6' },
 		{ path: '/convert/', changefreq: 'monthly', priority: '0.6' },
 		{ path: '/watermark/', changefreq: 'monthly', priority: '0.6' },
-		{ path: '/blind-watermark/', changefreq: 'monthly', priority: '0.6' },
 		{ path: '/friends/', changefreq: 'weekly', priority: '0.5' }
 	];
 
