@@ -44,6 +44,17 @@ export const entries: EntryGenerator = () => {
 		}
 	}
 
+	// 扫描友链数据中的外链
+	const friendData = import.meta.glob('/src/data/friends/*.json', {
+		eager: true
+	}) as Record<string, { default: { url?: string } }>;
+	for (const mod of Object.values(friendData)) {
+		const url = mod.default?.url;
+		if (url && /^https?:\/\//i.test(url)) {
+			slugs.add(encodeUrl(url));
+		}
+	}
+
 	// 添加短链配置中的条目
 	for (const target of Object.values(redirects)) {
 		if (/^https?:\/\//i.test(target)) {
