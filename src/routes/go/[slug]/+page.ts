@@ -2,6 +2,17 @@ import { encodeUrl } from '$lib/utils/redirect';
 import { redirects } from '$lib/config/redirects';
 import type { EntryGenerator } from './$types';
 
+/** 规范化 URL：确保有尾部斜杠，与浏览器解析 <a href> 的行为一致 */
+function normalizeUrl(url: string): string {
+	try {
+		const u = new URL(url);
+		if (!u.pathname.endsWith('/')) u.pathname += '/';
+		return u.toString();
+	} catch {
+		return url;
+	}
+}
+
 /** 从内容中提取外链 */
 function extractExternalLinks(raw: string): string[] {
 	const links: string[] = [];
@@ -29,7 +40,7 @@ export const entries: EntryGenerator = () => {
 	}) as Record<string, string>;
 	for (const content of Object.values(rawPosts)) {
 		for (const url of extractExternalLinks(content)) {
-			slugs.add(encodeUrl(url));
+			slugs.add(encodeUrl(normalizeUrl(url)));
 		}
 	}
 
@@ -40,7 +51,7 @@ export const entries: EntryGenerator = () => {
 	}) as Record<string, string>;
 	for (const content of Object.values(rawSvelte)) {
 		for (const url of extractExternalLinks(content)) {
-			slugs.add(encodeUrl(url));
+			slugs.add(encodeUrl(normalizeUrl(url)));
 		}
 	}
 
@@ -51,14 +62,14 @@ export const entries: EntryGenerator = () => {
 	for (const mod of Object.values(friendData)) {
 		const url = mod.default?.url;
 		if (url && /^https?:\/\//i.test(url)) {
-			slugs.add(encodeUrl(url));
+			slugs.add(encodeUrl(normalizeUrl(url)));
 		}
 	}
 
 	// 添加短链配置中的条目
 	for (const target of Object.values(redirects)) {
 		if (/^https?:\/\//i.test(target)) {
-			slugs.add(encodeUrl(target));
+			slugs.add(encodeUrl(normalizeUrl(target)));
 		}
 	}
 
