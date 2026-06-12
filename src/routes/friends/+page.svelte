@@ -114,7 +114,7 @@
 											<img
 												src={friend.avatar}
 												alt={friend.name}
-												class="h-14 w-14 rounded-lg object-cover"
+												class="h-14 w-14 rounded-full object-cover"
 												onerror={(e) => {
 													(e.target as HTMLImageElement).style.display = 'none';
 													(e.target as HTMLImageElement).nextElementSibling?.removeAttribute('hidden');
@@ -122,7 +122,7 @@
 											/>
 										{/if}
 										<div
-											class="flex h-14 w-14 items-center justify-center rounded-lg bg-muted text-xl font-bold text-muted-foreground"
+											class="flex h-14 w-14 items-center justify-center rounded-full bg-muted text-xl font-bold text-muted-foreground"
 											hidden={!!friend.avatar}
 										>
 											{friend.name.charAt(0)}
