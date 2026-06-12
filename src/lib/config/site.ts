@@ -1,4 +1,4 @@
-import { SITE_DOMAINS } from '$lib/utils/site-domains.js';
+import { SITE_DOMAINS } from '$lib/utils/site-domains';
 
 export const siteConfig = {
 	name: "ZhiJing's Blog",
@@ -45,6 +45,8 @@ export const siteConfig = {
 			}
 		]
 	},
+	// giscus 评论系统配置（预留，尚未启用）
+	// 需要时填写 repoId 和 categoryId：https://giscus.app/
 	giscus: {
 		repo: "ZhiJingHub/blog",
 		repoId: "",

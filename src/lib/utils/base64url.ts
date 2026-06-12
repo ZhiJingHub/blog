@@ -2,8 +2,8 @@
  * URL 安全的 base64url 编解码（Node + 浏览器通用）
  */
 
-export function encodeBase64Url(str) {
-	let binary;
+export function encodeBase64Url(str: string): string {
+	let binary: string;
 	if (typeof Buffer !== 'undefined') {
 		binary = Buffer.from(str, 'utf-8').toString('base64');
 	} else {
@@ -15,7 +15,7 @@ export function encodeBase64Url(str) {
 	return binary.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-export function decodeBase64Url(slug) {
+export function decodeBase64Url(slug: string): string | null {
 	try {
 		let b64 = slug.replace(/-/g, '+').replace(/_/g, '/');
 		const pad = b64.length % 4;

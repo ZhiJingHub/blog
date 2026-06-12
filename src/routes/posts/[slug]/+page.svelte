@@ -11,9 +11,8 @@
 	import PostToc from '$lib/components/PostToc.svelte';
 	import ImageViewer from '$lib/components/ImageViewer.svelte';
 	import PageViews from '$lib/components/PageViews.svelte';
+	import { isCloudflare } from '$lib/utils/platform';
 	import type { PageData } from './$types';
-
-	const isCloudflare = __PLATFORM__ === 'cloudflare' || __PLATFORM__ === 'cf-pages';
 
 	let { data }: { data: PageData } = $props();
 

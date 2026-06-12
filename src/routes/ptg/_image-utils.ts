@@ -1,4 +1,4 @@
-import type { LoadedImage } from './_types';
+import type { LoadedImage } from '$lib/utils/image';
 
 export function clamp(v: number, min: number, max: number): number {
 	return Math.min(max, Math.max(min, v));
@@ -50,6 +50,7 @@ export function loadImage(file: File): Promise<LoadedImage> {
 				width: img.naturalWidth,
 				height: img.naturalHeight,
 				url: blobUrl,
+				img,
 				image: img
 			});
 		};

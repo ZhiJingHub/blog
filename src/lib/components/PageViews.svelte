@@ -3,9 +3,7 @@
 	import { quintOut } from 'svelte/easing';
 	import { browser } from '$app/environment';
 	import { SvelteMap } from 'svelte/reactivity';
-
-	// 仅在 Cloudflare 平台显示（KV 持久化存储）
-	const isCloudflare = __PLATFORM__ === 'cloudflare' || __PLATFORM__ === 'cf-pages';
+	import { isCloudflare } from '$lib/utils/platform';
 
 	// 模块级请求缓存，避免列表页重复请求
 	const viewCache = new SvelteMap<string, Promise<number>>();

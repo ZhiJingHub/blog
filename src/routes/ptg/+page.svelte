@@ -1,6 +1,4 @@
 <script lang="ts">
-
-
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Tabs, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
 	import { Button } from '$lib/components/ui/button';
@@ -10,8 +8,9 @@
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import Icon from '@iconify/svelte';
 	import { siteConfig } from '$lib/config/site';
+	import type { LoadedImage } from '$lib/utils/image';
 	import {
-		type ToolMode, type UploadKind, type LoadedImage, type ModeResult,
+		type ToolMode, type UploadKind, type ModeResult,
 		DEFAULT_SOURCE_BRIGHTNESS, DEFAULT_SOURCE_CONTRAST,
 		DEFAULT_HIDDEN_BRIGHTNESS, DEFAULT_HIDDEN_CONTRAST,
 		DEFAULT_SHADOWS, initialResults, modeMetaMap

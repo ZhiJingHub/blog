@@ -7,9 +7,8 @@
 	import { siteConfig } from '$lib/config/site';
 	import { formatDate } from '$lib/utils/format';
 	import PageViews from '$lib/components/PageViews.svelte';
+	import { isCloudflare } from '$lib/utils/platform';
 	import type { PageData } from './$types';
-
-	const isCloudflare = __PLATFORM__ === 'cloudflare' || __PLATFORM__ === 'cf-pages';
 
 	let { data }: { data: PageData } = $props();
 

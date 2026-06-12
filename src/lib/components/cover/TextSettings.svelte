@@ -54,9 +54,9 @@
 		fontApiSupported = true;
 		isLoadingFonts = true;
 		try {
-			const fonts = await (window as any).queryLocalFonts();
+			const fonts = await window.queryLocalFonts();
 			const fontNames = new Set<string>();
-			fonts.forEach((font: any) => fontNames.add(font.family));
+			fonts.forEach((font) => fontNames.add(font.family));
 			systemFonts = Array.from(fontNames).sort();
 		} catch (error) {
 			console.error('获取系统字体失败:', error);

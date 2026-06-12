@@ -1,4 +1,4 @@
-import type { LoadedImage } from './_types';
+import type { LoadedImage } from '$lib/utils/image';
 import { adjustPixelBrightnessContrast } from './_image-utils';
 
 export interface PrismParams {

@@ -4,8 +4,11 @@
 
 export interface LoadedImage {
 	file: File;
+	name: string;
 	url: string;
 	img: HTMLImageElement;
+	/** @alias img — 兼容 ptg 路由 */
+	image: HTMLImageElement;
 	width: number;
 	height: number;
 }
@@ -15,7 +18,16 @@ export function loadImage(file: File): Promise<LoadedImage> {
 	return new Promise((resolve, reject) => {
 		const url = URL.createObjectURL(file);
 		const img = new Image();
-		img.onload = () => resolve({ file, url, img, width: img.naturalWidth, height: img.naturalHeight });
+		img.onload = () =>
+			resolve({
+				file,
+				name: file.name,
+				url,
+				img,
+				image: img,
+				width: img.naturalWidth,
+				height: img.naturalHeight
+			});
 		img.onerror = () => {
 			URL.revokeObjectURL(url);
 			reject(new Error('无法加载图片文件'));

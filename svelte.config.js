@@ -21,12 +21,12 @@ const adapterMap = {
 };
 
 const adapterConfigs = {
-	static: { strict: false, pages: 'build', assets: 'build', fallback: undefined },
+	static: { strict: false, pages: 'build', assets: 'build' },
 	cloudflare: {},
 	'cf-pages': {},
 	netlify: { fallback: '404.html' },
 	vercel: { fallback: '404.html' },
-	edgeone: { strict: false, pages: 'build', assets: 'build', fallback: undefined }
+	edgeone: { strict: false, pages: 'build', assets: 'build' }
 };
 
 /** @type {import('@sveltejs/kit').Config} */

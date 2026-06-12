@@ -5,8 +5,7 @@
 	import Icon from '@iconify/svelte';
 	import ThemeToggle from '$lib/components/ThemeToggle.svelte';
 	import PageViews from '$lib/components/PageViews.svelte';
-
-	const isCloudflare = __PLATFORM__ === 'cloudflare' || __PLATFORM__ === 'cf-pages';
+	import { isCloudflare } from '$lib/utils/platform';
 </script>
 
 <svelte:head>

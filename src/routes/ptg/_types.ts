@@ -1,15 +1,6 @@
 export type ToolMode = 'prism' | 'shadow';
 export type UploadKind = 'source' | 'hidden';
 
-export interface LoadedImage {
-	file: File;
-	name: string;
-	width: number;
-	height: number;
-	url: string;
-	image: HTMLImageElement;
-}
-
 export interface ModeResult {
 	url: string;
 	width: number;

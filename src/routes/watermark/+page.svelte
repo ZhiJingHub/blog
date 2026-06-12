@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Switch } from '$lib/components/ui/switch';
@@ -172,7 +171,7 @@
   }
 
   // 清理资源
-  onMount(() => {
+  $effect(() => {
     return () => {
       if (sourceImage) revokeUrl(sourceImage.url);
       if (previewUrl) URL.revokeObjectURL(previewUrl);

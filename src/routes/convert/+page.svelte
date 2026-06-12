@@ -459,7 +459,7 @@
   }
 
   // 清理资源
-  onMount(() => {
+  $effect(() => {
     return () => {
       // 清理单图模式资源
       if (sourceImage) {
