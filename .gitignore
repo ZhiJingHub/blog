@@ -50,6 +50,7 @@ ehthumbs.db
 !.vscode/extensions.json
 !.vscode/settings.json
 .idea/
+.obsidian/
 *.swp
 *.swo
 *~
