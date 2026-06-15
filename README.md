@@ -212,48 +212,18 @@ export const siteConfig = {
 
 浏览量由独立的 Cloudflare Worker + D1 提供 API，**不绑定任何博客部署平台**，所有平台通用。
 
-#### 部署 Worker
+全部通过 [Cloudflare Dashboard](https://dash.cloudflare.com) 操作，无需安装任何命令行工具：
 
-```bash
-# 1. 安装依赖
-cd workers/views
-npm install
-
-# 2. 登录 Cloudflare
-npx wrangler login
-
-# 3. 创建 D1 数据库
-npx wrangler d1 create page-views
-# 复制输出的 database_id，填入 wrangler.toml
-
-# 4. 初始化表结构
-npx wrangler d1 execute page-views --remote --file=schema.sql
-
-# 5. 部署
-npx wrangler deploy
-# 记下输出的 Worker 地址，如 https://views.xxxxxxxx.workers.dev
-```
-
-#### 配置站点
-
-在 `src/lib/config/site.ts` 中填入 Worker 地址：
+1. **创建 D1 数据库**：Workers & Pages → D1 → Create → 名称 `page-views` → 在 Console 中执行 `schema.sql` 建表
+2. **创建 Worker**：Workers & Pages → Create → Create Worker → 名称 `views` → Edit Code → 粘贴 `workers/views/src/index.js` 的内容 → Save and deploy
+3. **绑定 D1**：Worker → Settings → Variables → D1 Database Bindings → 变量名填 `DB` → 选择 `page-views` → Save and deploy
+4. **配置站点**：在 `src/lib/config/site.ts` 中填入 Worker 地址
 
 ```ts
 viewsApi: "https://views.xxxxxxxx.workers.dev"
 ```
 
-留空（`""`）则禁用浏览量功能。
-
-#### 验证
-
-```bash
-curl -X POST https://views.xxxxxxxx.workers.dev \
-  -H "Content-Type: application/json" \
-  -d '{"path":"/posts/hello-world/"}'
-# → {"count":1}
-```
-
-> 详细文档（自定义域名、数据导出、FAQ 等）见 [workers/views/README.md](workers/views/README.md)。
+> 详细步骤（含截图说明、自定义域名、数据管理、FAQ）见 [workers/views/README.md](workers/views/README.md)。
 
 ---
 

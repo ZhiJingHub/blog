@@ -5,216 +5,126 @@
 ## 前置条件
 
 - [Cloudflare 账号](https://dash.cloudflare.com/sign-up)（免费即可）
-- Node.js >= 18
-- 已安装 Wrangler CLI（Cloudflare 官方部署工具）
-
-如未安装 Wrangler：
-
-```bash
-npm install -g wrangler
-```
-
-登录 Cloudflare：
-
-```bash
-wrangler login
-```
-
-浏览器会弹出授权页面，确认即可。
+- 该账号下已有至少一个域名托管在 Cloudflare（用于绑定 Worker 路由）
 
 ---
 
-## 部署步骤
+## 部署步骤（全部通过 Cloudflare Dashboard 操作）
 
-### 第一步：安装依赖
-
-```bash
-cd workers/views
-npm install
-```
-
-### 第二步：创建 D1 数据库
-
-**方式一：命令行（推荐）**
-
-```bash
-npx wrangler d1 create page-views
-```
-
-输出示例：
-
-```
-✅ Successfully created DB 'page-views'
-
-[[d1_databases]]
-binding = "DB"
-database_name = "page-views"
-database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-```
-
-复制 `database_id` 的值。
-
-**方式二：Cloudflare Dashboard**
+### 第一步：创建 D1 数据库
 
 1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com)
-2. 左侧菜单 → **Storage & Databases** → **D1 SQL Database**
-3. 点击 **Create** → 输入数据库名称 `page-views` → 点击 **Create**
-4. 在数据库详情页复制 **Database ID**（右侧栏）
+2. 左侧菜单 → **Workers & Pages** → **D1**
+3. 点击右上角 **Create** 按钮
+4. 数据库名称填 `page-views`，点击 **Create**
+5. 进入数据库详情页 → 点击 **Console** 标签
+6. 将以下 SQL 粘贴进输入框，点击 **Execute**：
 
-### 第三步：配置 Wrangler
-
-编辑 `wrangler.toml`，将 `<YOUR_DATABASE_ID>` 替换为上一步复制的 ID：
-
-```toml
-name = "views"
-main = "src/index.ts"
-compatibility_date = "2025-01-01"
-
-[[d1_databases]]
-binding = "DB"
-database_name = "page-views"
-database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"  # ← 替换这里
+```sql
+CREATE TABLE IF NOT EXISTS page_views (
+  path TEXT PRIMARY KEY,
+  count INTEGER NOT NULL DEFAULT 0
+);
 ```
 
-### 第四步：初始化数据库表
+7. 看到 `Success` 即表示建表成功
+8. 记下页面上的 **Database ID**（右侧栏 `Database ID: xxxxxxxx-...`），后面要用
+
+### 第二步：创建 Worker
+
+1. 左侧菜单 → **Workers & Pages**
+2. 点击 **Create** → 选择 **Create Worker**
+3. Worker 名称填 `views`，点击 **Deploy**
+4. 部署成功后进入 Worker 详情页 → 点击 **Edit Code**
+5. 删除编辑器中的所有默认代码
+6. 将 `workers/views/src/index.js` 的全部内容粘贴进去
+7. 点击右上角 **Save and deploy**
+
+### 第三步：绑定 D1 数据库
+
+1. 回到 Worker 详情页 → **Settings** → **Variables**
+2. 找到 **D1 Database Bindings**，点击 **Add binding**
+3. 填写：
+   - **Variable name**: `DB`
+   - **D1 database**: 选择第一步创建的 `page-views`
+4. 点击 **Save and deploy**
+
+### 第四步：验证
+
+1. 在 Worker 详情页点击上方的访问链接（如 `https://views.xxxxxxxx.workers.dev`）
+2. 浏览器应显示 `ok`（这是 GET 健康检查）
+3. 用浏览器控制台或任意工具发送 POST 请求测试：
 
 ```bash
-npx wrangler d1 execute page-views --remote --file=schema.sql
-```
-
-输出 `🚣 Executed 1 command` 即表示成功。
-
-如需验证表是否创建成功：
-
-```bash
-npx wrangler d1 execute page-views --remote --command "SELECT name FROM sqlite_master WHERE type='table';"
-```
-
-应输出 `page_views`。
-
-### 第五步：部署 Worker
-
-```bash
-npx wrangler deploy
-```
-
-部署成功后会输出 Worker 地址，类似：
-
-```
-Published views (x.xx sec)
-  https://views.xxxxxxxx.workers.dev
-```
-
-记下这个地址。
-
-### 第六步：验证 API
-
-```bash
-# 健康检查
-curl https://views.xxxxxxxx.workers.dev
-
 # 递增浏览量
 curl -X POST https://views.xxxxxxxx.workers.dev \
   -H "Content-Type: application/json" \
   -d '{"path":"/posts/hello-world/"}'
-
-# 预期返回：{"count":1}
-
-# 再次递增
-curl -X POST https://views.xxxxxxxx.workers.dev \
-  -H "Content-Type: application/json" \
-  -d '{"path":"/posts/hello-world/"}'
-
-# 预期返回：{"count":2}
+# → {"count":1}
 
 # 批量读取
 curl -X POST https://views.xxxxxxxx.workers.dev \
   -H "Content-Type: application/json" \
   -d '{"paths":["/posts/hello-world/"]}'
-
-# 预期返回：[2]
+# → [1]
 ```
 
-### 第七步：配置博客站点
+### 第五步：绑定自定义域名（可选）
+
+1. Worker 详情页 → **Settings** → **Domains & Routes**
+2. 点击 **Add** → 选择 **Custom Domain**
+3. 输入子域名（如 `views.iwexe.top`），点击 **Add Domain**
+
+> 前提：该域名的 DNS 已托管在 Cloudflare。
+
+绑定后使用 `https://views.iwexe.top` 作为 API 地址。
+
+### 第六步：配置博客站点
 
 编辑 `src/lib/config/site.ts`，填入 Worker 地址：
 
 ```ts
-viewsApi: "https://views.xxxxxxxx.workers.dev"
+viewsApi: "https://views.xxxxxxxx.workers.dev"  // 或自定义域名
 ```
 
 留空（`""`）则禁用浏览量功能。
 
 ---
 
-## 绑定自定义域名（可选）
-
-默认地址 `https://views.xxxxxxxx.workers.dev` 可以正常使用，但绑定自定义域名更美观且不受 Workers 子域名限制。
-
-### 方式一：命令行
-
-```bash
-npx wrangler routes add "views.iwexe.top/*" views
-```
-
-### 方式二：Cloudflare Dashboard
-
-1. 左侧菜单 → **Workers & Pages**
-2. 点击 **views** Worker
-3. **Settings** → **Domains & Routes** → **Add Custom Domain**
-4. 输入域名（如 `views.iwexe.top`）→ 点击 **Add Domain**
-
-> 前提：该域名已托管在 Cloudflare（DNS 中有橙色云朵）。
-
-绑定后通过 `https://views.iwexe.top` 访问，更新 `site.ts` 中的 `viewsApi` 即可。
-
----
-
 ## 数据管理
 
-### 查看数据
+### 查看浏览量数据
 
-```bash
-npx wrangler d1 execute page-views --remote --command "SELECT * FROM page_views ORDER BY count DESC LIMIT 10;"
-```
+1. 左侧菜单 → **Workers & Pages** → **D1**
+2. 点击 `page-views` 数据库
+3. 点击 **Console** 标签，输入 SQL 查询：
 
-### 导出数据
+```sql
+-- 查看浏览量 Top 10
+SELECT * FROM page_views ORDER BY count DESC LIMIT 10;
 
-```bash
-npx wrangler d1 export page-views --remote --output=backup.sql
-```
+-- 查看某篇文章
+SELECT * FROM page_views WHERE path = '/posts/hello-world/';
 
-导出为 SQLite 格式的 SQL 文件，可随时导入恢复。
-
-### 导入数据
-
-```bash
-npx wrangler d1 execute page-views --remote --file=backup.sql
+-- 查看总浏览量
+SELECT SUM(count) AS total FROM page_views;
 ```
 
 ### 重置某篇文章的计数
 
-```bash
-npx wrangler d1 execute page-views --remote --command "DELETE FROM page_views WHERE path = '/posts/some-post/';"
+在 D1 Console 中执行：
+
+```sql
+DELETE FROM page_views WHERE path = '/posts/some-post/';
 ```
 
----
+### 导出数据
 
-## 本地开发
+Dashboard 操作：D1 数据库详情页 → 右上角 **Export** 按钮 → 下载 SQL 文件。
 
-```bash
-npx wrangler dev
-```
+### 导入数据
 
-启动本地开发服务器，默认端口 8787。本地使用模拟 D1，数据不持久。
-
-测试本地 API：
-
-```bash
-curl -X POST http://localhost:8787 \
-  -H "Content-Type: application/json" \
-  -d '{"path":"/posts/hello-world/"}'
-```
+Dashboard 操作：D1 数据库详情页 → **Console** → 粘贴 SQL 语句执行。
 
 ---
 
@@ -264,33 +174,23 @@ curl -X POST http://localhost:8787 \
 
 ## 常见问题
 
-### Q: 部署时报 `wrangler: command not found`
+### Q: 绑定 D1 时看不到数据库
 
-```bash
-npm install -g wrangler
-```
-
-或使用 `npx wrangler` 代替 `wrangler`。
-
-### Q: `wrangler login` 后仍提示未授权
-
-尝试：
-
-```bash
-wrangler logout
-wrangler login
-```
-
-或设置环境变量 `CLOUDFLARE_API_TOKEN`（Dashboard → My Profile → API Tokens → Create Token）。
-
-### Q: D1 创建失败
-
-确认 Cloudflare 账号已激活（免费账号即可），且当前目录下有 `wrangler.toml`。
+确认 D1 数据库和 Worker 在同一个 Cloudflare 账号下。
 
 ### Q: 浏览量不增长
 
-检查 `site.ts` 中 `viewsApi` 是否填写正确，浏览器控制台是否有 CORS 错误。确认 Worker 地址可正常访问。
+- 检查 `site.ts` 中 `viewsApi` 是否填写正确
+- 浏览器 F12 控制台查看是否有 CORS 错误
+- 确认 Worker → Settings → Variables → D1 Binding 中变量名为 `DB`（区分大小写）
+- 确认数据库表已创建（D1 Console 中执行 `SELECT * FROM page_views;`）
 
 ### Q: 免费额度够用吗？
 
-Cloudflare Workers 免费版每天 100,000 次请求，D1 免费版每天 500 万次读取、10 万次写入。个人博客完全够用。
+Cloudflare Workers 免费版：每天 100,000 次请求，每次请求 CPU 时间 10ms。
+D1 免费版：每天 500 万次读取、10 万次写入，存储 5GB。
+个人博客完全够用。
+
+### Q: 更新 Worker 代码后需要重新绑定 D1 吗？
+
+不需要。D1 绑定保存在 Worker 配置中，更新代码不影响绑定。
