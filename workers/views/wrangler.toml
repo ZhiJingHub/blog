@@ -5,4 +5,4 @@ compatibility_date = "2026-06-01"
 [[d1_databases]]
 binding = "DB"
 database_name = "page-views"
-database_id = "<YOUR_DATABASE_ID>"
+database_id = "9b6d314b-6f80-4c49-8e10-2dd58a942f93"
