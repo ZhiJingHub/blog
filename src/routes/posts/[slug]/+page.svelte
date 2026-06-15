@@ -72,7 +72,7 @@
 			<span class="text-sm text-muted-foreground">· 约 {data.post.metadata.stats?.readTime ?? 0} 分钟</span>
 			<span class="inline-flex items-center gap-1 text-sm text-muted-foreground">
 				· <Icon icon="mdi:eye" class="size-3.5" />
-				<PageViews pathname="/posts/{page.params.slug}/" increment={false} class="text-sm text-muted-foreground" />
+				<PageViews pathname="/posts/{page.params.slug}/" class="text-sm text-muted-foreground" />
 			</span>
 			{#if data.post.metadata.updated}
 				<span class="text-sm text-muted-foreground">· 更新于 {formatDate(data.post.metadata.updated)}</span>

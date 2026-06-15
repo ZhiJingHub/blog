@@ -13,15 +13,13 @@
 		class: className = '',
 		prefix = '',
 		suffix = '次浏览',
-		increment = true,
-		initialCount
+		increment = true
 	}: {
 		pathname: string;
 		class?: string;
 		prefix?: string;
 		suffix?: string;
 		increment?: boolean;
-		initialCount?: number;
 	} = $props();
 
 	let count = $state<number | null>(null);
@@ -30,16 +28,31 @@
 
 	$effect(() => {
 		if (!browser || !apiEnabled) return;
-		if (initialCount !== undefined) {
-			count = initialCount;
-			return;
-		}
+
 		const pathKey = pathname.replace(/\/$/, '') || '/';
 		const cacheKey = `${increment ? 'inc' : 'read'}:${pathKey}`;
 		let cancelled = false;
 
-		if (!viewCache.has(cacheKey)) {
-			viewCache.set(cacheKey, fetch(siteConfig.viewsApi, {
+		// 检查本次会话是否已递增过该路径
+		if (increment) {
+			const sessionKey = `viewed:${pathKey}`;
+			try {
+				if (sessionStorage.getItem(sessionKey)) {
+					// 已递增过，改为只读模式
+					increment = false;
+				} else {
+					sessionStorage.setItem(sessionKey, '1');
+				}
+			} catch {
+				// sessionStorage 不可用时仍正常递增
+			}
+		}
+
+		// 用实际模式重新计算缓存键
+		const finalCacheKey = `${increment ? 'inc' : 'read'}:${pathKey}`;
+
+		if (!viewCache.has(finalCacheKey)) {
+			viewCache.set(finalCacheKey, fetch(siteConfig.viewsApi, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(increment ? { path: pathKey } : { paths: [pathKey] })
@@ -49,7 +62,7 @@
 			}).catch(() => 0));
 		}
 
-		viewCache.get(cacheKey)!.then((n) => { if (!cancelled) count = n; });
+		viewCache.get(finalCacheKey)!.then((n) => { if (!cancelled) count = n; });
 
 		return () => { cancelled = true; };
 	});

@@ -8,6 +8,7 @@
 	import { Alert, AlertDescription } from '$lib/components/ui/alert';
 	import Icon from '@iconify/svelte';
 	import { siteConfig } from '$lib/config/site';
+	import PageViews from '$lib/components/PageViews.svelte';
 	import type { LoadedImage } from '$lib/utils/image';
 	import {
 		type ToolMode, type UploadKind, type ModeResult,
@@ -180,11 +181,15 @@
 
 <div class="min-h-screen bg-background">
 	<div class="container mx-auto max-w-7xl px-4 pt-6 pb-12 sm:pt-8">
-		<div class="mb-6">
+		<div class="mb-6 flex items-center justify-between">
 			<a href="/" class="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
 				<Icon icon="mdi:chevron-left" class="size-4" />
 				返回首页
 			</a>
+			<span class="inline-flex items-center gap-1 text-xs text-muted-foreground">
+				<Icon icon="mdi:eye" class="size-3" />
+				<PageViews pathname="/ptg/" class="text-xs text-muted-foreground" />
+			</span>
 		</div>
 
 		<div class="ptg-layout">
