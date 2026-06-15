@@ -11,7 +11,7 @@ export const siteConfig = {
 	keywords: ["blog", "sveltekit", "技术博客", "静态博客"],
 	lang: "zh-CN",
 	ogImage: "/og-image.svg",
-	viewsApi: "", // Cloudflare Worker 浏览量 API 地址，如 "https://views.iwexe.top"，空则禁用
+	viewsApi: "https://views.iwexe.dpdns.org",
 	analytics: {
 		umami: {
 			src: "https://u.iwexe.top/script.js",
