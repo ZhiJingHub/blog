@@ -3,7 +3,7 @@
 	import { quintOut } from 'svelte/easing';
 	import { browser } from '$app/environment';
 	import { SvelteMap } from 'svelte/reactivity';
-	import { isCloudflare } from '$lib/utils/platform';
+	import { siteConfig } from '$lib/config/site';
 
 	// 模块级请求缓存，避免列表页重复请求
 	const viewCache = new SvelteMap<string, Promise<number>>();
@@ -26,8 +26,10 @@
 
 	let count = $state<number | null>(null);
 
+	const apiEnabled = $derived(!!siteConfig.viewsApi);
+
 	$effect(() => {
-		if (!browser || !isCloudflare) return;
+		if (!browser || !apiEnabled) return;
 		if (initialCount !== undefined) {
 			count = initialCount;
 			return;
@@ -37,7 +39,7 @@
 		let cancelled = false;
 
 		if (!viewCache.has(cacheKey)) {
-			viewCache.set(cacheKey, fetch('/api/views', {
+			viewCache.set(cacheKey, fetch(siteConfig.viewsApi, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(increment ? { path: pathKey } : { paths: [pathKey] })
@@ -53,7 +55,7 @@
 	});
 </script>
 
-{#if isCloudflare && count !== null}
+{#if apiEnabled && count !== null}
 	<span class={className} transition:fly={{ y: 8, duration: 350, easing: quintOut }}>
 		{prefix}{count.toLocaleString()}{suffix}
 	</span>

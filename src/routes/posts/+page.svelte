@@ -7,7 +7,6 @@
 	import { siteConfig } from '$lib/config/site';
 	import { formatDate } from '$lib/utils/format';
 	import PageViews from '$lib/components/PageViews.svelte';
-	import { isCloudflare } from '$lib/utils/platform';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -114,12 +113,10 @@
 										<time datetime={post.metadata.published} class="shrink-0 text-sm text-muted-foreground">{formatDate(post.metadata.published)}</time>
 										<span class="shrink-0 text-sm text-muted-foreground">· {(post.metadata.stats?.wordCount ?? 0).toLocaleString()} 字</span>
 										<span class="shrink-0 text-sm text-muted-foreground">· 约 {post.metadata.stats?.readTime ?? 0} 分钟</span>
-										{#if isCloudflare}
-											<span class="inline-flex shrink-0 items-center gap-1 text-sm text-muted-foreground">
-												· <Icon icon="mdi:eye" class="size-3.5" />
-												<PageViews pathname="/posts/{post.slug}/" increment={false} class="text-sm text-muted-foreground" />
-											</span>
-										{/if}
+										<span class="inline-flex shrink-0 items-center gap-1 text-sm text-muted-foreground">
+											· <Icon icon="mdi:eye" class="size-3.5" />
+											<PageViews pathname="/posts/{post.slug}/" increment={false} class="text-sm text-muted-foreground" />
+										</span>
 									</div>
 									<h2 class="mb-2 text-xl font-semibold break-words group-hover:text-primary sm:text-2xl">{post.metadata.title}</h2>
 									<p class="line-clamp-2 text-sm text-muted-foreground sm:text-base">{post.metadata.description}</p>

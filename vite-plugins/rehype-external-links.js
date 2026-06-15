@@ -1,6 +1,23 @@
 import { visit } from './ast-visit.js';
-import { encodeBase64Url } from '../src/lib/utils/base64url.ts';
-import { isInternalDomain } from '../src/lib/utils/site-domains.ts';
+
+const SITE_DOMAINS = ['iwexe.top', 'iwecc.dpdns.org', 'iwecc.qzz.io'];
+
+function isInternalDomain(hostname) {
+	return SITE_DOMAINS.some((d) => hostname === d || hostname.endsWith(`.${d}`));
+}
+
+function encodeBase64Url(str) {
+	let binary;
+	if (typeof Buffer !== 'undefined') {
+		binary = Buffer.from(str, 'utf-8').toString('base64');
+	} else {
+		const bytes = new TextEncoder().encode(str);
+		let bin = '';
+		for (const b of bytes) bin += String.fromCharCode(b);
+		binary = btoa(bin);
+	}
+	return binary.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
 
 export default function rehypeExternalLinks() {
 	return (tree) => {

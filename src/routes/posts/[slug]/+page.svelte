@@ -11,7 +11,6 @@
 	import PostToc from '$lib/components/PostToc.svelte';
 	import ImageViewer from '$lib/components/ImageViewer.svelte';
 	import PageViews from '$lib/components/PageViews.svelte';
-	import { isCloudflare } from '$lib/utils/platform';
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
@@ -71,12 +70,10 @@
 			<time datetime={data.post.metadata.published} class="text-sm text-muted-foreground">{formatDate(data.post.metadata.published)}</time>
 			<span class="text-sm text-muted-foreground">· {(data.post.metadata.stats?.wordCount ?? 0).toLocaleString()} 字</span>
 			<span class="text-sm text-muted-foreground">· 约 {data.post.metadata.stats?.readTime ?? 0} 分钟</span>
-			{#if isCloudflare}
-				<span class="inline-flex items-center gap-1 text-sm text-muted-foreground">
-					· <Icon icon="mdi:eye" class="size-3.5" />
-					<PageViews pathname="/posts/{page.params.slug}/" increment={false} class="text-sm text-muted-foreground" />
-				</span>
-			{/if}
+			<span class="inline-flex items-center gap-1 text-sm text-muted-foreground">
+				· <Icon icon="mdi:eye" class="size-3.5" />
+				<PageViews pathname="/posts/{page.params.slug}/" increment={false} class="text-sm text-muted-foreground" />
+			</span>
 			{#if data.post.metadata.updated}
 				<span class="text-sm text-muted-foreground">· 更新于 {formatDate(data.post.metadata.updated)}</span>
 			{/if}

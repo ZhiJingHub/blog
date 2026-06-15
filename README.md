@@ -86,7 +86,7 @@ export const redirects: Record<string, string> = {
 
 ### 页面浏览量
 
-文章详情页和列表页显示浏览次数，数据存储在 Cloudflare KV（生产环境）或内存（开发环境）。博客列表页显示文章总数、总字数、总图片数。
+文章详情页和列表页显示浏览次数，由独立的 Cloudflare Worker + D1 提供 API，不绑定任何部署平台，全平台通用。详见 [workers/views/README.md](workers/views/README.md)。博客列表页显示文章总数、总字数、总图片数。
 
 ### 主题系统
 
@@ -202,11 +202,58 @@ export const siteConfig = {
 
 | 平台 | 配置文件 | 需修改 |
 |------|----------|--------|
-| Cloudflare Workers | `wrangler.toml` | `name`、KV `id` |
-| Cloudflare Pages | Dashboard | KV 绑定（变量名 `VIEWS`） |
+| Cloudflare Workers | `wrangler.toml` | `name` |
+| Cloudflare Pages | Dashboard | 无需修改 |
 | Netlify | `netlify.toml` | 无需修改 |
 | Vercel | `vercel.json` | 无需修改 |
 | EdgeOne | `edgeone.json` | 无需修改 |
+
+### 5. 浏览量统计（可选）
+
+浏览量由独立的 Cloudflare Worker + D1 提供 API，**不绑定任何博客部署平台**，所有平台通用。
+
+#### 部署 Worker
+
+```bash
+# 1. 安装依赖
+cd workers/views
+npm install
+
+# 2. 登录 Cloudflare
+npx wrangler login
+
+# 3. 创建 D1 数据库
+npx wrangler d1 create page-views
+# 复制输出的 database_id，填入 wrangler.toml
+
+# 4. 初始化表结构
+npx wrangler d1 execute page-views --remote --file=schema.sql
+
+# 5. 部署
+npx wrangler deploy
+# 记下输出的 Worker 地址，如 https://views.xxxxxxxx.workers.dev
+```
+
+#### 配置站点
+
+在 `src/lib/config/site.ts` 中填入 Worker 地址：
+
+```ts
+viewsApi: "https://views.xxxxxxxx.workers.dev"
+```
+
+留空（`""`）则禁用浏览量功能。
+
+#### 验证
+
+```bash
+curl -X POST https://views.xxxxxxxx.workers.dev \
+  -H "Content-Type: application/json" \
+  -d '{"path":"/posts/hello-world/"}'
+# → {"count":1}
+```
+
+> 详细文档（自定义域名、数据导出、FAQ 等）见 [workers/views/README.md](workers/views/README.md)。
 
 ---
 
@@ -287,7 +334,7 @@ graph LR
 | 腾讯 EdgeOne | adapter-static | `pnpm build:edgeone` | 控制台上传 | ❌ 纯静态 |
 | 通用静态 | adapter-static | `pnpm build` | 上传 `build/` | ❌ 纯静态 |
 
-> **阅读量统计**依赖 `/api/views` API 路由，仅 Cloudflare / Netlify / Vercel 支持。
+> **阅读量统计**由独立的 Cloudflare Worker + D1 提供，所有平台通用，详见 [workers/views/README.md](workers/views/README.md)。
 
 ### Cloudflare Workers
 
@@ -307,16 +354,9 @@ compatibility_date = "2026-06-01"
 [assets]
 directory = ".svelte-kit/cloudflare"
 binding = "ASSETS"
-
-# 页面浏览量存储
-[[kv_namespaces]]
-binding = "VIEWS"
-id = "你的KV命名空间ID"               # ← 在 Cloudflare Dashboard 创建 KV 后填入
 ```
 
 ### Cloudflare Pages
-
-在 Cloudflare Dashboard 绑定 KV 命名空间（变量名 `VIEWS`），然后：
 
 ```bash
 pnpm deploy:cf-pages
@@ -413,13 +453,15 @@ blog/
 │       ├── ptg/                   # 隐图工具
 │       ├── convert/               # 格式转换
 │       ├── watermark/             # 图片水印
-│       ├── api/views/             # 阅读量 API
+│       ├── api/views/             # 阅读量 API（已废弃，迁移至 Worker）
 │       ├── rss.xml/               # RSS 订阅
 │       ├── sitemap.xml/           # 站点地图
 │       └── robots.txt/            # 爬虫规则
 ├── scripts/
 │   ├── new-post.js                # 文章脚手架 CLI
 │   └── post-images.js             # AVIF 图片转换管线
+├── workers/
+│   └── views/                     # 浏览量统计 Worker + D1（独立部署）
 ├── vite-plugins/                  # 自定义 remark/rehype 插件
 ├── static/                        # 静态资源 ← 需要替换
 ├── svelte.config.js               # SvelteKit 配置
@@ -449,6 +491,7 @@ blog/
 | `pnpm deploy:netlify` | 构建 + 部署到 Netlify |
 | `pnpm deploy:vercel` | 构建 + 部署到 Vercel |
 | `pnpm deploy:edgeone` | 构建 + 部署到 EdgeOne |
+| `cd workers/views && npx wrangler deploy` | 部署浏览量统计 Worker |
 | `pnpm preview` | 预览构建产物 |
 | `pnpm check` | TypeScript 类型检查 |
 | `pnpm lint` | ESLint + Prettier 检查 |
