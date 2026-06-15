@@ -212,18 +212,17 @@ export const siteConfig = {
 
 浏览量由独立的 Cloudflare Worker + D1 提供 API，**不绑定任何博客部署平台**，所有平台通用。
 
-全部通过 [Cloudflare Dashboard](https://dash.cloudflare.com) 操作，无需安装任何命令行工具：
-
-1. **创建 D1 数据库**：Workers & Pages → D1 → Create → 名称 `page-views` → 在 Console 中执行 `schema.sql` 建表
-2. **创建 Worker**：Workers & Pages → Create → Create Worker → 名称 `views` → Edit Code → 粘贴 `workers/views/src/index.js` 的内容 → Save and deploy
-3. **绑定 D1**：Worker → Settings → Variables → D1 Database Bindings → 变量名填 `DB` → 选择 `page-views` → Save and deploy
-4. **配置站点**：在 `src/lib/config/site.ts` 中填入 Worker 地址
+1. **创建 D1 数据库**：Dashboard → Workers & Pages → D1 → Create → 名称 `page-views` → Console 中执行建表 SQL
+2. **填入 Database ID**：编辑 `workers/views/wrangler.toml`，将 `<YOUR_DATABASE_ID>` 替换为上一步的 Database ID，提交推送
+3. **连接 Git 部署**：Dashboard → Workers & Pages → Create → Workers → Connect to Git → 选择仓库 → Root directory 填 `workers/views` → Deploy
+4. **绑定 D1**：Worker → Settings → Variables → D1 Database Bindings → 变量名 `DB` → 选择 `page-views` → Save and deploy
+5. **配置站点**：在 `src/lib/config/site.ts` 中填入 Worker 地址
 
 ```ts
 viewsApi: "https://views.xxxxxxxx.workers.dev"
 ```
 
-> 详细步骤（含截图说明、自定义域名、数据管理、FAQ）见 [workers/views/README.md](workers/views/README.md)。
+> 详细步骤和 wrangler.toml 配置说明见 [workers/views/README.md](workers/views/README.md)。
 
 ---
 
