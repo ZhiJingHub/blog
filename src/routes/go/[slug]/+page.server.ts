@@ -5,7 +5,7 @@ import { redirects } from '$lib/config/redirects';
 import { siteConfig } from '$lib/config/site';
 import type { EntryGenerator, ServerLoad } from './$types';
 
-const SITE_DOMAINS = ['iwexe.top', 'iwecc.dpdns.org', 'iwecc.qzz.io', 'w3.org'];
+const SITE_DOMAINS = ['iwexe.top', 'iwecc.dpdns.org', 'iwecc.qzz.io'];
 
 function isInternalDomain(hostname: string): boolean {
 	return SITE_DOMAINS.some((d) => hostname === d || hostname.endsWith(`.${d}`));
@@ -47,13 +47,14 @@ function extractUrlsFromObject(obj: unknown): string[] {
 
 function extractUrlsFromText(raw: string): string[] {
 	const urls: string[] = [];
+	// Markdown 链接: [text](url)
 	const mdRegex = /\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g;
 	let match: RegExpExecArray | null;
 	while ((match = mdRegex.exec(raw)) !== null) {
 		urls.push(match[2]);
 	}
-	// 支持带查询参数的 URL（[^"'\s?] 匹配到 ? 之前，然后可选地匹配查询字符串）
-	const urlRegex = /["'](https?:\/\/[^"'\s?]+(\?[^"'\s]*)?)["']/g;
+	// href/src 属性中的 URL（排除 xmlns 命名空间声明）
+	const urlRegex = /(?:href|src|action|formaction|poster|data|cite|codebase|profile|usemap|longdesc|manifest|background|content|for)=["'](https?:\/\/[^"'\s]+)["']/gi;
 	while ((match = urlRegex.exec(raw)) !== null) {
 		urls.push(match[1]);
 	}
