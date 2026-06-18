@@ -38,33 +38,12 @@ function extractExternalLinks(raw: string): string[] {
 	while ((match = mdRegex.exec(raw)) !== null) {
 		links.push(match[2]);
 	}
-	// HTML/Svelte 中的 href="url" 或 href='url'
-	const hrefRegex = /href=["'](https?:\/\/[^"']+)["']/g;
-	while ((match = hrefRegex.exec(raw)) !== null) {
-		links.push(match[1]);
-	}
-	// TypeScript/JS 中的 URL 字符串字面量
-	const tsRegex = /["'](https?:\/\/[^"'\s]+)["']/g;
-	while ((match = tsRegex.exec(raw)) !== null) {
+	// HTML/Svelte/TS/JS 中的 URL 字符串字面量
+	const urlRegex = /["'](https?:\/\/[^"'\s]+)["']/g;
+	while ((match = urlRegex.exec(raw)) !== null) {
 		links.push(match[1]);
 	}
 	return links;
-}
-
-/** 递归提取对象中所有 http/https URL 字符串 */
-function extractUrlsFromObject(obj: unknown): string[] {
-	const urls: string[] = [];
-	function walk(val: unknown) {
-		if (typeof val === 'string' && /^https?:\/\//i.test(val)) {
-			urls.push(val);
-		} else if (Array.isArray(val)) {
-			val.forEach(walk);
-		} else if (val && typeof val === 'object') {
-			Object.values(val).forEach(walk);
-		}
-	}
-	walk(obj);
-	return urls;
 }
 
 export const entries: EntryGenerator = () => {
@@ -77,19 +56,7 @@ export const entries: EntryGenerator = () => {
 		}
 	}
 
-	// 1. 直接从 siteConfig 提取所有 URL（覆盖动态绑定的场景）
-	//    通过 import.meta.glob 读取原始文件，避免导入 siteConfig（会触发 server guard）
-	const siteConfigRaw = import.meta.glob('/src/lib/config/site.ts', {
-		query: '?raw',
-		eager: true
-	}) as Record<string, string>;
-	for (const content of Object.values(siteConfigRaw)) {
-		for (const url of extractExternalLinks(content)) {
-			addUrl(url);
-		}
-	}
-
-	// 2. 扫描 Markdown 文章中的外链
+	// 1. 扫描 Markdown 文章
 	const rawPosts = import.meta.glob('/src/content/posts/**/index.md', {
 		query: '?raw',
 		eager: true
@@ -100,29 +67,29 @@ export const entries: EntryGenerator = () => {
 		}
 	}
 
-	// 3. 扫描 Svelte 组件中的外链
-	const rawSvelte = import.meta.glob('/src/**/*.svelte', {
-		query: '?raw',
-		eager: true
-	}) as Record<string, string>;
+	// 2. 扫描 Svelte 组件（仅 src/routes 和 src/lib/components，排除 src/lib 全域避免触碰 server 导入链）
+	const rawSvelte = import.meta.glob(
+		['/src/routes/**/*.svelte', '/src/lib/components/**/*.svelte'],
+		{ query: '?raw', eager: true }
+	) as Record<string, string>;
 	for (const content of Object.values(rawSvelte)) {
 		for (const url of extractExternalLinks(content)) {
 			addUrl(url);
 		}
 	}
 
-	// 4. 扫描 TS/JS 配置文件中的外链
-	const rawTs = import.meta.glob('/src/**/*.{ts,js}', {
-		query: '?raw',
-		eager: true
-	}) as Record<string, string>;
-	for (const content of Object.values(rawTs)) {
+	// 3. 扫描配置文件（site.ts、redirects.ts 等）
+	const rawConfig = import.meta.glob(
+		['/src/lib/config/*.ts', '/src/lib/config/*.js'],
+		{ query: '?raw', eager: true }
+	) as Record<string, string>;
+	for (const content of Object.values(rawConfig)) {
 		for (const url of extractExternalLinks(content)) {
 			addUrl(url);
 		}
 	}
 
-	// 5. 扫描友链数据中的外链
+	// 4. 扫描友链数据
 	const friendData = import.meta.glob('/src/data/friends/*.json', {
 		eager: true
 	}) as Record<string, { default: { url?: string } }>;
@@ -131,7 +98,7 @@ export const entries: EntryGenerator = () => {
 		if (url) addUrl(url);
 	}
 
-	// 6. 添加短链配置中的条目
+	// 5. 添加短链配置
 	for (const target of Object.values(redirects)) {
 		addUrl(target);
 	}
