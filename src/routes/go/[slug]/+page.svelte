@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { siteConfig } from '$lib/config/site';
-	import { decodeUrl } from '$lib/utils/redirect';
+	import { decodeUrl } from '$lib/utils/redirect'; // 客户端兜底解码
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import Icon from '@iconify/svelte';

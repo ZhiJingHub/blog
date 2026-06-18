@@ -53,8 +53,8 @@ function extractUrlsFromText(raw: string): string[] {
 	while ((match = mdRegex.exec(raw)) !== null) {
 		urls.push(match[2]);
 	}
-	// href/src 属性中的 URL（排除 xmlns 命名空间声明）
-	const urlRegex = /(?:href|src|action|formaction|poster|data|cite|codebase|profile|usemap|longdesc|manifest|background|content|for)=["'](https?:\/\/[^"'\s]+)["']/gi;
+	// href/src/action 属性中的 URL
+	const urlRegex = /(?:href|src|action)=["'](https?:\/\/[^"'\s]+)["']/gi;
 	while ((match = urlRegex.exec(raw)) !== null) {
 		urls.push(match[1]);
 	}
