@@ -8,11 +8,11 @@
 
 | 类别 | 技术 | 版本 |
 |------|------|------|
-| 框架 | SvelteKit + Svelte 5 (Runes) | ^2.57 / ^5.55 |
+| 框架 | SvelteKit + Svelte 5 (Runes) | ^2.63 / ^5.56 |
 | 语言 | TypeScript | ^6.0 |
 | 构建 | Vite 8 | ^8.0 |
-| 样式 | Tailwind CSS v4 + @tailwindcss/typography | ^4.2 |
-| 组件库 | shadcn-svelte + bits-ui | ^1.2 / ^2.18 |
+| 样式 | Tailwind CSS v4 + @tailwindcss/typography | ^4.3 |
+| 组件库 | shadcn-svelte + bits-ui | ^1.3 / ^2.18 |
 | Markdown | mdsvex | ^0.12 |
 | 代码高亮 | Shiki（双主题：github-light / github-dark） | ^4.2 |
 | 数学公式 | KaTeX | ^0.17 |
@@ -21,6 +21,7 @@
 | 图片处理 | Sharp（AVIF 转换） | ^0.34 |
 | 图片浏览 | PhotoSwipe | ^5.4 |
 | 统计 | Umami（自托管） + Vercel Analytics + Speed Insights | — |
+| 浏览量 | Cloudflare Worker + D1（独立部署，全平台通用） | — |
 | 包管理 | pnpm | — |
 
 ---
@@ -33,18 +34,37 @@
 - YAML frontmatter：标题、日期、标签、描述、封面图、置顶、草稿、更新日期、作者
 - 自动计算字数、阅读时间、图片数量
 - 26 种语言的 Shiki 语法高亮（亮暗双主题自动切换）
-- 代码块：行号、一键复制、文件名标签、行高亮标注
+- 代码块：一键复制、文件名标签 + 语言徽章同时显示、行高亮标注、冒号语法（` ```ts:utils.ts `）
 - KaTeX 数学公式（行内 `$...$` 和块级 `$$...$$`）
 - Mermaid 图表渲染（CDN 按需加载，深色主题自动切换）
 - GitHub 风格告警提示（`[!NOTE]`、`[!TIP]`、`[!WARNING]`、`[!CAUTION]`）
-- 外部链接自动添加 `target="_blank"` 和安全属性
-- 外链跳转中间页（`/go/[slug]`），3 秒倒计时 + 手动确认，全站统一拦截
-- 自定义短链重定向（`/go/github` 等），构建时生成静态页面
+- 外链跳转中间页（`/go/[slug]`），3 秒倒计时 + 手动确认，三层拦截保障
+- 自定义短链重定向（`/go/github` 等），SSR 平台服务端 302 + 静态平台预渲染
 - 文章目录导航（桌面侧边固定 + 移动端抽屉弹窗）
 - 图片灯箱（PhotoSwipe），支持缩放浏览
 - 前端搜索（标题 / 描述 / 标签）
 - 置顶文章、草稿模式、标签系统
 - RSS / Sitemap / robots.txt 自动生成（全部预渲染）
+- 首页显示访客计数（"您是第 X 位访问本站的访客"）
+
+### 外链重定向系统
+
+全站外部链接自动走 `/go/[slug]` 中间页跳转，三层拦截保障：
+
+1. **rehype 插件**（构建时）— Markdown 文章中的外链在编译时改写为 `/go/` 路径
+2. **ExternalLinkInterceptor**（运行时）— 全局 click 事件捕获，拦截 Svelte 组件中的外链
+3. **服务端重定向**（SSR 平台）— `+page.server.ts` 的 `load` 函数对所有 slug 做 302 重定向
+
+短链在 `src/lib/config/redirects.ts` 中配置：
+
+```ts
+export const redirects: Record<string, string> = {
+  '/go/github': 'https://github.com/ZhiJingHub',
+  '/go/telegram': 'https://t.me/ZhiJing_PM_Bot'
+};
+```
+
+站内链接白名单在 `src/lib/utils/site-domains.ts` 中配置，支持精确匹配和子域名匹配。
 
 ### 封面制作 — `/cover/`
 
@@ -67,22 +87,12 @@
 
 ### 友链 — `/friends/`
 
-JSON 文件驱动，自动加载，分页展示（12个/页），支持双向链接验证，一键复制申请模板。
+**Issue 自动友链**：用户通过 Issue 模板提交申请，GitHub Actions 自动解析表单、校验字段、创建 JSON 文件并提 PR 合并。校验内容包括：必填字段、URL 格式、URL 去重（归一化尾部斜杠）。
 
-### 外链跳转中间页 — `/go/[slug]`
-
-全站外部链接自动走中间页跳转，显示目标域名和完整地址，3 秒倒计时自动跳转 + 手动确认按钮。文章内链接由 rehype 插件在构建时改写，页面组件链接由 `ExternalLinkInterceptor` 运行时拦截，双层保障。
-
-自定义短链在 `src/lib/config/redirects.ts` 中配置：
-
-```ts
-export const redirects: Record<string, string> = {
-  '/go/github': 'https://github.com/ZhiJingHub',
-  '/go/telegram': 'https://t.me/ZhiJing_PM_Bot'
-};
-```
-
-站内链接白名单在 `src/lib/config/site.ts` 的 `domains` 字段中配置，支持精确匹配和子域名匹配（如 `*.iwexe.top`）。
+申请流程：
+1. 在你的站点添加本站友链
+2. 点击 [提交友链申请](https://github.com/ZhiJingHub/blog/issues/new?template=friend-link.yml) 填写表单
+3. 系统自动校验并创建友链文件，校验通过后自动合并
 
 ### 页面浏览量
 
@@ -99,6 +109,10 @@ export const redirects: Record<string, string> = {
 ### SEO
 
 Open Graph 元标签、Twitter Cards、Canonical URL、结构化 Sitemap（含优先级）、文章页 `article:published_time` / `article:modified_time`。
+
+### 安全
+
+服务端安全响应头：`X-Content-Type-Options`、`X-Frame-Options`、`Referrer-Policy`、`Permissions-Policy`。错误处理返回唯一 `errorId` 便于问题追踪。
 
 ### 动画
 
@@ -146,7 +160,6 @@ export const siteConfig = {
   title: "你的博客名",
   subtitle: "你的副标题",
   url: "https://你的域名.com",
-  domains: ["你的域名.com", "其他域名.com"],  // 站内链接白名单（支持子域名）
   description: "站点描述",
   keywords: ["关键词1", "关键词2"],
   ogImage: "/og-image.svg",
@@ -185,16 +198,18 @@ export const siteConfig = {
 };
 ```
 
-### 2. 静态资源 — `static/` 目录
+### 2. 站内域名白名单 — `src/lib/utils/site-domains.ts`
+
+```ts
+export const SITE_DOMAINS = ['你的域名.com', '其他域名.com'];
+```
+
+### 3. 静态资源 — `static/` 目录
 
 替换以下文件：
 - `favicon.svg` — 网站图标
 - `avatar.svg` — 头像
 - `og-image.svg` — OG 分享图（建议 1200×630）
-
-### 3. HTML 模板 — `src/app.html`
-
-修改 `<html lang="zh_CN">` 为你的语言。
 
 ### 4. 部署配置
 
@@ -223,6 +238,10 @@ viewsApi: "https://views.xxxxxxxx.workers.dev"
 ```
 
 > 详细步骤和 wrangler.toml 配置说明见 [workers/views/README.md](workers/views/README.md)。
+
+### 6. GitHub Actions 自动友链（可选）
+
+友链申请通过 Issue 模板自动处理。确保仓库 Settings → Actions → General 中允许 Actions 运行，并授予 `GITHUB_TOKEN` 写入权限（Settings → Actions → General → Workflow permissions → Read and write permissions）。
 
 ---
 
@@ -260,13 +279,37 @@ graph LR
 > 这是一个提示。
 ```
 
+### 代码块语法
+
+支持两种方式指定文件名标签：
+
+````markdown
+​```ts utils.ts
+// 空格语法：语言 + 文件名
+const x = 1;
+​```
+
+​```python:main.py
+# 冒号语法：语言:文件名
+print("hello")
+​```
+````
+
+有文件名时，左侧显示文件图标 + 文件名，右侧显示语言徽章。无文件名时，左侧显示语言标签。
+
 文章目录下可放置 `img/` 文件夹存放图片，构建时自动转换为 AVIF 格式。
 
 ---
 
 ## 添加友链
 
-在 `src/data/friends/` 下创建 JSON 文件：
+### 方式一：Issue 自动申请（推荐）
+
+点击 [提交友链申请](https://github.com/ZhiJingHub/blog/issues/new?template=friend-link.yml)，填写表单即可。系统自动校验并创建 PR。
+
+### 方式二：手动提交 PR
+
+Fork 仓库，在 `src/data/friends/` 下创建 JSON 文件：
 
 ```json
 {
@@ -274,8 +317,7 @@ graph LR
   "avatar": "https://example.com/avatar.png",
   "description": "站点描述",
   "url": "https://example.com",
-  "backlink": "https://example.com/friends",
-  "vip": false
+  "backlink": "https://example.com/friends"
 }
 ```
 
@@ -286,7 +328,6 @@ graph LR
 | `avatar` | ❌ | 头像 URL |
 | `description` | ❌ | 站点描述 |
 | `backlink` | ❌ | 友链页面地址（用于双向链接验证） |
-| `vip` | ❌ | 是否为 VIP 友链 |
 
 ---
 
@@ -379,7 +420,8 @@ blog/
 ├── src/
 │   ├── app.css                    # 全局样式 + 主题变量 + Shiki + KaTeX + 动画
 │   ├── app.html                   # HTML 模板
-│   ├── hooks.server.ts            # 服务端钩子
+│   ├── app.d.ts                   # 类型声明（__PLATFORM__、App.Error 等）
+│   ├── hooks.server.ts            # 服务端钩子（安全头、短链重定向、错误处理）
 │   ├── content/posts/             # Markdown 文章
 │   │   └── hello-world/
 │   │       ├── index.md           # 文章文件
@@ -388,6 +430,7 @@ blog/
 │   ├── lib/
 │   │   ├── config/
 │   │   │   ├── site.ts            # 站点配置 ← 需要修改
+│   │   │   ├── redirects.ts       # 自定义短链映射
 │   │   │   └── mdsvex.config.js   # Markdown 配置（Shiki、插件）
 │   │   ├── types/
 │   │   │   ├── post.ts            # 文章元数据类型
@@ -413,11 +456,13 @@ blog/
 │   │       ├── redirects.ts       # 自定义短链映射
 │   │       └── mdsvex.config.js   # Markdown 配置（Shiki、插件）
 │   └── routes/
+│       ├── +layout.ts             # 根布局加载（Prerender、Analytics）
 │       ├── +layout.svelte         # 全局布局（NavBar、Footer、Analytics、外链拦截）
-│       ├── +page.svelte           # 首页
+│       ├── +page.svelte           # 首页（社交链接 + 导航 + 访客计数）
+│       ├── +error.svelte          # 错误页（403/404/500/502/503）
 │       ├── posts/                 # 文章列表 + 详情
-│       ├── go/[slug]/             # 外链跳转中间页
-│       ├── friends/               # 友链页面
+│       ├── go/[slug]/             # 外链跳转中间页（服务端 302 + 客户端兜底）
+│       ├── friends/               # 友链页面（Issue 自动申请）
 │       ├── cover/                 # 封面生成器
 │       ├── ptg/                   # 隐图工具
 │       ├── convert/               # 格式转换
@@ -433,7 +478,7 @@ blog/
 │   └── views/                     # 浏览量统计 Worker + D1（独立部署）
 ├── vite-plugins/                  # 自定义 remark/rehype 插件
 ├── static/                        # 静态资源 ← 需要替换
-├── svelte.config.js               # SvelteKit 配置
+├── svelte.config.js               # SvelteKit 配置（多适配器）
 ├── vite.config.ts                 # Vite 配置
 ├── wrangler.toml                  # Cloudflare 配置
 ├── netlify.toml                   # Netlify 配置
