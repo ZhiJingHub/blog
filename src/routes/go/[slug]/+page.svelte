@@ -5,13 +5,18 @@
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import Icon from '@iconify/svelte';
+	import type { PageData } from './$types';
 
+	let { data }: { data: PageData } = $props();
+
+	// 优先使用服务端数据，回退到客户端解码
 	let target = $derived.by(() => {
+		if (data.target) return data.target;
+		// 客户端兜底（静态部署时服务端 load 不运行）
 		const decoded = decodeUrl(page.params.slug) ?? '';
 		if (!decoded) return '';
 		try {
 			const url = new URL(decoded);
-			// 只允许 http/https 协议，阻止 javascript:、data: 等危险协议
 			if (url.protocol !== 'http:' && url.protocol !== 'https:') return '';
 			return decoded;
 		} catch {
