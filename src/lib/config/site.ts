@@ -23,7 +23,7 @@ export const siteConfig = {
 		url: "https://iwexe.top"
 	},
 	bio: {
-		avatar: "/avatar.svg",
+		avatar: "https://iwexe.top/avatar.svg",
 		name: "致靖",
 		bio: "Go with the flow.",
 		links: [
