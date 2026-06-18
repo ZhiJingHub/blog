@@ -2,6 +2,17 @@
 	import { encodeUrl } from '$lib/utils/redirect';
 	import { isInternalDomain } from '$lib/utils/site-domains';
 
+	/** 确保 URL 有尾部斜杠，与 entries 的 normalizeUrl 行为一致 */
+	function normalizeUrl(url: string): string {
+		try {
+			const u = new URL(url);
+			if (!u.pathname.endsWith('/')) u.pathname += '/';
+			return u.toString();
+		} catch {
+			return url;
+		}
+	}
+
 	$effect(() => {
 		function handleClick(e: MouseEvent) {
 			const anchor = (e.target as HTMLElement).closest('a');
@@ -24,7 +35,7 @@
 			if (anchor.hasAttribute('data-no-redirect')) return;
 
 			e.preventDefault();
-			window.location.href = `/go/${encodeUrl(href)}/`;
+			window.location.href = `/go/${encodeUrl(normalizeUrl(href))}/`;
 		}
 
 		document.addEventListener('click', handleClick, true);
