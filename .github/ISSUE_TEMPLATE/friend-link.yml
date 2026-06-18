@@ -35,6 +35,15 @@ body:
     validations:
       required: true
 
+  - type: input
+    id: backlink
+    attributes:
+      label: 友链页面地址
+      description: "你站点上放置本站友链的页面 URL（用于双向链接验证）"
+      placeholder: "https://your-blog.com/friends"
+    validations:
+      required: false
+
   - type: checkboxes
     id: confirm
     attributes:

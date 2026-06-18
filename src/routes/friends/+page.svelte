@@ -24,12 +24,6 @@
 		{ name: siteConfig.bio.name, avatar: siteConfig.bio.avatar, description: siteConfig.description, url: siteConfig.url },
 		null, 2
 	);
-	const templateJson = `{
-  "name": "你的网站名称",
-  "avatar": "你的头像 URL",
-  "description": "网站描述",
-  "url": "你的网站地址"
-}`;
 	function copyText(text: string, key: string) {
 		navigator.clipboard.writeText(text).then(() => {
 			copied = key;
@@ -70,7 +64,7 @@
 				<CardTitle class="text-xl">申请友链</CardTitle>
 			</CardHeader>
 			<CardContent class="space-y-8">
-				<p class="text-base text-muted-foreground">欢迎与我交换友链，请在你的站点添加以下信息后提交 PR。</p>
+				<p class="text-base text-muted-foreground">欢迎与我交换友链，提交 Issue 即可自动完成。</p>
 
 				<div class="space-y-3">
 					<p class="text-base font-semibold">本站信息</p>
@@ -86,19 +80,17 @@
 				<div class="space-y-3">
 					<p class="text-base font-semibold">申请方式</p>
 					<div class="space-y-3 text-base text-muted-foreground">
-						<p>1. Fork 本仓库：<a href="https://github.com/ZhiJingHub/blog" target="_blank" rel="noopener noreferrer" class="text-primary underline underline-offset-2">github.com/ZhiJingHub/blog</a></p>
-						<p>2. 在 <code class="rounded bg-muted px-1.5 py-0.5 text-sm">src/data/friends/</code> 目录下创建 JSON 文件（<a href="https://github.com/ZhiJingHub/blog/tree/main/src/data/friends" target="_blank" rel="noopener noreferrer" class="text-primary underline underline-offset-2">查看目录</a>）</p>
-						<p>3. 文件格式：</p>
-						<div class="relative rounded-lg border bg-muted/30 p-5">
-							<Button variant="ghost" size="sm" class="absolute top-3 right-3 h-7 text-xs" onclick={() => copyText(templateJson, 'template')}>
-								<Icon icon={copied === 'template' ? 'mdi:check' : 'mdi:content-copy'} class="mr-1 h-3.5 w-3.5" />
-								{copied === 'template' ? '已复制' : '复制'}
-							</Button>
-							<pre class="overflow-x-auto text-sm leading-relaxed text-foreground"><code>{templateJson}</code></pre>
+						<p>1. 在你的站点添加本站友链（<a href="https://iwexe.top" target="_blank" rel="noopener noreferrer" class="text-primary underline underline-offset-2">https://iwexe.top</a>）</p>
+						<p>2. 点击下方按钮提交友链申请 Issue，填写表单即可</p>
+						<p>3. 系统会自动校验并创建友链文件，校验通过后自动合并</p>
+						<div class="pt-2">
+							<a href="https://github.com/ZhiJingHub/blog/issues/new?template=friend-link.yml" target="_blank" rel="noopener noreferrer">
+								<Button class="gap-2">
+									<Icon icon="mdi:plus-circle" class="h-4 w-4" />
+									提交友链申请
+								</Button>
+							</a>
 						</div>
-						<p>4. 提交 Pull Request，构建时会自动加载合并</p>
-						<p>5. 支持双向链接验证，请在你的友链页面添加本站链接（<a href="https://iwexe.top" target="_blank" rel="noopener noreferrer" class="text-primary underline underline-offset-2">https://iwexe.top</a>）</p>
-						<p>6. 在 PR 中添加 <code class="rounded bg-muted px-1.5 py-0.5 text-sm">backlink</code> 字段指向你的友链页面，系统会自动验证双向链接</p>
 					</div>
 				</div>
 			</CardContent>
