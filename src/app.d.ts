@@ -2,10 +2,13 @@
 // for information about these interfaces
 
 declare global {
-	const __PLATFORM__: string;
+	const __PLATFORM__: 'static' | 'cloudflare' | 'cf-pages' | 'netlify' | 'vercel' | 'edgeone';
 
 	namespace App {
-		// interface Error {}
+		interface Error {
+			message: string;
+			errorId?: string;
+		}
 		// interface Locals {}
 		// interface PageData {}
 		// interface PageState {}

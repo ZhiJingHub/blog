@@ -25,7 +25,7 @@
 	<div class="text-center">
 		<h1 class="mb-2 text-4xl font-bold">{siteConfig.bio.name}</h1>
 		<p class="mb-2 text-lg text-muted-foreground">{siteConfig.bio.bio}</p>
-		<p class="text-sm text-muted-foreground">{siteConfig.subtitle}</p>
+		<PageViews pathname="/" prefix="您是第 " suffix=" 位访问本站的访客" class="text-sm text-muted-foreground" />
 	</div>
 
 	<!-- 社交链接 -->
@@ -83,8 +83,4 @@
 		</Card>
 	</div>
 
-	<!-- 浏览量 -->
-	<div class="text-center">
-		<PageViews pathname="/" class="text-xs text-muted-foreground" />
-	</div>
 </div>

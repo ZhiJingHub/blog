@@ -1,7 +1,9 @@
 import { dev } from '$app/environment';
-import { injectAnalytics } from '@vercel/analytics/sveltekit';
 
-injectAnalytics({ mode: dev ? 'development' : 'production' });
+if (__PLATFORM__ === 'vercel') {
+	const { injectAnalytics } = await import('@vercel/analytics/sveltekit');
+	injectAnalytics({ mode: dev ? 'development' : 'production' });
+}
 
 export const prerender = true;
 export const ssr = true;

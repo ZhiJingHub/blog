@@ -13,10 +13,10 @@ export function GET() {
 		.map(
 			(post) => `    <item>
       <title>${escapeXml(post.metadata.title)}</title>
-      <link>${siteConfig.url}/posts/${post.slug}/</link>
+      <link>${escapeXml(`${siteConfig.url}/posts/${post.slug}/`)}</link>
       <description>${escapeXml(post.metadata.description)}</description>
       <pubDate>${new Date(post.metadata.published).toUTCString()}</pubDate>
-      <guid>${siteConfig.url}/posts/${post.slug}/</guid>
+      <guid>${escapeXml(`${siteConfig.url}/posts/${post.slug}/`)}</guid>
     </item>`
 		)
 		.join('\n');

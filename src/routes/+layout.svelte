@@ -2,14 +2,15 @@
 	import '../app.css';
 	import { page } from '$app/state';
 	import { siteConfig } from '$lib/config/site';
-	import { injectSpeedInsights } from '@vercel/speed-insights/sveltekit';
 	import BackToTop from '$lib/components/BackToTop.svelte';
 	import NavBar from '$lib/components/NavBar.svelte';
 	import Footer from '$lib/components/Footer.svelte';
 	import Toast from '$lib/components/Toast.svelte';
 	import ExternalLinkInterceptor from '$lib/components/ExternalLinkInterceptor.svelte';
 
-	injectSpeedInsights();
+	if (__PLATFORM__ === 'vercel') {
+		import('@vercel/speed-insights/sveltekit').then(({ injectSpeedInsights }) => injectSpeedInsights());
+	}
 
 	let { children } = $props();
 
@@ -34,7 +35,7 @@
 		<meta name="twitter:description" content={siteConfig.description} />
 		<meta name="twitter:image" content="{siteConfig.url}{siteConfig.ogImage}" />
 	{/if}
-	<link rel="canonical" href="{siteConfig.url}{page.url.pathname}{page.url.pathname.endsWith('/') ? '' : '/'}" />
+	<link rel="canonical" href="{siteConfig.url}{page.url.pathname === '/' ? '/' : (page.url.pathname.endsWith('/') ? page.url.pathname : page.url.pathname + '/')}" />
 	<link rel="alternate" type="application/rss+xml" title="{siteConfig.title} RSS Feed" href="/rss.xml" />
 	{#if siteConfig.analytics.umami.src && siteConfig.analytics.umami.websiteId}
 		<script defer src={siteConfig.analytics.umami.src} data-website-id={siteConfig.analytics.umami.websiteId}></script>
