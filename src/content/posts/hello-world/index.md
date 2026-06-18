@@ -18,7 +18,7 @@ tags: ['随笔']
 
 ### 代码示例
 
-```typescript
+```JavaScript
 const greeting = 'Hello, World!';
 console.log(greeting);
 ```
