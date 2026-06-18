@@ -1,8 +1,12 @@
 import { encodeUrl } from '$lib/utils/redirect';
 import { redirects } from '$lib/config/redirects';
-import { siteConfig } from '$lib/config/site';
-import { isInternalDomain } from '$lib/utils/site-domains';
 import type { EntryGenerator } from './$types';
+
+const SITE_DOMAINS = ['iwexe.top', 'iwecc.dpdns.org', 'iwecc.qzz.io'];
+
+function isInternalDomain(hostname: string): boolean {
+	return SITE_DOMAINS.some((d) => hostname === d || hostname.endsWith(`.${d}`));
+}
 
 /** 规范化 URL：确保有尾部斜杠，与浏览器解析 <a href> 的行为一致 */
 function normalizeUrl(url: string): string {
@@ -74,8 +78,15 @@ export const entries: EntryGenerator = () => {
 	}
 
 	// 1. 直接从 siteConfig 提取所有 URL（覆盖动态绑定的场景）
-	for (const url of extractUrlsFromObject(siteConfig)) {
-		addUrl(url);
+	//    通过 import.meta.glob 读取原始文件，避免导入 siteConfig（会触发 server guard）
+	const siteConfigRaw = import.meta.glob('/src/lib/config/site.ts', {
+		query: '?raw',
+		eager: true
+	}) as Record<string, string>;
+	for (const content of Object.values(siteConfigRaw)) {
+		for (const url of extractExternalLinks(content)) {
+			addUrl(url);
+		}
 	}
 
 	// 2. 扫描 Markdown 文章中的外链
