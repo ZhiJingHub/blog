@@ -207,6 +207,15 @@
 		text-transform: lowercase;
 	}
 
+	/* 有文件名时，语言标签显示为小徽章 */
+	.code-file-name + .code-lang-label {
+		margin-left: auto;
+		padding: 0.1em 0.5em;
+		background: color-mix(in oklab, var(--muted-foreground) 12%, transparent);
+		border-radius: calc(var(--radius-md) * 0.5);
+		font-size: 0.75em;
+	}
+
 	.code-copy-btn {
 		display: inline-flex;
 		align-items: center;
