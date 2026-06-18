@@ -15,10 +15,13 @@
 	let currentPage = $state(1);
 	const postsPerPage = 10;
 
-	// 搜索时重置页码
+	// 搜索时重置页码（记录上一次的值，仅在变化时重置）
+	let lastQuery = $state('');
 	$effect(() => {
-		searchQuery;
-		currentPage = 1;
+		if (searchQuery !== lastQuery) {
+			lastQuery = searchQuery;
+			currentPage = 1;
+		}
 	});
 
 	let displayPosts = $derived.by(() => {

@@ -67,7 +67,7 @@ export const entries: EntryGenerator = () => {
 		}
 	}
 
-	// 2. 扫描 Svelte 组件（仅 src/routes 和 src/lib/components，排除 src/lib 全域避免触碰 server 导入链）
+	// 2. 扫描 Svelte 组件
 	const rawSvelte = import.meta.glob(
 		['/src/routes/**/*.svelte', '/src/lib/components/**/*.svelte'],
 		{ query: '?raw', eager: true }
@@ -78,7 +78,7 @@ export const entries: EntryGenerator = () => {
 		}
 	}
 
-	// 3. 扫描配置文件（site.ts、redirects.ts 等）
+	// 3. 扫描配置文件
 	const rawConfig = import.meta.glob(
 		['/src/lib/config/*.ts', '/src/lib/config/*.js'],
 		{ query: '?raw', eager: true }
@@ -98,9 +98,10 @@ export const entries: EntryGenerator = () => {
 		if (url) addUrl(url);
 	}
 
-	// 5. 添加短链配置
-	for (const target of Object.values(redirects)) {
-		addUrl(target);
+	// 5. 添加短链配置的 slug（如 "github"、"telegram"）
+	for (const key of Object.keys(redirects)) {
+		const slug = key.replace(/^\/go\//, '');
+		if (slug) slugs.add(slug);
 	}
 
 	return Array.from(slugs).map((slug) => ({ slug }));

@@ -9,12 +9,14 @@
 	import ExternalLinkInterceptor from '$lib/components/ExternalLinkInterceptor.svelte';
 
 	if (__PLATFORM__ === 'vercel') {
-		import('@vercel/speed-insights/sveltekit').then(({ injectSpeedInsights }) => injectSpeedInsights());
+		import('@vercel/speed-insights/sveltekit')
+			.then(({ injectSpeedInsights }) => injectSpeedInsights())
+			.catch(() => {});
 	}
 
 	let { children } = $props();
 
-	let isPostDetail = $derived(/^\/posts\/[^/]+\/?$/.test(page.url.pathname));
+	let isPostDetail = $derived(page.route?.id === '/posts/[slug]');
 </script>
 
 <svelte:head>
